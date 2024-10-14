@@ -1,0 +1,16 @@
+.content {
+  border: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+.line {
+  /* border: 1px solid #ccc; */
+  height: 18px;
+}
+
+.span {
+  outline: none;
+  border: 1px solid transparent;
+  caret-color: auto;
+}

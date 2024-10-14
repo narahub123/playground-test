@@ -1,0 +1,11 @@
+.input {
+  display: block;
+}
+
+.textarea {
+  display: block;
+}
+
+.contentEditable {
+  border: 1px solid #ccc;
+}

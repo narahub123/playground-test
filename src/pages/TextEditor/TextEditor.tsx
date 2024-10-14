@@ -1,7 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import styles from "./TextEditor.module.css";
+import { createNewLine } from "../../utils";
 
 const TextEditor = () => {
+  const contentRef = useRef<HTMLDivElement>(null);
+  // 삭제된 코드: focus 확인 용
   useEffect(() => {
     const handleFocus = (e: FocusEvent) => {
       console.log("포커스된 요소", document.activeElement);
@@ -21,6 +24,8 @@ const TextEditor = () => {
       document.removeEventListener("focusout", handleBlur);
     };
   }, []);
+
+  // 줄 클릭시 가장 마지막 요소에 포커스 주기
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     // 클릭한 대상 파악하기
     const target = e.target as HTMLElement;
@@ -33,10 +38,35 @@ const TextEditor = () => {
     // 마지막 요소에 focus 주기
     lastChild.focus();
   };
+
+  // 키보드 이벤트
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const key = e.key;
+    console.log("눌린 키", key);
+
+    if (key === "Enter") {
+      createNewLine(e, contentRef);
+    }
+  };
+
+  // input 이벤트
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    const innerText = e.currentTarget.innerText;
+    const innerHTML = e.currentTarget.innerHTML;
+    console.log("텍스트", innerText);
+    console.log("html", innerHTML);
+  };
+
   return (
     <div className="texteditor">
-      <div className={styles.content}>
-        <div className={styles.line} onClick={(e) => handleClick(e)}>
+      <div
+        className={styles.content}
+        ref={contentRef}
+        onClick={(e) => handleClick(e)}
+        onInput={(e) => handleInput(e)}
+        onKeyDown={(e) => handleKeyDown(e)}
+      >
+        <div className={styles.line}>
           <span className={styles.span} contentEditable></span>
         </div>
       </div>

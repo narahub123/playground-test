@@ -1,9 +1,6 @@
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
-export const createNewLine = (
-  e: React.KeyboardEvent<HTMLDivElement>,
-  contentRef: React.RefObject<HTMLDivElement>
-) => {
+export const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault(); // keydown 이벤트 전체에 적용하면 f5같은 기능이 먹히지 않음 주의할 것
 
   // 현재 선택된 요소 찾기

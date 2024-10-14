@@ -45,7 +45,7 @@ const TextEditor = () => {
     console.log("눌린 키", key);
 
     if (key === "Enter") {
-      createNewLine(e, contentRef);
+      createNewLine(e);
     }
   };
 

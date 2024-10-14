@@ -1,3 +1,3 @@
-import { createNewLine } from "./text-editor";
+import { createNewLine, moveup, movedown } from "./text-editor";
 
-export { createNewLine };
+export { createNewLine, moveup, movedown };

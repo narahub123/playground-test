@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import styles from "./TextEditor.module.css";
-import { createNewLine } from "../../utils";
+import { createNewLine, movedown, moveup } from "../../utils";
 
 const TextEditor = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -46,6 +46,10 @@ const TextEditor = () => {
 
     if (key === "Enter") {
       createNewLine(e);
+    } else if (key === "ArrowDown") {
+      movedown(e);
+    } else if (key === "ArrowUp") {
+      moveup(e);
     }
   };
 
@@ -67,6 +71,13 @@ const TextEditor = () => {
         onKeyDown={(e) => handleKeyDown(e)}
       >
         <div className={styles.line}>
+          <span className={styles.span} contentEditable></span>
+          <span className={styles.span} contentEditable></span>
+          <span className={styles.span} contentEditable></span>
+        </div>
+        <div className={styles.line}>
+          <span className={styles.span} contentEditable></span>
+          <span className={styles.span} contentEditable></span>
           <span className={styles.span} contentEditable></span>
         </div>
       </div>

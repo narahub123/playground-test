@@ -123,38 +123,55 @@ const setCursorPosition = (element: HTMLElement, index: number) => {
 // ↑ 방향키 사용시
 export const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
-
   const selection = window.getSelection();
+  if (!selection) {
+    console.log("selection이 없음");
 
-  const focusNode = selection?.focusNode as HTMLElement;
-  const focusOffset = selection?.focusOffset;
-  console.log("현재의 커서의 위치", focusOffset);
+    return;
+  }
+  console.log(selection);
+
+  const focusNode = selection.focusNode as HTMLElement;
+  const focusOffset = selection.focusOffset;
+
+  if (!focusNode || focusOffset == undefined) {
+    console.log("focusNode 또는 focusOffset 없음");
+    return;
+  }
 
   const length = focusNode.textContent ? focusNode.textContent.length : 0;
-  console.log("문자열 길이", length);
 
-  const absoluteLength = calcAbsolutePos();
-  console.log("절대 위치", absoluteLength);
+  // 문자를 감싸는 컨테이너
+  const span = length === 0 ? focusNode : focusNode.parentElement;
+  if (!span) return;
+  console.log("x의 컨테이터", span);
 
-  // 문자열의 길이에 따른 부모 지정 변경
-  const parent =
-    length === 0
-      ? focusNode?.parentElement
-      : focusNode?.parentElement?.parentElement;
-  const prevSibling = parent?.previousElementSibling as HTMLElement;
+  const parent = span.parentElement;
 
-  if (!prevSibling) return;
+  const prevLine = parent?.previousElementSibling;
 
-  // 이동해야 할 요소 알아내기
-  const { elem, index } = findElementToMove(absoluteLength, prevSibling);
+  // 이전 줄이 존재하지 않으면 아무것도 하지 않음
+  if (!prevLine) return;
 
-  console.log("현재 요소", focusNode);
-  console.log("부모요소", parent);
-  console.log("다음 요소", prevSibling);
-  console.log("이동할 요소", elem);
-  console.log("이동할 위치", index);
+  // 커서의 위치
+  const x = getCursorPos(selection);
 
-  setCursorPosition(elem, index);
+  console.log("커서의 위치", x);
+
+  // 이동할 요소와 요소의 left 좌표
+  const { elem, xPos } = getPreviousLineElementByPosition(x, span);
+
+  console.log(elem, xPos);
+
+  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
+  const index = getPosition(elem, x - xPos);
+
+  console.log("이동 요소 내 위치", index);
+
+  const moveTo = elem;
+  const pos = index;
+
+  setCursorPosition(moveTo, pos);
 };
 
 // ↓ 방향키 사용시
@@ -162,31 +179,50 @@ export const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
 
   const selection = window.getSelection();
-  const focusNode = selection?.focusNode as HTMLElement;
-  const focusOffset = selection?.focusOffset;
-  console.log("현재의 커서의 위치", focusOffset);
+  if (!selection) {
+    console.log("selection이 없음");
+
+    return;
+  }
+  console.log(selection);
+
+  const focusNode = selection.focusNode as HTMLElement;
+  const focusOffset = selection.focusOffset;
+
+  if (!focusNode || focusOffset == undefined) {
+    console.log("focusNode 또는 focusOffset 없음");
+    return;
+  }
 
   const length = focusNode.textContent ? focusNode.textContent.length : 0;
-  console.log("문자열 길이", length);
 
-  const absoluteLength = calcAbsolutePos();
-  console.log("절대 위치", absoluteLength);
+  // 문자를 감싸는 컨테이너
+  const span = length === 0 ? focusNode : focusNode.parentElement;
 
-  // 문자열의 길이에 따른 부모 지정 변경
-  const parent =
-    length === 0
-      ? focusNode?.parentElement
-      : focusNode?.parentElement?.parentElement;
-  const nextSibling = parent?.nextElementSibling as HTMLElement;
+  if (!span) return;
+  console.log("x의 컨테이터", span);
 
-  if (!nextSibling) return;
+  const parent = span.parentElement;
 
-  // 이동해야 할 요소 알아내기
-  const { elem, index } = findElementToMove(absoluteLength, nextSibling);
+  const nextLine = parent?.nextElementSibling;
 
-  console.log("현재 요소", focusNode);
-  console.log("부모요소", parent);
-  console.log("다음 요소", nextSibling);
+  // 다음 줄이 존재하지 않으면 아무것도 하지 않음
+  if (!nextLine) return;
+
+  // 커서의 위치
+  const x = getCursorPos(selection);
+
+  console.log("커서의 위치", x);
+
+  // 이동할 요소와 요소의 left 좌표
+  const { elem, xPos } = getNextLineElementByPosition(x, span);
+
+  console.log(elem, xPos);
+
+  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
+  const index = getPosition(elem, x - xPos);
+
+  console.log("이동 요소 내 위치", index);
 
   setCursorPosition(elem, index);
 };
@@ -229,7 +265,9 @@ export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
     setCursorPosition(focusNode, focusOffset - 1);
   }
 
-  if (focusOffset === focalPoint) {
+  // 상하 이동으로 link 클래스의 0으로 이동하면 left 이동이 안되는 문제
+  // 때문에 focusOffset === 0 추가
+  if (focusOffset === focalPoint || focusOffset === 0) {
     // 이전 이웃이 있는 경우
     if (prevSpan) {
       const length = prevSpan.textContent ? prevSpan.textContent.length : 0;
@@ -317,4 +355,224 @@ export const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
       }
     }
   }
+};
+
+// 커서 위치 찾기
+const getCursorPos = (selection: Selection) => {
+  const focusNode = selection.focusNode as HTMLElement;
+  const focusOffset = selection.focusOffset;
+
+  const length = focusNode.textContent ? focusNode.textContent.length : 0;
+
+  if (!focusNode.parentElement) return 0;
+
+  // 문자를 감싸는 컨테이너
+  const span = length === 0 ? focusNode : focusNode.parentElement;
+
+  // 해당 컨네이터의 좌측 좌표 구하기
+  let x = span.getBoundingClientRect().left;
+
+  // 컨테이너 내에서 커서 이전의 문자열 가져오기
+  const text = focusNode.textContent || "";
+
+  const textBeforeCursor = text ? text.slice(0, focusOffset) : "";
+
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  if (!canvas || !context) return 0;
+
+  const style = window.getComputedStyle(span);
+
+  const font = style.font;
+
+  context.font = font;
+
+  // 문자열의 길이 계산
+  const width = context.measureText(textBeforeCursor).width;
+
+  x += width;
+
+  return x;
+};
+
+// 위치로 다음 줄 요소 찾기
+const getNextLineElementByPosition = (x: number, curElem: HTMLElement) => {
+  let elem = undefined;
+  let xPos = undefined;
+  // 줄 요소 찾기
+  const line = curElem.parentElement;
+  // 현재 위치 고수
+  const length = curElem.textContent ? curElem.textContent.length : 0;
+
+  if (!line) {
+    elem = curElem;
+    xPos = length;
+    return { elem, xPos };
+  }
+  // 다음 줄 찾기
+  const nextLine = line.nextElementSibling;
+
+  // 다음 줄이 있는 경우
+  if (nextLine) {
+    // 다음 줄의 자식 요소
+    const spans = nextLine.children;
+
+    // 자식 요소들의 left의 합
+    xPos = 0;
+
+    let i = 0;
+    let chosen = 0;
+    // 자식 요소들의 left의 합이 커서의 위치보다 클 때 까지
+    while (xPos <= x && spans[i]) {
+      const child = spans[i];
+
+      console.log(child);
+
+      const left = child.getBoundingClientRect().left;
+
+      if (left > x) {
+        chosen = i - 1;
+        xPos = spans[i - 1].getBoundingClientRect().left;
+        break;
+      } else if (i === spans.length - 1) {
+        chosen = i;
+        xPos = left;
+        break;
+      }
+
+      xPos = left;
+      i++;
+    }
+
+    elem = spans[chosen];
+
+    return { elem: elem as HTMLElement, xPos };
+    // 다음 줄이 없는 경우
+  } else {
+    elem = curElem;
+    xPos = length;
+    return { elem, xPos };
+  }
+};
+
+// 좌표로 이전 줄 요소 찾기
+const getPreviousLineElementByPosition = (x: number, curElem: HTMLElement) => {
+  let elem = undefined;
+  let xPos = undefined;
+  // 줄 요소 찾기
+  const line = curElem.parentElement;
+  // 현재 위치 고수
+  const length = curElem.textContent ? curElem.textContent.length : 0;
+
+  if (!line) {
+    elem = curElem;
+    xPos = length;
+    return { elem, xPos };
+  }
+  // 다음 줄 찾기
+  const prevLine = line.previousElementSibling;
+
+  // 다음 줄이 있는 경우
+  if (prevLine) {
+    // 다음 줄의 자식 요소
+    const spans = prevLine.children;
+
+    // 자식 요소들의 left의 합
+    xPos = 0;
+
+    let i = 0;
+    let chosen = 0;
+    // 자식 요소들의 left의 좌표 커서의 위치보다 클 때 까지
+    while (xPos <= x && spans[i]) {
+      const child = spans[i];
+
+      console.log(child);
+
+      const left = child.getBoundingClientRect().left;
+
+      if (left > x) {
+        chosen = i - 1;
+        xPos = spans[i - 1].getBoundingClientRect().left;
+        break;
+      } else if (i === spans.length - 1) {
+        chosen = i;
+        xPos = left;
+        break;
+      }
+
+      xPos = left;
+      i++;
+    }
+
+    elem = spans[chosen];
+
+    // 다음 줄이 없는 경우
+  } else {
+    elem = curElem;
+    xPos = length;
+  }
+
+  return { elem: elem as HTMLElement, xPos };
+};
+
+// 요소 내 위치 찾기
+const getPosition = (elem: HTMLElement, pos: number) => {
+  let index = 0;
+  // 요소 내 문자열
+  const text = elem.textContent || "";
+
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  if (!canvas || !context) {
+    index = 0;
+    return index;
+  }
+
+  const style = window.getComputedStyle(elem);
+
+  const font = style.font;
+
+  context.font = font;
+
+  for (let i = 0; i <= text.length; i++) {
+    // 문자열을 순서대로
+    const cut = text.slice(0, i);
+
+    console.log("현재 문자열", cut);
+
+    // 해당 문자열의 길이
+    const width = context.measureText(cut).width;
+
+    console.log("거리", pos);
+    console.log("길이", width);
+
+    if (width >= pos) {
+      const iB4 = i > 0 ? i - 1 : 0;
+      const cutB4 = text.slice(0, iB4);
+      console.log("이전 문자열", cutB4);
+
+      const widthB4 = context.measureText(cutB4).width;
+      console.log(widthB4);
+
+      if (width - pos <= pos - widthB4) {
+        console.log("여긴가?");
+
+        index = i;
+      } else {
+        console.log("요기?");
+
+        index = i - 1;
+      }
+
+      break;
+    } else {
+      index = text.length;
+    }
+  }
+
+  console.log("인덱스", index);
+
+  return index;
 };

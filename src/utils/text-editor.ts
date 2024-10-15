@@ -551,8 +551,7 @@ const isHashtag = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 텍스트의 마지막 문자
   const last = text ? text[length - 1] : "";
 
-  if (!focusNode.parentElement) return;
-  const container = text ? focusNode.parentElement : focusNode;
+  const container = text ? (focusNode.parentElement as HTMLElement) : focusNode;
 
   // 빈문자 열 정규 표현식
   const space = /\s/;
@@ -574,6 +573,38 @@ const createHashtag = (container: HTMLElement) => {
   setCursorPosition(span, 1);
 };
 
+// mention 클래스 생성 가능 여부 확인하기
+const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+
+  const selection = window.getSelection();
+  if (!selection) return;
+
+  // 현재 요소
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return;
+
+  // 현재 요소 내부의 텍스트
+  const text = focusNode.textContent;
+
+  // 현재 요소를 감싸고 있는 span 확인
+  const container = text ? (focusNode.parentElement as HTMLElement) : focusNode;
+
+  // 멘션 생성 가능 여부 확인하기
+
+  // 멘션 클래스 생성하기
+  createMention(container);
+};
+
+const createMention = (container: HTMLElement) => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.link} ${styles.mention}`);
+  span.setAttribute("contentEditable", "true");
+  span.innerText = "@";
+
+  container.after(span);
+  setCursorPosition(span, 1);
+};
 export {
   createNewLine,
   moveup,
@@ -582,4 +613,5 @@ export {
   moveRight,
   isHashtag,
   createHashtag,
+  isMention,
 };

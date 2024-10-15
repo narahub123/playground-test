@@ -6,6 +6,7 @@ import {
   moveRight,
   isHashtag,
   createHashtag,
+  isMention,
 } from "./text-editor";
 
 export {
@@ -16,4 +17,5 @@ export {
   moveRight,
   isHashtag,
   createHashtag,
+  isMention,
 };

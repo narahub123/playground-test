@@ -4,6 +4,7 @@ import {
   createHashtag,
   createNewLine,
   isHashtag,
+  isMention,
   movedown,
   moveLeft,
   moveRight,
@@ -64,6 +65,8 @@ const TextEditor = () => {
       moveRight(e);
     } else if (key === "#") {
       isHashtag(e);
+    } else if (key === "@") {
+      isMention(e);
     }
   };
 

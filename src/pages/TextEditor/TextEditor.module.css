@@ -14,3 +14,26 @@
   border: 1px solid red;
   caret-color: auto;
 }
+
+.start {
+}
+.between {
+  margin-left: 4px;
+}
+
+.link {
+  outline: none;
+  border: 1px solid cornflowerblue;
+  caret-color: auto;
+  color: cornflowerblue;
+  font-weight: bold;
+}
+
+.hashtag {
+}
+
+.mention {
+}
+
+.url {
+}

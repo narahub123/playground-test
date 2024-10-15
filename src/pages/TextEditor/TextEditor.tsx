@@ -81,14 +81,92 @@ const TextEditor = () => {
         onKeyDown={(e) => handleKeyDown(e)}
       >
         <div className={styles.line}>
-          <span className={styles.span} contentEditable></span>
-          <span className={styles.span} contentEditable></span>
-          <span className={styles.span} contentEditable></span>
+          <span
+            className={`${styles.span} ${styles.start}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.link} ${styles.hashtag}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.span} ${styles.between}`}
+            contentEditable
+          ></span>
         </div>
         <div className={styles.line}>
-          <span className={styles.span} contentEditable></span>
-          <span className={styles.span} contentEditable></span>
-          <span className={styles.span} contentEditable></span>
+          <span
+            className={`${styles.span} ${styles.start}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.link} ${styles.url}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.span} ${styles.between}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.link} ${styles.mention}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.span} ${styles.between}`}
+            contentEditable
+          ></span>
+        </div>
+        <div className={styles.line}>
+          <span
+            className={`${styles.link} ${styles.hashtag}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.span} ${styles.between}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.link} ${styles.mention}`}
+            contentEditable
+          ></span>
+        </div>
+        <div className={styles.line}>
+          <span
+            className={`${styles.link} ${styles.hashtag}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.span} ${styles.between}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.link} ${styles.mention}`}
+            contentEditable
+          ></span>
+        </div>
+        <div className={styles.line}>
+          <span
+            className={`${styles.link} ${styles.url}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.span} ${styles.between}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.link} ${styles.mention}`}
+            contentEditable
+          ></span>
+        </div>
+        <div className={styles.line}>
+          <span
+            className={`${styles.span} ${styles.start}`}
+            contentEditable
+          ></span>
+          <span
+            className={`${styles.link} ${styles.hashtag}`}
+            contentEditable
+          ></span>
         </div>
       </div>
     </div>

@@ -203,6 +203,7 @@ export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 해당 요소의 텍스트 요소
   const textContent = focusNode.textContent;
 
+  if (!focusNode.parentElement) return;
   // span 요소(span)
   const span = textContent ? focusNode.parentElement : focusNode;
 
@@ -211,16 +212,24 @@ export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   // 현재 위치 구하기
   const focusOffset = selection.focusOffset;
-  console.log("현재 위치", focusOffset);
 
-  if (focusOffset > 0) {
+  // 현재 요소의 클래스 이름
+  const curClassName = span.className;
+  console.log("현재 요소의 클래스 이름", curClassName);
+
+  let prevSpan = span?.previousSibling as HTMLElement;
+
+  // 현재요소에 따른 기준 변화
+  // 이전 요소가 있고 현재 요소의 클래스가 link라면 기준점 1 아니면 0
+  const focalPoint = curClassName.includes("link") && prevSpan ? 1 : 0;
+
+  console.log("기준점", focalPoint);
+
+  if (focusOffset > focalPoint) {
     setCursorPosition(focusNode, focusOffset - 1);
   }
 
-  if (focusOffset === 0) {
-    console.log("여기가 시작");
-    let prevSpan = span?.previousSibling as HTMLElement;
-
+  if (focusOffset === focalPoint) {
     // 이전 이웃이 있는 경우
     if (prevSpan) {
       const length = prevSpan.textContent ? prevSpan.textContent.length : 0;
@@ -239,7 +248,7 @@ export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
         console.log("길이", index);
 
-        setCursorPosition(childSpan, index + 2);
+        setCursorPosition(childSpan, index);
       }
     }
   }
@@ -273,17 +282,20 @@ export const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   // 현재 위치가 현재 요소의 길이와 동일하다면 현재요소의 끝에 있다고 볼 수 있음
   if (focusOffset === length) {
-    console.log("여기 끝");
     // 이웃 요소가 있는지 확인할 것
     let nextSpan = span?.nextSibling as HTMLElement;
 
-    console.log(nextSpan);
-
     // 이웃 요소가 존재하는 경우
     if (nextSpan) {
-      // 이웃 요소가 존재하는 경우 focus를 다음 요소의 첫번째로 이동함
+      console.log("클래스 이름", nextSpan.className);
+      const nextClassName = nextSpan.className;
 
-      setCursorPosition(nextSpan, 0);
+      // 클래스가 hashtag나 mention인 경우
+      if (nextClassName.includes("link")) {
+        setCursorPosition(nextSpan, 1);
+      } else {
+        setCursorPosition(nextSpan, 0);
+      }
 
       // 이웃 요소가 존재하지 않는 경우
     } else {

@@ -1,7 +1,9 @@
 import { useEffect, useRef } from "react";
 import styles from "./TextEditor.module.css";
 import {
+  createHashtag,
   createNewLine,
+  isHashtag,
   movedown,
   moveLeft,
   moveRight,
@@ -60,16 +62,25 @@ const TextEditor = () => {
       moveLeft(e);
     } else if (key === "ArrowRight") {
       moveRight(e);
+    } else if (key === "#") {
+      isHashtag(e);
     }
   };
 
   // input 이벤트
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
     const innerText = e.currentTarget.innerText;
-    const innerHTML = e.currentTarget.innerHTML;
+    // const innerHTML = e.currentTarget.innerHTML;
     console.log("텍스트", innerText);
-    console.log("html", innerHTML);
+    // console.log("html", innerHTML);
+
+    if (innerText.includes(" #")) {
+      const hashtag = innerText.split(" #")[1];
+      console.log("해시태그", hashtag);
+    }
   };
+
+  const vaildHashtag = /#([\p{L}\p{N}_]+)/gu;
 
   return (
     <div className="texteditor">
@@ -83,88 +94,6 @@ const TextEditor = () => {
         <div className={styles.line}>
           <span
             className={`${styles.span} ${styles.start}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.link} ${styles.hashtag}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.span} ${styles.between}`}
-            contentEditable
-          ></span>
-        </div>
-        <div className={styles.line}>
-          <span
-            className={`${styles.span} ${styles.start}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.link} ${styles.url}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.span} ${styles.between}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.link} ${styles.mention}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.span} ${styles.between}`}
-            contentEditable
-          ></span>
-        </div>
-        <div className={styles.line}>
-          <span
-            className={`${styles.link} ${styles.hashtag}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.span} ${styles.between}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.link} ${styles.mention}`}
-            contentEditable
-          ></span>
-        </div>
-        <div className={styles.line}>
-          <span
-            className={`${styles.link} ${styles.hashtag}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.span} ${styles.between}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.link} ${styles.mention}`}
-            contentEditable
-          ></span>
-        </div>
-        <div className={styles.line}>
-          <span
-            className={`${styles.link} ${styles.url}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.span} ${styles.between}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.link} ${styles.mention}`}
-            contentEditable
-          ></span>
-        </div>
-        <div className={styles.line}>
-          <span
-            className={`${styles.span} ${styles.start}`}
-            contentEditable
-          ></span>
-          <span
-            className={`${styles.link} ${styles.hashtag}`}
             contentEditable
           ></span>
         </div>

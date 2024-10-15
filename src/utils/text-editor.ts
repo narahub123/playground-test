@@ -1,6 +1,6 @@
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
-export const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault(); // keydown 이벤트 전체에 적용하면 f5같은 기능이 먹히지 않음 주의할 것
 
   // 현재 선택된 요소 찾기
@@ -107,7 +107,6 @@ const findElementToMove = (absPos: number, prevSibling: HTMLElement) => {
 // 커서 위치 지정하기
 const setCursorPosition = (element: HTMLElement, index: number) => {
   const range = document.createRange();
-  console.log("range 객체", range);
 
   range.setStart(
     element.childNodes[0] || element,
@@ -121,7 +120,7 @@ const setCursorPosition = (element: HTMLElement, index: number) => {
 };
 
 // ↑ 방향키 사용시
-export const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
   const selection = window.getSelection();
   if (!selection) {
@@ -144,7 +143,6 @@ export const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 문자를 감싸는 컨테이너
   const span = length === 0 ? focusNode : focusNode.parentElement;
   if (!span) return;
-  console.log("x의 컨테이터", span);
 
   const parent = span.parentElement;
 
@@ -156,17 +154,11 @@ export const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 커서의 위치
   const x = getCursorPos(selection);
 
-  console.log("커서의 위치", x);
-
   // 이동할 요소와 요소의 left 좌표
   const { elem, xPos } = getPreviousLineElementByPosition(x, span);
 
-  console.log(elem, xPos);
-
   // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
   const index = getPosition(elem, x - xPos);
-
-  console.log("이동 요소 내 위치", index);
 
   const moveTo = elem;
   const pos = index;
@@ -175,7 +167,7 @@ export const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
 };
 
 // ↓ 방향키 사용시
-export const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
 
   const selection = window.getSelection();
@@ -184,7 +176,6 @@ export const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
     return;
   }
-  console.log(selection);
 
   const focusNode = selection.focusNode as HTMLElement;
   const focusOffset = selection.focusOffset;
@@ -200,7 +191,6 @@ export const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   const span = length === 0 ? focusNode : focusNode.parentElement;
 
   if (!span) return;
-  console.log("x의 컨테이터", span);
 
   const parent = span.parentElement;
 
@@ -212,29 +202,22 @@ export const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 커서의 위치
   const x = getCursorPos(selection);
 
-  console.log("커서의 위치", x);
-
   // 이동할 요소와 요소의 left 좌표
   const { elem, xPos } = getNextLineElementByPosition(x, span);
 
-  console.log(elem, xPos);
-
   // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
   const index = getPosition(elem, x - xPos);
-
-  console.log("이동 요소 내 위치", index);
 
   setCursorPosition(elem, index);
 };
 
 // ← 방향키 사용시
-export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
   const selection = window.getSelection();
   if (!selection) return;
   const focusNode = selection.focusNode as HTMLElement;
   if (!focusNode) return;
-  console.log("현재 요소", focusNode);
 
   // 해당 요소의 텍스트 요소
   const textContent = focusNode.textContent;
@@ -251,15 +234,12 @@ export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   // 현재 요소의 클래스 이름
   const curClassName = span.className;
-  console.log("현재 요소의 클래스 이름", curClassName);
 
   let prevSpan = span?.previousSibling as HTMLElement;
 
   // 현재요소에 따른 기준 변화
   // 이전 요소가 있고 현재 요소의 클래스가 link라면 기준점 1 아니면 0
   const focalPoint = curClassName.includes("link") && prevSpan ? 1 : 0;
-
-  console.log("기준점", focalPoint);
 
   if (focusOffset > focalPoint) {
     setCursorPosition(focusNode, focusOffset - 1);
@@ -284,21 +264,19 @@ export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
         const childSpan = prevLine.children[length - 1] as HTMLElement;
         const index = childSpan.textContent ? childSpan.textContent.length : 0;
 
-        console.log("길이", index);
-
         setCursorPosition(childSpan, index);
       }
     }
   }
 };
+
 // → 방향키 사용시
-export const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
   const selection = window.getSelection();
   if (!selection) return;
   const focusNode = selection.focusNode as HTMLElement;
   if (!focusNode) return;
-  console.log("현재 요소", focusNode);
 
   // 해당 요소의 텍스트 요소
   const textContent = focusNode.textContent;
@@ -308,11 +286,9 @@ export const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   // 현재 요소의 길이 구하기
   const length = textContent ? textContent.length : 0;
-  console.log(length);
 
   // 현재 위치 구하기
   const focusOffset = selection.focusOffset;
-  console.log("현재 위치", focusOffset);
 
   if (focusOffset < length) {
     setCursorPosition(focusNode, focusOffset + 1);
@@ -325,7 +301,6 @@ export const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
     // 이웃 요소가 존재하는 경우
     if (nextSpan) {
-      console.log("클래스 이름", nextSpan.className);
       const nextClassName = nextSpan.className;
 
       // 클래스가 hashtag나 mention인 경우
@@ -343,13 +318,9 @@ export const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
       // 다음 줄
       const nextLine = line?.nextElementSibling;
 
-      console.log("다음줄", nextLine);
-
       // 다음 줄이 있는 경우
       if (nextLine) {
         const childSpan = nextLine.children[0] as HTMLElement;
-
-        console.log("다음줄의 첫번째 span", childSpan);
 
         setCursorPosition(childSpan, 0);
       }
@@ -427,8 +398,6 @@ const getNextLineElementByPosition = (x: number, curElem: HTMLElement) => {
     while (xPos <= x && spans[i]) {
       const child = spans[i];
 
-      console.log(child);
-
       const left = child.getBoundingClientRect().left;
 
       if (left > x) {
@@ -487,8 +456,6 @@ const getPreviousLineElementByPosition = (x: number, curElem: HTMLElement) => {
     while (xPos <= x && spans[i]) {
       const child = spans[i];
 
-      console.log(child);
-
       const left = child.getBoundingClientRect().left;
 
       if (left > x) {
@@ -540,29 +507,18 @@ const getPosition = (elem: HTMLElement, pos: number) => {
     // 문자열을 순서대로
     const cut = text.slice(0, i);
 
-    console.log("현재 문자열", cut);
-
     // 해당 문자열의 길이
     const width = context.measureText(cut).width;
-
-    console.log("거리", pos);
-    console.log("길이", width);
 
     if (width >= pos) {
       const iB4 = i > 0 ? i - 1 : 0;
       const cutB4 = text.slice(0, iB4);
-      console.log("이전 문자열", cutB4);
 
       const widthB4 = context.measureText(cutB4).width;
-      console.log(widthB4);
 
       if (width - pos <= pos - widthB4) {
-        console.log("여긴가?");
-
         index = i;
       } else {
-        console.log("요기?");
-
         index = i - 1;
       }
 
@@ -572,7 +528,58 @@ const getPosition = (elem: HTMLElement, pos: number) => {
     }
   }
 
-  console.log("인덱스", index);
-
   return index;
+};
+
+// hashtag class 생성 가능 여부 확인하기
+const isHashtag = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+
+  const selection = window.getSelection();
+  if (!selection) return;
+
+  // 현재 요소
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return;
+
+  // 현재 요소의 텍스트
+  const text = focusNode.textContent;
+
+  // 텍스트의 길이
+  const length = text ? text.length : 0;
+
+  // 텍스트의 마지막 문자
+  const last = text ? text[length - 1] : "";
+
+  if (!focusNode.parentElement) return;
+  const container = text ? focusNode.parentElement : focusNode;
+
+  // 빈문자 열 정규 표현식
+  const space = /\s/;
+  if (space.test(last)) {
+    console.log("hi");
+    // 해시태그 생성
+    createHashtag(container);
+  }
+};
+
+// hashtag 클래스 생성하기
+const createHashtag = (container: HTMLElement) => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.link} ${styles.hashtag}`);
+  span.setAttribute("contentEditable", "true");
+  span.innerText = "#";
+
+  container.after(span);
+  setCursorPosition(span, 1);
+};
+
+export {
+  createNewLine,
+  moveup,
+  movedown,
+  moveLeft,
+  moveRight,
+  isHashtag,
+  createHashtag,
 };

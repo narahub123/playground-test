@@ -11,6 +11,6 @@
 
 .span {
   outline: none;
-  border: 1px solid transparent;
+  border: 1px solid red;
   caret-color: auto;
 }

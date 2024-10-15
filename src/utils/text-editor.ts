@@ -154,7 +154,6 @@ export const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
   console.log("이동할 요소", elem);
   console.log("이동할 위치", index);
 
-  elem?.focus();
   setCursorPosition(elem, index);
 };
 
@@ -189,6 +188,121 @@ export const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   console.log("부모요소", parent);
   console.log("다음 요소", nextSibling);
 
-  elem?.focus();
   setCursorPosition(elem, index);
+};
+
+// ← 방향키 사용시
+export const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return;
+  console.log("현재 요소", focusNode);
+
+  // 해당 요소의 텍스트 요소
+  const textContent = focusNode.textContent;
+
+  // span 요소(span)
+  const span = textContent ? focusNode.parentElement : focusNode;
+
+  // line 요소
+  const line = span?.parentElement;
+
+  // 현재 위치 구하기
+  const focusOffset = selection.focusOffset;
+  console.log("현재 위치", focusOffset);
+
+  if (focusOffset > 0) {
+    setCursorPosition(focusNode, focusOffset - 1);
+  }
+
+  if (focusOffset === 0) {
+    console.log("여기가 시작");
+    let prevSpan = span?.previousSibling as HTMLElement;
+
+    // 이전 이웃이 있는 경우
+    if (prevSpan) {
+      const length = prevSpan.textContent ? prevSpan.textContent.length : 0;
+
+      setCursorPosition(prevSpan, length);
+
+      // 이전 이웃이 없는 경우
+    } else {
+      const prevLine = line?.previousElementSibling;
+
+      // 이전 줄이 존재하는 경우
+      if (prevLine) {
+        const length = prevLine.children.length;
+        const childSpan = prevLine.children[length - 1] as HTMLElement;
+        const index = childSpan.textContent ? childSpan.textContent.length : 0;
+
+        console.log("길이", index);
+
+        setCursorPosition(childSpan, index + 2);
+      }
+    }
+  }
+};
+// → 방향키 사용시
+export const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return;
+  console.log("현재 요소", focusNode);
+
+  // 해당 요소의 텍스트 요소
+  const textContent = focusNode.textContent;
+
+  // 부모 요소(span)
+  const span = textContent ? focusNode.parentElement : focusNode;
+
+  // 현재 요소의 길이 구하기
+  const length = textContent ? textContent.length : 0;
+  console.log(length);
+
+  // 현재 위치 구하기
+  const focusOffset = selection.focusOffset;
+  console.log("현재 위치", focusOffset);
+
+  if (focusOffset < length) {
+    setCursorPosition(focusNode, focusOffset + 1);
+  }
+
+  // 현재 위치가 현재 요소의 길이와 동일하다면 현재요소의 끝에 있다고 볼 수 있음
+  if (focusOffset === length) {
+    console.log("여기 끝");
+    // 이웃 요소가 있는지 확인할 것
+    let nextSpan = span?.nextSibling as HTMLElement;
+
+    console.log(nextSpan);
+
+    // 이웃 요소가 존재하는 경우
+    if (nextSpan) {
+      // 이웃 요소가 존재하는 경우 focus를 다음 요소의 첫번째로 이동함
+
+      setCursorPosition(nextSpan, 0);
+
+      // 이웃 요소가 존재하지 않는 경우
+    } else {
+      // 줄 요소
+      const line = span?.parentElement;
+
+      // 다음 줄
+      const nextLine = line?.nextElementSibling;
+
+      console.log("다음줄", nextLine);
+
+      // 다음 줄이 있는 경우
+      if (nextLine) {
+        const childSpan = nextLine.children[0] as HTMLElement;
+
+        console.log("다음줄의 첫번째 span", childSpan);
+
+        setCursorPosition(childSpan, 0);
+      }
+    }
+  }
 };

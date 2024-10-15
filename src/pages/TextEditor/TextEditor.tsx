@@ -1,6 +1,12 @@
 import { useEffect, useRef } from "react";
 import styles from "./TextEditor.module.css";
-import { createNewLine, movedown, moveup } from "../../utils";
+import {
+  createNewLine,
+  movedown,
+  moveLeft,
+  moveRight,
+  moveup,
+} from "../../utils";
 
 const TextEditor = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -50,6 +56,10 @@ const TextEditor = () => {
       movedown(e);
     } else if (key === "ArrowUp") {
       moveup(e);
+    } else if (key === "ArrowLeft") {
+      moveLeft(e);
+    } else if (key === "ArrowRight") {
+      moveRight(e);
     }
   };
 

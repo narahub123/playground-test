@@ -556,7 +556,8 @@ const isHashtag = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   // 빈문자 열 정규 표현식
   const space = /\s/;
-  if (space.test(last)) {
+  // 앞에 공백 문자가 있거나 문자의 가장 처음인 경우 해시 태그 클래스 생성
+  if (space.test(last) || !last) {
     console.log("hi");
     // 해시태그 생성
     createHashtag(container);

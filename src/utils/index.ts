@@ -7,6 +7,7 @@ import {
   isHashtag,
   createHashtag,
   isMention,
+  isURL,
 } from "./text-editor";
 
 export {
@@ -18,4 +19,5 @@ export {
   isHashtag,
   createHashtag,
   isMention,
+  isURL,
 };

@@ -5,6 +5,7 @@ import {
   createNewLine,
   isHashtag,
   isMention,
+  isURL,
   movedown,
   moveLeft,
   moveRight,
@@ -67,6 +68,8 @@ const TextEditor = () => {
       isHashtag(e);
     } else if (key === "@") {
       isMention(e);
+    } else if (key === ".") {
+      isURL(e);
     }
   };
 
@@ -76,11 +79,6 @@ const TextEditor = () => {
     // const innerHTML = e.currentTarget.innerHTML;
     console.log("텍스트", innerText);
     // console.log("html", innerHTML);
-
-    if (innerText.includes(" #")) {
-      const hashtag = innerText.split(" #")[1];
-      console.log("해시태그", hashtag);
-    }
   };
 
   const vaildHashtag = /#([\p{L}\p{N}_]+)/gu;

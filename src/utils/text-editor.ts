@@ -605,6 +605,51 @@ const createMention = (container: HTMLElement) => {
   container.after(span);
   setCursorPosition(span, 1);
 };
+
+const isURL = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+
+  // 현재 요소
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return;
+
+  // 현재 요소 내부의 텍스트
+  const text = focusNode.textContent || "";
+
+  // 현재 요소를 감싸고 있는 span 확인
+  const container = text ? (focusNode.parentElement as HTMLElement) : focusNode;
+
+  // url 클래스 생성 가능 여부 확인 하기
+  const url = text.match(/^\s.+$/)?.input || "";
+
+  if (!url) return;
+  // url 클래스 생성하기
+  createUrl(container);
+};
+
+const createUrl = (container: HTMLElement) => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.link} ${styles.url}`);
+  span.setAttribute("contentEditable", "true");
+
+  const text = container.textContent;
+  console.log(text);
+
+  if (!text) return;
+  const url = text.match(/^\s.+$/)?.input || "";
+
+  // 기존 요소에서 url에 쓰일 요소만 빼고 삭제해야함
+
+  // 빼온 텍스트를 붙여줌
+  const added = url + ".";
+  span.innerText = added;
+
+  const length = added.length;
+  container.after(span);
+  setCursorPosition(span, length);
+};
 export {
   createNewLine,
   moveup,
@@ -614,4 +659,5 @@ export {
   isHashtag,
   createHashtag,
   isMention,
+  isURL,
 };

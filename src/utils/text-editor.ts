@@ -595,7 +595,7 @@ const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 멘션 클래스 생성하기
   createMention(container);
 };
-
+// mention 클래스 생성 
 const createMention = (container: HTMLElement) => {
   const span = document.createElement("span");
   span.setAttribute("class", `${styles.link} ${styles.mention}`);
@@ -606,6 +606,7 @@ const createMention = (container: HTMLElement) => {
   setCursorPosition(span, 1);
 };
 
+// url 클래스 생성 가능 여부 확인 
 const isURL = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
   const selection = window.getSelection();
@@ -629,6 +630,7 @@ const isURL = (e: React.KeyboardEvent<HTMLDivElement>) => {
   createUrl(container);
 };
 
+// url 클래스 생성 
 const createUrl = (container: HTMLElement) => {
   const span = document.createElement("span");
   span.setAttribute("class", `${styles.link} ${styles.url}`);
@@ -650,6 +652,8 @@ const createUrl = (container: HTMLElement) => {
   container.after(span);
   setCursorPosition(span, length);
 };
+
+
 export {
   createNewLine,
   moveup,

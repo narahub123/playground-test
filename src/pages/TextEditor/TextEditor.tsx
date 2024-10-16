@@ -81,8 +81,6 @@ const TextEditor = () => {
     // console.log("html", innerHTML);
   };
 
-  const vaildHashtag = /#([\p{L}\p{N}_]+)/gu;
-
   return (
     <div className="texteditor">
       <div

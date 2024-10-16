@@ -77,7 +77,7 @@ const TextEditor = () => {
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
     const innerText = e.currentTarget.innerText;
     // const innerHTML = e.currentTarget.innerHTML;
-    console.log("텍스트", innerText);
+
     // console.log("html", innerHTML);
   };
 

@@ -1,3 +1,4 @@
+import { validHashtag } from "../data";
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
 const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -569,6 +570,53 @@ const createHashtag = (container: HTMLElement) => {
   span.setAttribute("contentEditable", "true");
   span.innerText = "#";
 
+  // onInput 이벤트 핸들러 추가
+  span.addEventListener("input", (e: Event) =>
+    checkValidHashtag(e as InputEvent)
+  );
+
+  container.after(span);
+  setCursorPosition(span, 1);
+};
+
+// hashtag 유효성 확인하기
+const checkValidHashtag = (e: InputEvent) => {
+  const target = e.target as HTMLElement;
+
+  // 해시태그 안의 문자열
+  const text = target.innerText;
+  console.log("해시태그 안의 문자열", text);
+
+  // 문자열의 유효성 검사
+  const isValid = validHashtag.test(text);
+
+  // 유효하지 않는 문자가 들어오면 사이 span 생성
+  if (!isValid) {
+    // 마지막 문자를 가져 처음 문자로 삽입함
+    createBetweenSpan(target);
+
+    // 마지막에 입력한 문자를 삭제하고 유효한 문자열만 남김
+    const validText = text.slice(0, text.length - 1);
+
+    target.innerText = validText;
+  }
+};
+
+// 사이 span 생성하기
+const createBetweenSpan = (container: HTMLElement) => {
+  // 이전 요소의 문자열
+  const text = container.innerText;
+  // 이전 문자열의 마지막 문자
+  const last = text.slice(-1, text.length);
+
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.span} ${styles.between}`);
+  span.setAttribute("contentEditable", "true");
+
+  // 마지막 문자가 공백문자가 아니면 문자 삽입
+  const regExp = /\s/;
+  if (!regExp.test(last)) span.innerText = last;
+
   container.after(span);
   setCursorPosition(span, 1);
 };
@@ -595,7 +643,7 @@ const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 멘션 클래스 생성하기
   createMention(container);
 };
-// mention 클래스 생성 
+// mention 클래스 생성
 const createMention = (container: HTMLElement) => {
   const span = document.createElement("span");
   span.setAttribute("class", `${styles.link} ${styles.mention}`);
@@ -606,7 +654,7 @@ const createMention = (container: HTMLElement) => {
   setCursorPosition(span, 1);
 };
 
-// url 클래스 생성 가능 여부 확인 
+// url 클래스 생성 가능 여부 확인
 const isURL = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
   const selection = window.getSelection();
@@ -630,7 +678,7 @@ const isURL = (e: React.KeyboardEvent<HTMLDivElement>) => {
   createUrl(container);
 };
 
-// url 클래스 생성 
+// url 클래스 생성
 const createUrl = (container: HTMLElement) => {
   const span = document.createElement("span");
   span.setAttribute("class", `${styles.link} ${styles.url}`);
@@ -652,7 +700,6 @@ const createUrl = (container: HTMLElement) => {
   container.after(span);
   setCursorPosition(span, length);
 };
-
 
 export {
   createNewLine,

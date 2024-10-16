@@ -25,7 +25,7 @@ const validIp =
   /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 
 // 해시 태그 : 언어 구분 없는 문자, 숫자, _
-const vaildHashtag = /#([\p{L}\p{N}_]+)/gu;
+const validHashtag = /^#([\p{L}\p{N}_]+)$/u;
 
 // url : 가장 복잡한 구조의 url에 대한 정규 표현식 (gpt 이용)
 const validURL =
@@ -40,6 +40,6 @@ export {
   validId,
   validMention,
   validIp,
-  vaildHashtag,
+  validHashtag,
   validURL,
 };

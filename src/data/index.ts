@@ -7,7 +7,7 @@ import {
   validId,
   validMention,
   validIp,
-  vaildHashtag,
+  validHashtag,
   validURL,
 } from "./validation";
 
@@ -20,6 +20,6 @@ export {
   validId,
   validMention,
   validIp,
-  vaildHashtag,
+  validHashtag,
   validURL,
 };

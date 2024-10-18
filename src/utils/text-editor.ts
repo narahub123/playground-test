@@ -873,77 +873,68 @@ const createUrl = (container: HTMLElement) => {
 };
 
 // 현재 요소에 link 클래스에 적합한 것이 있는지 확인
-const hasLink = (curElement: HTMLElement) => {
-  hasMention();
-};
-// 현재 요소가 멘션을 가지고 있는지 확인
-const hasMention = () => {
-  const selection = window.getSelection();
-  if (!selection) return;
-  const focusNode = selection.focusNode as HTMLElement;
-  if (!focusNode) return;
+const hasLink = () => {
+  const hasIt = hasMention();
 
-  const text = focusNode.textContent || "";
+  if (hasIt) {
+    const { container, curText, cursorPos } = getContainerElement();
 
-  const curElement = text
-    ? (focusNode.parentElement as HTMLElement)
-    : focusNode;
+    if (!container) return;
 
-  console.log("현재요소", curElement);
-  let cursorElement = curElement;
-  let cursorText = "";
+    // 커서 위치 지정을 위한 변수들
+    let cursorElement = container;
+    let cursorText = "";
 
-  // 현재 요소의 문자열
-  const curText = curElement.textContent || "";
-  console.log("현재 작성 중인 문자열", curText);
-
-  // 적용되는 정규 표현식
-  console.log("적용되는 정규 표현식", validMention);
-
-  // 유효한 문자열이 있는지 확인
-  const isValid = validMention.test(curText);
-
-  console.log(
-    "멘션이 있는지 확인",
-    isValid ? "유효한 문자열 있음" : "유효한 문자열 없음"
-  );
-
-  // 유효한 문자열 존재 여부 확인
-  if (isValid) {
-    // 유효한 문자열
-
+    // 유효한 문자열 배열
     const valid = curText.match(validMention) as RegExpMatchArray;
 
     console.log("유효한 문자열 배열", valid);
+    // 이후 문자열
+    // 유효한 문자열 중 가장 마지막 문자열 이후 문자열들
+    // 유효한 문자열 중 가장 마지막 문자열을 기준으로 split하여 1번째 요소를 취함
+    const textAfter = curText.split(valid[valid.length - 1])[1];
+    console.log("이후 문자열", textAfter);
 
-    // 첫번째 유효한 문자열의 index를 찾기 위해서 exec를 이용함
-    const index = validMention.exec(curText)?.index;
+    // 이후 문자열이 있는 경우
+    if (textAfter) {
+      let nextContainer: HTMLElement;
+      // 공백 문자로 시작하는 경우
+      if (checkSpace(textAfter)) {
+        const gap = createGapSpan(container, textAfter.slice(1));
+        nextContainer = gap;
+      } else {
+        // 공백 문자로 시작하지 않는 경우
+        const normal = createNormalSpan(container, textAfter);
+        nextContainer = normal;
+      }
 
-    // 이전 문자열
-    // mention 클래스 내에서는 존재 불가
-    // 그 이외의 클래스에서는 존재할 수 있음
-    // 이전 문자열이 존재하는 경우 이전 문자열은 기존 클래스에 추가해야 함
-    // 이전 문자열
+      const nextSibling = nextContainer.nextElementSibling;
+      const nextClassName = nextSibling?.className || "";
 
-    const textBefore = curText.slice(0, index);
+      // 이후 문자열을 감싸는 요소 다음에 span 클래스가 존재하는지 확인
+      if (nextSibling && nextClassName.includes("span")) {
+        // 존재하는 경우 이전 요소의 text를 가져와서 합치고 해당 요소는 삭제함
+        const nextText = nextSibling.textContent || "";
 
-    console.log("이전 문자열", textBefore);
-    // 이전 문자열은 기존 요소에 삽입
-    curElement.innerText = textBefore;
-    cursorText = textBefore;
+        nextContainer.innerText =
+          textAfter + nextClassName.includes("gap") ? " " : "" + nextText;
+
+        nextSibling.remove();
+      }
+    }
 
     // mention 클래스 생성하기
     for (let i = valid.length - 1; i >= 0; i--) {
       const text = valid[i];
       console.log("유효한 문자열", text);
-      const mention = createMention(curElement, text);
+      const mention = createMention(container, text);
 
-      // text가 가장 첫 문자열인 경우
+      // text가 가장 나중 문자열인 경우
       if (i === valid.length - 1) {
         // 다음 요소 확인
         const nextSpan = mention.nextElementSibling;
         if (nextSpan && nextSpan.className.includes("link")) {
-          createGapSpan(mention, "");
+          createNormalSpan(mention, "");
         }
       }
       if (i === 0 && valid.length === 1) {
@@ -966,44 +957,80 @@ const hasMention = () => {
 
       if (textBetween) {
         if (checkSpace(textBetween)) {
-          const trimmedTextBetween = textBetween.slice(1);
           // 공백이 있는 경우: gap span 생성
-          const gap = createGapSpan(curElement, trimmedTextBetween);
+          const gap = createGapSpan(container, textBetween.slice(1));
           cursorElement = gap;
-          cursorText = trimmedTextBetween;
+          cursorText = textBetween.slice(1);
         } else {
           // 공백이 없는 경우 : normal span 생성
-          const normal = createNormalSpan(curElement, textBetween);
+          const normal = createNormalSpan(container, textBetween);
           cursorElement = normal;
           cursorText = textBetween;
         }
       }
     }
 
+    // 이전 문자열
+    // 그 이외의 클래스에서는 존재할 수 있음
+    // 이전 문자열이 존재하는 경우 이전 문자열은 기존 클래스에 추가해야 함
+    // 이전 문자열
+    // 첫번째 유효한 문자열의 index를 찾기 위해서 exec를 이용함
+    const index = validMention.exec(curText)?.index;
+    const textBefore = curText.slice(0, index);
+    console.log("이전 문자열", textBefore);
+    // 이전 문자열은 기존 요소에 삽입
+    container.innerText = textBefore;
+
+    if (textBefore && textBefore.length >= cursorPos) {
+      // 요소 지정
+      cursorElement = container;
+      // 커서 위치 지정
+      cursorText = textBefore;
+    } else if (!textBefore) {
+      // 이전 문자열이 없는 경우
+      const prevSibling = container.previousElementSibling;
+      // 이전 요소가 없는 경우
+      if (!prevSibling) {
+        // 해당 요소 삭제
+        container.remove();
+      }
+    }
+
     setCursorPosition(cursorElement, cursorText.length);
   }
+};
 
-  // 유효한 문자열이 없다면 종료
-  return;
+// 현재 요소가 멘션에 적합한 문자열이 있는지 확인
+const hasMention = () => {
+  const { container } = getContainerElement();
+
+  if (!container) return;
+
+  // 현재 요소의 문자열
+  const curText = container.textContent || "";
+  console.log("현재 작성 중인 문자열", curText);
+
+  // 적용되는 정규 표현식
+  console.log("적용되는 정규 표현식", validMention);
+
+  // 유효한 문자열이 있는지 확인
+  const isValid = validMention.test(curText);
+
+  return isValid;
 };
 
 // 멘션 클래스 내에서는 유효성 검사
 const checkValidMention = (e: Event) => {
-  const selection = window.getSelection();
-  if (!selection) return;
+  const { container, curText, cursorPos } = getContainerElement();
 
-  const focusNode = selection.focusNode as HTMLElement;
-  if (!focusNode) return;
-  const focusOffset = selection.focusOffset;
-  console.log("멘션에서의 커서의 위치", focusOffset);
+  if (!container) return;
 
-  const curText = focusNode.textContent || "";
-  console.log("멘션 클래스 내의 문자열", curText);
+  // 멘션 클래스 내에서의 유효성 검사이기 때문에 멘션 클래스가 아닌 경우 적용 안됨
+  if (!container.className.includes("mention")) return;
 
-  // 현재 요소
-  const container = curText
-    ? (focusNode.parentElement as HTMLElement)
-    : focusNode;
+  let cursorElement = container;
+  let cursorLength = curText.length;
+
   // 이전 요소
   const prevSibling = container.previousElementSibling as HTMLElement;
   const prevText = prevSibling?.textContent || "";
@@ -1012,14 +1039,6 @@ const checkValidMention = (e: Event) => {
   const nextSibling = container.nextElementSibling as HTMLElement;
   const nextText = nextSibling?.textContent || "";
   console.log("이후 요소의 문자열", nextText);
-
-  const className = container.className;
-  console.log(
-    className.includes("mention") ? "멘션 클래스 내에 있음" : "멘션 클래스 아님"
-  );
-
-  // 멘션 클래스 내에서의 유효성 검사이기 때문에 멘션 클래스가 아닌 경우 적용 안됨
-  if (!className.includes("mention")) return;
 
   // 멘션 클래스 내 유효성 충족하는 문자열의 배열
   const matchArr = curText.match(validMention);
@@ -1034,10 +1053,12 @@ const checkValidMention = (e: Event) => {
     container.removeAttribute("class");
 
     let combinedText = curText;
+    console.log(combinedText);
+
     // 이후 요소가 존재하고 span 클래스라면 병합
     if (nextSibling && nextSibling.className.includes("span")) {
-      combinedText +=
-        (nextSibling.className.includes("gap") ? " " : "") + nextText;
+      combinedText =
+        curText + (nextSibling.className.includes("gap") ? " " : "") + nextText;
 
       nextSibling.remove();
     }
@@ -1051,12 +1072,15 @@ const checkValidMention = (e: Event) => {
 
       // 현재 클래스 삭제
       container.remove();
-    }
+      cursorElement = prevSibling;
+      cursorLength = combinedText.length + cursorPos;
+    } else if (!prevSibling) {
+      container.innerText = combinedText;
 
-    // 새로 추가된 문자열 때문에 문자가 생기는 것이라
-    // 새로 추가된 문자열의 마지막 위치를 알아야 할 듯
-    setCursorPosition(prevSibling, prevText.length + focusOffset);
-    return;
+      container.setAttribute("class", `${styles.span} ${styles.normal}`);
+      cursorElement = container;
+      cursorLength = cursorPos;
+    }
   } else if (unmatched) {
     // 멘션 클래스 내에 유효성을 충족하는 문자열의 배열이 있는 경우
     // 유효성을 충족하는 부분은 그대로 남기로 충족하지 않는 부분만 span으로 넘김
@@ -1064,6 +1088,7 @@ const checkValidMention = (e: Event) => {
 
     // 문자열 공백 문자로 시작하면 제거하고 아니며 그대로
     let newText = checkSpace(unmatched) ? unmatched.slice(1) : unmatched;
+    console.log(newText);
 
     // 이후 요소가 존재하고 이후 요소가 span 클래스인 지 확인
     if (nextSibling && nextSibling.className.includes("span")) {
@@ -1079,22 +1104,49 @@ const checkValidMention = (e: Event) => {
       // 공백문자로 시작하는 경우 : gap span 생성
       const gap = createGapSpan(container, newText);
 
-      setCursorPosition(gap, 0);
+      cursorElement = gap;
+      cursorLength = 0;
     } else {
       // 공백문자로 시작하지 않는  경우 : normal 생성
       const normal = createNormalSpan(container, newText);
 
-      setCursorPosition(normal, 1);
+      cursorElement = normal;
+      cursorLength = 1;
     }
 
     // 현재 요소에 유효성 적합한 문자열만 포함
     container.innerText = matchArr[0];
   }
+
+  setCursorPosition(cursorElement, cursorLength);
 };
 
 // 공백 문자로 시작하는지 여부 확인
 const checkSpace = (text: string) => {
   return /^\s/.test(text);
+};
+
+// 문자열 감싸고 있는 요소 찾기
+const getContainerElement = () => {
+  const selection = window.getSelection();
+  if (!selection) return { container: undefined, curText: "" };
+
+  // 현재 요소
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return { container: undefined, curText: "" };
+  const focusOffset = selection.focusOffset;
+
+  // 현재 요소 내의 문자열
+  const text = focusNode.textContent || "";
+
+  // 현재 요소의 클래스 이름
+  const className = focusNode.className;
+
+  // 현재 요소를 감싸는 요소
+  const container =
+    text && !className ? (focusNode.parentElement as HTMLElement) : focusNode;
+
+  return { container, curText: text, cursorPos: focusOffset };
 };
 
 export {
@@ -1112,4 +1164,5 @@ export {
   createNormalSpan,
   setCursorPosition,
   hasLink,
+  getContainerElement,
 };

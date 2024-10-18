@@ -13,6 +13,7 @@ import {
   createNormalSpan,
   setCursorPosition,
   hasLink,
+  getContainerElement,
 } from "./text-editor";
 
 export {
@@ -30,4 +31,5 @@ export {
   createNormalSpan,
   setCursorPosition,
   hasLink,
+  getContainerElement,
 };

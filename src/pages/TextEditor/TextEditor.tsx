@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./TextEditor.module.css";
 import {
   createNewLine,
+  getContainerElement,
   hasLink,
   isHashtag,
   isURL,
@@ -73,26 +74,13 @@ const TextEditor = () => {
 
   // input 이벤트
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const selection = window.getSelection();
-    if (!selection) return;
+    const { container } = getContainerElement();
 
-    // 현재 요소
-    const focusNode = selection.focusNode as HTMLElement;
-    if (!focusNode) return;
+    if (!container) return;
 
-    // 현재 요소의 문자열
-    const text = focusNode.textContent || "";
-
-    const classname = focusNode.className;
-    // 현재 요소를 감싸는 요소
-    // 문자가 존재하고 classname의 존재하지 않는 경우 부모 요소
-    
-    const container =
-      text && !classname ? (focusNode.parentElement as HTMLElement) : focusNode;
-
-    // link 클래스에 적합한 문자열이 있는지 확인
-    if (!container.className.includes("link")) {
-      hasLink(container);
+    // 현재 요소가 span 클래스인지 여부 확인
+    if (container.className.includes("span")) {
+      hasLink();
     }
   };
 

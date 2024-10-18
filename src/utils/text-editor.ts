@@ -1,4 +1,4 @@
-import { validHashtag } from "../data";
+import { validHashtag, validMention } from "../data";
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
 const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -820,9 +820,7 @@ const createMention = (container: HTMLElement, text: string) => {
   span.innerText = text;
 
   // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", (e: Event) =>
-    checkValidHashtag(e as InputEvent)
-  );
+  span.addEventListener("input", (e: Event) => checkValidMention(e));
 
   container.after(span);
   setCursorPosition(span, text.length);
@@ -890,8 +888,6 @@ const hasMention = (curElement: HTMLElement) => {
   // startsWith
 
   // 멘션의 유효성 검사를 위한 정규 표현식
-  const validMention =
-    /(?<=^|\s|[^a-zA-Z0-9!@#$%&*_])@[a-zA-Z][a-zA-Z0-9_]{1,29}(?=\s|[^a-zA-Z0-9@_]|$)/g; // 이해 필요
 
   // 적용되는 정규 표현식x
   console.log("적용되는 정규 표현식", validMention);
@@ -978,6 +974,103 @@ const hasMention = (curElement: HTMLElement) => {
   return;
 };
 
+const checkValidMention = (e: Event) => {
+  const selection = window.getSelection();
+  if (!selection) return;
+
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return;
+
+  const curText = focusNode.textContent || "";
+  console.log("멘션 클래스 내의 문자열", curText);
+
+  // 현재 요소
+  const container = curText
+    ? (focusNode.parentElement as HTMLElement)
+    : focusNode;
+  // 이전 요소
+  const prevSibling = container.previousElementSibling as HTMLElement;
+  const prevText = prevSibling?.textContent || "";
+
+  // 이후 요소
+  const nextSibling = container.nextElementSibling as HTMLElement;
+  const nextText = nextSibling?.textContent || "";
+  console.log("이후 요소의 문자열", nextText);
+
+  const className = container.className;
+  console.log(
+    className.includes("mention") ? "멘션 클래스 내에 있음" : "멘션 클래스 아님"
+  );
+
+  // 멘션 클래스 내에서의 유효성 검사이기 때문에 멘션 클래스가 아닌 경우 적용 안됨
+  if (!className.includes("mention")) return;
+
+  // 멘션 클래스 내 유효성 충족하는 문자열의 배열
+  const matchArr = curText.match(validMention);
+  console.log("멘션 클래스 내 유효성 충족하는 문자열의 배열", matchArr);
+
+  // 유효성을 충족하지 않는 부분
+  const unmatched = curText.slice(matchArr?.[0].length);
+
+  // 멘션 클래스 내에 유효성을 충족하는 문자열이 없는 경우
+  if (!matchArr) {
+    // 멘션 클래스 삭제
+    container.removeAttribute("class");
+
+    let combinedText = curText;
+    // 이후 요소가 존재하고 span 클래스라면 병합
+    if (nextSibling && nextSibling.className.includes("span")) {
+      combinedText +=
+        (nextSibling.className.includes("gap") ? " " : "") + nextText;
+
+      nextSibling.remove();
+    }
+
+    // 이전 요소가 있고 span 클래스라면 병합
+    if (prevSibling && prevSibling.className.includes("span")) {
+      // 이전 요소의 텍스트와 현재 텍스트와 병합
+      combinedText = prevText + combinedText;
+      // 합친 텍스트를 이전 요소에 삽입
+      prevSibling.innerText = combinedText;
+
+      // 현재 클래스 삭제
+      container.remove();
+    }
+
+    setCursorPosition(prevSibling, (prevText + curText).length);
+    return;
+  } else if (unmatched) {
+    // 멘션 클래스 내에 유효성을 충족하는 문자열의 배열이 있는 경우
+    // 유효성을 충족하는 부분은 그대로 남기로 충족하지 않는 부분만 span으로 넘김
+    console.log("유효성을 충족하지 않는 부분", unmatched);
+
+    // 문자열 공백 문자로 시작하면 제거하고 아니며 그대로
+    let newText = checkSpace(unmatched) ? unmatched.slice(1) : unmatched;
+
+    // 이후 요소가 존재하고 이후 요소가 span 클래스인 지 확인
+    if (nextSibling && nextSibling.className.includes("span")) {
+      // 유효성을 충족하지 않은 문자열과 다음 요소의 문자열을 병합
+      newText += (nextSibling.className.includes("gap") ? " " : "") + nextText;
+
+      // 이후 요소 삭제
+      nextSibling.remove();
+    }
+
+    // 유효성을 충족하지 않는 문자열이 공백문자로 시작하는지 확인
+    if (checkSpace(unmatched)) {
+      // 공백문자로 시작하는 경우 : gap span 생성
+      createGapSpan(container, newText);
+    } else {
+      // 공백문자로 시작하지 않는  경우 : between 생성
+      createNormalSpan(container, newText);
+    }
+
+    // 현재 요소에 유효성 적합한 문자열만 포함
+    container.innerText = matchArr[0];
+  }
+};
+
+// 공백 문자로 시작하는지 여부 확인
 const checkSpace = (text: string) => {
   return /^\s/.test(text);
 };

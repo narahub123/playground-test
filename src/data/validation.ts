@@ -18,7 +18,8 @@ const validPassword =
 // 멘션의 유효성에도 들어감
 const regExp = /^[a-zA-Z][a-zA-Z0-9_]{3,29}$/i;
 const validId = regExp;
-const validMention = regExp;
+const validMention =
+  /(?<=^|\s|[^a-zA-Z0-9!@#$%&*_])@[a-zA-Z][a-zA-Z0-9_]{0,29}(?=\s|[^a-zA-Z0-9@_]|$)/g; // 이해 필요
 
 // ip : xxx.xxx.xxx.xxx 형식 ipv4인 경우
 const validIp =

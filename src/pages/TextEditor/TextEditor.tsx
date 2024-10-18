@@ -89,7 +89,9 @@ const TextEditor = () => {
       : focusNode;
 
     // link 클래스에 적합한 문자열이 있는지 확인
-    hasLink(container);
+    if (!container.className.includes("link")) {
+      hasLink(container);
+    }
   };
 
   return (

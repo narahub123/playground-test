@@ -735,7 +735,10 @@ const checkValidHashtag = (e: InputEvent) => {
 };
 
 // 사이 span 생성하기
+// string은 공백을 trim한 문자가 와야 하는 듯
 const createBetweenSpan = (container: HTMLElement, startsWith: string = "") => {
+  console.log(startsWith);
+
   const span = document.createElement("span");
   span.setAttribute("class", `${styles.span} ${styles.between}`);
   span.setAttribute("contentEditable", "true");
@@ -758,6 +761,32 @@ const createBetweenSpan = (container: HTMLElement, startsWith: string = "") => {
   setCursorPosition(span, point);
 };
 
+const createNormalSpan = (container: HTMLElement, text: string = "") => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.span} ${styles.normal}`);
+  span.setAttribute("contentEditable", "true");
+
+  container.after(span);
+
+  span.innerText = text;
+
+  const point = text ? 1 : 0;
+  setCursorPosition(span, point);
+};
+
+const createGapSpan = (container: HTMLElement, text: string = "") => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.span} ${styles.gap}`);
+  span.setAttribute("contentEditable", "true");
+
+  container.after(span);
+
+  span.innerText = text;
+
+  const point = text ? 1 : 0;
+  setCursorPosition(span, point);
+};
+
 // mention 클래스 생성 가능 여부 확인하기
 const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
@@ -775,20 +804,28 @@ const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 현재 요소를 감싸고 있는 span 확인
   const container = text ? (focusNode.parentElement as HTMLElement) : focusNode;
 
+  container.innerText = text + "@";
   // 멘션 생성 가능 여부 확인하기
 
+  setCursorPosition(container, container.innerText.length);
   // 멘션 클래스 생성하기
-  createMention(container);
+  // createMention(container);
 };
+
 // mention 클래스 생성
-const createMention = (container: HTMLElement) => {
+const createMention = (container: HTMLElement, text: string) => {
   const span = document.createElement("span");
   span.setAttribute("class", `${styles.link} ${styles.mention}`);
   span.setAttribute("contentEditable", "true");
-  span.innerText = "@";
+  span.innerText = text;
+
+  // onInput 이벤트 핸들러 추가
+  span.addEventListener("input", (e: Event) =>
+    checkValidHashtag(e as InputEvent)
+  );
 
   container.after(span);
-  setCursorPosition(span, 1);
+  setCursorPosition(span, text.length);
 };
 
 // url 클래스 생성 가능 여부 확인
@@ -838,6 +875,112 @@ const createUrl = (container: HTMLElement) => {
   setCursorPosition(span, length);
 };
 
+// 현재 요소에 link 클래스에 적합한 것이 있는지 확인
+const hasLink = (curElement: HTMLElement) => {
+  hasMention(curElement);
+};
+// 현재 요소가 멘션을 가지고 있는지 확인
+const hasMention = (curElement: HTMLElement) => {
+  console.log("현재요소", curElement);
+
+  // 현재 요소의 문자열
+  const curText = curElement.textContent || "";
+  console.log("현재 작성 중인 문자열", curText);
+
+  // startsWith
+
+  // 멘션의 유효성 검사를 위한 정규 표현식
+  const validMention =
+    /(?<=^|\s|[^a-zA-Z0-9!@#$%&*_])@[a-zA-Z][a-zA-Z0-9_]{1,29}(?=\s|[^a-zA-Z0-9@_]|$)/g; // 이해 필요
+
+  // 적용되는 정규 표현식x
+  console.log("적용되는 정규 표현식", validMention);
+
+  // 유효한 문자열이 있는지 확인
+  const isValid = validMention.test(curText);
+
+  // 유효한 문자열
+  const valid = curText.match(validMention) as RegExpMatchArray;
+
+  console.log(
+    "멘션이 있는지 확인",
+    isValid ? "유효한 문자열 있음" : "유효한 문자열 없음"
+  );
+
+  console.log("유효한 문자열 배열", valid);
+  // 유효한 문자열 존재 여부 확인
+  if (isValid) {
+    // 이후 문자열
+    // 이후 문자열의 시작이 빈문자열인 경우 => gap span 생성
+    // 이후 문자열의 시작이 빈문자열이 아닌 경우 => normal span 생성
+    // 유효한 문자열을 이용해서  멘션 클래스를 생성함
+    const textAfter = curText.split(valid[valid.length - 1])[1];
+    console.log("이후 문자열", textAfter ? textAfter : "없음");
+
+    // 이후 문자열 존재 여부 확인
+    if (textAfter) {
+      // 이후 문자열이 공백문자로 시작하는 여부 확인
+      if (checkSpace(textAfter)) {
+        const trimmedTextAfter = textAfter.slice(1);
+        // 공백문자로 시작하는 경우 : gap span 생성
+        createGapSpan(curElement, trimmedTextAfter);
+      } else {
+        // 공백문자로 시작하는 경우 : normal span 생성
+        createNormalSpan(curElement, textAfter);
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // 유효한 문자열이 있다면
+    // 유효한 문자열 이전 문자열과 이후 문자열 추출함
+    // 이전 문자열
+    // mention 클래스 내에서는 존재 불가 이외에서는 존재할 수 있음
+    // 이전 문자열이 존재하는 경우 이전 문자열은 기존 클래스에 추가해야 함
+    // 이전 문자열
+    const textBefore = curText.split(valid[0])[0];
+    console.log("이전 문자열", textBefore);
+    // 이전 문자열은 기존 요소에 삽입
+    curElement.innerText = textBefore;
+
+    // mention 클래스 생성하기
+    for (let i = valid.length - 1; i >= 0; i--) {
+      console.log(i);
+
+      const text = valid[i];
+      console.log("유효한 문자열", text);
+      createMention(curElement, text);
+
+      // 사이 문자열
+      // 유효한 문자열이 2개 이상있을 때 그 사이의 문자열
+      // 이전 유효성 이후에 와야 함 curElement를 이전 유효성 요소로 변경
+      // 사이 문자열의 시작이 빈문자열인 경우 => gap span 생성
+      // 사이 문자열의 시작이 빈문자열이 아닌 경우 => normal span 생성
+      // 사이 문자열이 존재하는지 확인
+      const textBetween =
+        valid.length > 1 && i > 0
+          ? curText.split(valid[i - 1])[1].split("@")[0]
+          : "";
+      console.log("사이 문자열", textBetween ? textBetween : "없음");
+      if (textBetween) {
+        if (checkSpace(textBetween)) {
+          const trimmedTextBetweem = textBetween.slice(1);
+          // 공백이 있는 경우: gap span 생성
+          createGapSpan(curElement, trimmedTextBetweem);
+        } else {
+          // 공백이 없는 경우 : normal span 생성
+          createNormalSpan(curElement, textBetween);
+        }
+      }
+    }
+  }
+
+  // 유효한 문자열이 없다면 종료
+  return;
+};
+
+const checkSpace = (text: string) => {
+  return /^\s/.test(text);
+};
 export {
   createNewLine,
   moveup,
@@ -847,5 +990,10 @@ export {
   isHashtag,
   createHashtag,
   isMention,
+  createMention,
   isURL,
+  createBetweenSpan,
+  createNormalSpan,
+  setCursorPosition,
+  hasLink,
 };

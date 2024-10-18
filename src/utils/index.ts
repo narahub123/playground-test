@@ -7,7 +7,12 @@ import {
   isHashtag,
   createHashtag,
   isMention,
+  createMention,
   isURL,
+  createBetweenSpan,
+  createNormalSpan,
+  setCursorPosition,
+  hasLink,
 } from "./text-editor";
 
 export {
@@ -19,5 +24,10 @@ export {
   isHashtag,
   createHashtag,
   isMention,
+  createMention,
   isURL,
+  createBetweenSpan,
+  createNormalSpan,
+  setCursorPosition,
+  hasLink,
 };

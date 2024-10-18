@@ -15,8 +15,12 @@
   caret-color: auto;
 }
 
-.start {
+.normal {
 }
+.gap {
+  margin-left: 4px;
+}
+
 .between {
   margin-left: 4px;
 }

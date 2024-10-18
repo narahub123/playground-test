@@ -1,10 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./TextEditor.module.css";
 import {
-  createHashtag,
   createNewLine,
+  hasLink,
   isHashtag,
-  isMention,
   isURL,
   movedown,
   moveLeft,
@@ -14,6 +13,7 @@ import {
 
 const TextEditor = () => {
   const contentRef = useRef<HTMLDivElement>(null);
+
   // 삭제된 코드: focus 확인 용
   useEffect(() => {
     const handleFocus = (e: FocusEvent) => {
@@ -52,7 +52,7 @@ const TextEditor = () => {
   // 키보드 이벤트
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const key = e.key;
-    console.log("눌린 키", key);
+    // console.log("눌린 키", key);
 
     if (key === "Enter") {
       createNewLine(e);
@@ -66,8 +66,6 @@ const TextEditor = () => {
       moveRight(e);
     } else if (key === "#") {
       isHashtag(e);
-    } else if (key === "@") {
-      isMention(e);
     } else if (key === ".") {
       isURL(e);
     }
@@ -75,10 +73,23 @@ const TextEditor = () => {
 
   // input 이벤트
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const innerText = e.currentTarget.innerText;
-    // const innerHTML = e.currentTarget.innerHTML;
+    const selection = window.getSelection();
+    if (!selection) return;
 
-    // console.log("html", innerHTML);
+    // 현재 요소
+    const focusNode = selection.focusNode as HTMLElement;
+    if (!focusNode) return;
+
+    // 현재 요소의 문자열
+    const text = focusNode.textContent || "";
+
+    // 현재 요소를 감싸는 요소
+    const container = text
+      ? (focusNode.parentElement as HTMLElement)
+      : focusNode;
+
+    // link 클래스에 적합한 문자열이 있는지 확인
+    hasLink(container);
   };
 
   return (
@@ -92,7 +103,7 @@ const TextEditor = () => {
       >
         <div className={styles.line}>
           <span
-            className={`${styles.span} ${styles.start}`}
+            className={`${styles.span} ${styles.normal}`}
             contentEditable
           ></span>
         </div>

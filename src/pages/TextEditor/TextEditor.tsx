@@ -83,10 +83,12 @@ const TextEditor = () => {
     // 현재 요소의 문자열
     const text = focusNode.textContent || "";
 
+    const classname = focusNode.className;
     // 현재 요소를 감싸는 요소
-    const container = text
-      ? (focusNode.parentElement as HTMLElement)
-      : focusNode;
+    // 문자가 존재하고 classname의 존재하지 않는 경우 부모 요소
+    
+    const container =
+      text && !classname ? (focusNode.parentElement as HTMLElement) : focusNode;
 
     // link 클래스에 적합한 문자열이 있는지 확인
     if (!container.className.includes("link")) {

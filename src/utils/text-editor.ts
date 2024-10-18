@@ -761,32 +761,6 @@ const createBetweenSpan = (container: HTMLElement, startsWith: string = "") => {
   setCursorPosition(span, point);
 };
 
-const createNormalSpan = (container: HTMLElement, text: string = "") => {
-  const span = document.createElement("span");
-  span.setAttribute("class", `${styles.span} ${styles.normal}`);
-  span.setAttribute("contentEditable", "true");
-
-  container.after(span);
-
-  span.innerText = text;
-
-  const point = text ? 1 : 0;
-  setCursorPosition(span, point);
-};
-
-const createGapSpan = (container: HTMLElement, text: string = "") => {
-  const span = document.createElement("span");
-  span.setAttribute("class", `${styles.span} ${styles.gap}`);
-  span.setAttribute("contentEditable", "true");
-
-  container.after(span);
-
-  span.innerText = text;
-
-  const point = text ? 1 : 0;
-  setCursorPosition(span, point);
-};
-
 // mention 클래스 생성 가능 여부 확인하기
 const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
@@ -812,6 +786,30 @@ const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // createMention(container);
 };
 
+// normal span 클래스 생성
+const createNormalSpan = (container: HTMLElement, text: string = "") => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.span} ${styles.normal}`);
+  span.setAttribute("contentEditable", "true");
+  span.innerText = text;
+
+  container.after(span);
+
+  return span;
+};
+
+// gap span 클래스 생성
+const createGapSpan = (container: HTMLElement, text: string = "") => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.span} ${styles.gap}`);
+  span.setAttribute("contentEditable", "true");
+  span.innerText = text;
+
+  container.after(span);
+
+  return span;
+};
+
 // mention 클래스 생성
 const createMention = (container: HTMLElement, text: string) => {
   const span = document.createElement("span");
@@ -823,7 +821,8 @@ const createMention = (container: HTMLElement, text: string) => {
   span.addEventListener("input", (e: Event) => checkValidMention(e));
 
   container.after(span);
-  setCursorPosition(span, text.length);
+
+  return span;
 };
 
 // url 클래스 생성 가능 여부 확인
@@ -875,76 +874,83 @@ const createUrl = (container: HTMLElement) => {
 
 // 현재 요소에 link 클래스에 적합한 것이 있는지 확인
 const hasLink = (curElement: HTMLElement) => {
-  hasMention(curElement);
+  hasMention();
 };
 // 현재 요소가 멘션을 가지고 있는지 확인
-const hasMention = (curElement: HTMLElement) => {
+const hasMention = () => {
+  const selection = window.getSelection();
+  if (!selection) return;
+  const focusNode = selection.focusNode as HTMLElement;
+  if (!focusNode) return;
+
+  const text = focusNode.textContent || "";
+
+  const curElement = text
+    ? (focusNode.parentElement as HTMLElement)
+    : focusNode;
+
   console.log("현재요소", curElement);
+  let cursorElement = curElement;
+  let cursorText = "";
 
   // 현재 요소의 문자열
   const curText = curElement.textContent || "";
   console.log("현재 작성 중인 문자열", curText);
 
-  // startsWith
-
-  // 멘션의 유효성 검사를 위한 정규 표현식
-
-  // 적용되는 정규 표현식x
+  // 적용되는 정규 표현식
   console.log("적용되는 정규 표현식", validMention);
 
   // 유효한 문자열이 있는지 확인
   const isValid = validMention.test(curText);
-
-  // 유효한 문자열
-  const valid = curText.match(validMention) as RegExpMatchArray;
 
   console.log(
     "멘션이 있는지 확인",
     isValid ? "유효한 문자열 있음" : "유효한 문자열 없음"
   );
 
-  console.log("유효한 문자열 배열", valid);
   // 유효한 문자열 존재 여부 확인
   if (isValid) {
-    // 이후 문자열
-    // 이후 문자열의 시작이 빈문자열인 경우 => gap span 생성
-    // 이후 문자열의 시작이 빈문자열이 아닌 경우 => normal span 생성
-    // 유효한 문자열을 이용해서  멘션 클래스를 생성함
-    const textAfter = curText.split(valid[valid.length - 1])[1];
-    console.log("이후 문자열", textAfter ? textAfter : "없음");
+    // 유효한 문자열
 
-    // 이후 문자열 존재 여부 확인
-    if (textAfter) {
-      // 이후 문자열이 공백문자로 시작하는 여부 확인
-      if (checkSpace(textAfter)) {
-        const trimmedTextAfter = textAfter.slice(1);
-        // 공백문자로 시작하는 경우 : gap span 생성
-        createGapSpan(curElement, trimmedTextAfter);
-      } else {
-        // 공백문자로 시작하는 경우 : normal span 생성
-        createNormalSpan(curElement, textAfter);
-      }
-    }
+    const valid = curText.match(validMention) as RegExpMatchArray;
 
-    // ------------------------------------------------------------------------
-    // 유효한 문자열이 있다면
-    // 유효한 문자열 이전 문자열과 이후 문자열 추출함
+    console.log("유효한 문자열 배열", valid);
+
+    // 첫번째 유효한 문자열의 index를 찾기 위해서 exec를 이용함
+    const index = validMention.exec(curText)?.index;
+
     // 이전 문자열
-    // mention 클래스 내에서는 존재 불가 이외에서는 존재할 수 있음
+    // mention 클래스 내에서는 존재 불가
+    // 그 이외의 클래스에서는 존재할 수 있음
     // 이전 문자열이 존재하는 경우 이전 문자열은 기존 클래스에 추가해야 함
     // 이전 문자열
-    const textBefore = curText.split(valid[0])[0];
+
+    const textBefore = curText.slice(0, index);
+
     console.log("이전 문자열", textBefore);
     // 이전 문자열은 기존 요소에 삽입
     curElement.innerText = textBefore;
+    cursorText = textBefore;
 
     // mention 클래스 생성하기
     for (let i = valid.length - 1; i >= 0; i--) {
-      console.log(i);
-
       const text = valid[i];
       console.log("유효한 문자열", text);
-      createMention(curElement, text);
+      const mention = createMention(curElement, text);
+
+      // text가 가장 첫 문자열인 경우
+      if (i === valid.length - 1) {
+        // 다음 요소 확인
+        const nextSpan = mention.nextElementSibling;
+        if (nextSpan && nextSpan.className.includes("link")) {
+          createGapSpan(mention, "");
+        }
+      }
+      if (i === 0 && valid.length === 1) {
+        // 유효한 문자열이 하나만 존재한는 경우
+        cursorElement = mention;
+        cursorText = text;
+      }
 
       // 사이 문자열
       // 유효한 문자열이 2개 이상있을 때 그 사이의 문자열
@@ -957,29 +963,39 @@ const hasMention = (curElement: HTMLElement) => {
           ? curText.split(valid[i - 1])[1].split("@")[0]
           : "";
       console.log("사이 문자열", textBetween ? textBetween : "없음");
+
       if (textBetween) {
         if (checkSpace(textBetween)) {
-          const trimmedTextBetweem = textBetween.slice(1);
+          const trimmedTextBetween = textBetween.slice(1);
           // 공백이 있는 경우: gap span 생성
-          createGapSpan(curElement, trimmedTextBetweem);
+          const gap = createGapSpan(curElement, trimmedTextBetween);
+          cursorElement = gap;
+          cursorText = trimmedTextBetween;
         } else {
           // 공백이 없는 경우 : normal span 생성
-          createNormalSpan(curElement, textBetween);
+          const normal = createNormalSpan(curElement, textBetween);
+          cursorElement = normal;
+          cursorText = textBetween;
         }
       }
     }
+
+    setCursorPosition(cursorElement, cursorText.length);
   }
 
   // 유효한 문자열이 없다면 종료
   return;
 };
 
+// 멘션 클래스 내에서는 유효성 검사
 const checkValidMention = (e: Event) => {
   const selection = window.getSelection();
   if (!selection) return;
 
   const focusNode = selection.focusNode as HTMLElement;
   if (!focusNode) return;
+  const focusOffset = selection.focusOffset;
+  console.log("멘션에서의 커서의 위치", focusOffset);
 
   const curText = focusNode.textContent || "";
   console.log("멘션 클래스 내의 문자열", curText);
@@ -1037,7 +1053,9 @@ const checkValidMention = (e: Event) => {
       container.remove();
     }
 
-    setCursorPosition(prevSibling, (prevText + curText).length);
+    // 새로 추가된 문자열 때문에 문자가 생기는 것이라
+    // 새로 추가된 문자열의 마지막 위치를 알아야 할 듯
+    setCursorPosition(prevSibling, prevText.length + focusOffset);
     return;
   } else if (unmatched) {
     // 멘션 클래스 내에 유효성을 충족하는 문자열의 배열이 있는 경우
@@ -1059,10 +1077,14 @@ const checkValidMention = (e: Event) => {
     // 유효성을 충족하지 않는 문자열이 공백문자로 시작하는지 확인
     if (checkSpace(unmatched)) {
       // 공백문자로 시작하는 경우 : gap span 생성
-      createGapSpan(container, newText);
+      const gap = createGapSpan(container, newText);
+
+      setCursorPosition(gap, 0);
     } else {
-      // 공백문자로 시작하지 않는  경우 : between 생성
-      createNormalSpan(container, newText);
+      // 공백문자로 시작하지 않는  경우 : normal 생성
+      const normal = createNormalSpan(container, newText);
+
+      setCursorPosition(normal, 1);
     }
 
     // 현재 요소에 유효성 적합한 문자열만 포함
@@ -1074,6 +1096,7 @@ const checkValidMention = (e: Event) => {
 const checkSpace = (text: string) => {
   return /^\s/.test(text);
 };
+
 export {
   createNewLine,
   moveup,

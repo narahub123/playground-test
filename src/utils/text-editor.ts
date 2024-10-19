@@ -532,260 +532,6 @@ const getPosition = (elem: HTMLElement, pos: number) => {
   return index;
 };
 
-// hashtag class 생성 가능 여부 확인하기
-const isHashtag = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  e.preventDefault();
-
-  const selection = window.getSelection();
-  if (!selection) return;
-
-  // 현재 요소
-  const focusNode = selection.focusNode as HTMLElement;
-  if (!focusNode) return;
-  // #이 눌린 위치
-  const anchorOffset = selection.anchorOffset;
-  console.log("#이 눌린 위치", anchorOffset);
-
-  // 현재 요소의 텍스트
-  const text = focusNode.textContent || "";
-
-  // # 이전 문자열
-  const textBeforeSharp = text.slice(0, anchorOffset) || "";
-  // # 이후 문자열
-  const textAfterSharp = text.slice(anchorOffset) || "";
-
-  // # 이전 문자열의 텍스트의 길이
-  const length = textBeforeSharp.length;
-
-  // # 이전 문자열의 마지막 문자
-  const last = textBeforeSharp[length - 1];
-
-  // 문자열을 감싸는 요소
-  const container = text ? (focusNode.parentElement as HTMLElement) : focusNode;
-
-  // 문자열을 감싸는 요소의 클래스 이름
-  const curClassName = container.className;
-
-  // 빈문자 열 정규 표현식
-  const space = /\s/;
-
-  console.log("이전에 공백문자 존재 여부", space.test(last));
-  console.log("첫 문자인지 여부", !last);
-
-  // 해시태그 클래스가 아니면서
-  // 이전 문자열의 마지막에 공백이 있거나 이전 문자가 없는지 여부 확인
-  if (
-    (space.test(last) && !curClassName.includes("hashtag")) ||
-    (!last && !curClassName.includes("hashtag"))
-  ) {
-    // 앞에 공백 문자가 있거나 문자의 가장 처음인 경우 해시 태그 클래스 생성
-    // #이 문자열 중간에 들어온 경우 현재 요소에서 # 이후의 요소를 삭제하고
-    // 새로운 클래스에 삭제된 문자열을 넣어줘야 함
-    // # 이전 문자만 사용
-    container.innerText = textBeforeSharp;
-
-    // 만약 #이후의 문자열이 해새태그에 맞지 않는다면 맞는 부분까지만 잘라서 생성
-    const next = textAfterSharp;
-
-    // 해시태그 유효성을 충족하는 첫번째 문자열만 축출
-    const validHashtag =
-      next.match(/([가-힣ㄱ-ㅎㅏ-ㅣ\p{L}\p{N}_]+)/u)?.[0] || "";
-
-    // 유효한 문자열을 제외한 남은 문자열
-    let restText = textAfterSharp.replace(validHashtag, "");
-
-    // 남은 문자열에서 첫 문자가 공백 문자면 삭제함
-    const first = restText.slice(0, 1);
-
-    restText = space.test(first) ? restText.slice(1) : restText;
-
-    // 이후 문자열은 사이 span에 삽입
-    createBetweenSpan(container, restText);
-
-    // 해시태그 생성 : 유효한 문자열이 있는 경우
-    createHashtag(container, validHashtag);
-
-    // 해시태그 생성 조건에 맞지 않은 경우
-    // 기존 문자열에 # 추가
-    // 커서도 # 뒤로 이동함
-  } else {
-    // 새로운 클래스를 생성하지 않는 경우
-    // 현재 문자열에 # 삽입
-    container.innerText = textBeforeSharp + "#" + textAfterSharp;
-
-    // 현재 클래스가 해시태그인 경우
-    if (container.className.includes("hashtag")) {
-      // 기존의 클래스 삭제
-      container.removeAttribute("class");
-      // 유효성 검사 이벤트 삭제
-      container.removeEventListener("input", (e: Event) =>
-        checkValidHashtag(e as InputEvent)
-      );
-
-      // 이전 요소
-      const prevSibling = container.previousElementSibling;
-      // 이전 요소의 문자열
-      const prevText = prevSibling?.textContent || "";
-      // 이전 요소의 문자열의 길이
-      const prevLength = prevText.length;
-      // 이전 이전 요소
-      const prevPrevSibling = prevSibling?.previousElementSibling;
-      // 다음 요소
-      const nextSibling = container.nextElementSibling;
-
-      // 이전 요소 존재 여부
-      if (prevSibling) {
-        // 이전 요소가 존재하는 경우
-        const text = container.textContent || "";
-
-        // 이전 요소의 텍스트를 합침
-        const combinedText = prevText + text;
-
-        // 합친 텍스트를 넣어줌
-        container.innerText = combinedText;
-
-        // 이전 요소를 삭제함
-        prevSibling.remove();
-
-        // 이전 이전 요소가 존재하는지 확인
-        if (prevPrevSibling) {
-          // 이전 이전 요소가 존재한다면 현재 요소는 between span
-          container.setAttribute("class", `${styles.span} ${styles.between}`);
-        } else {
-          // 이전 이전 요소가 존재하지 않으면 현재 요소는 start span
-          container.setAttribute("class", `${styles.span} ${styles.start}`);
-        }
-      } else {
-        // 이전 요소가 존재하지 않는 경우
-        container.setAttribute("class", `${styles.span} ${styles.start}`);
-      }
-
-      // 다음 요소가 존재하는지 여부 확인
-      if (nextSibling) {
-        // 뒤의 요소가 존재하는 경우
-        const text = container.innerText;
-        const nextText = " " + nextSibling.textContent || " ";
-
-        // 현재 요소과 이후 요소의 텍스트를 합침
-        const newText = text + nextText;
-        // 새로운 텍스트를 넣어줌
-        container.innerText = newText;
-
-        // 다음 요소는 삭제함
-        nextSibling.remove();
-      }
-
-      // 커서를 새로 추가된 # 다음에 위치시킴
-      // 이전 문자열이 존재하는 경우 이전 문자열의 길이를 더해야 함
-      setCursorPosition(container, prevLength + length + 1);
-
-      return;
-    }
-
-    // 커서를 새로 추가된 # 다음에 위치시킴
-    setCursorPosition(container, length + 1);
-  }
-};
-
-// hashtag 클래스 생성하기
-const createHashtag = (container: HTMLElement, textAfterSharp: string) => {
-  const span = document.createElement("span");
-  span.setAttribute("class", `${styles.link} ${styles.hashtag}`);
-  span.setAttribute("contentEditable", "true");
-  span.innerText = "#" + textAfterSharp;
-
-  // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", (e: Event) =>
-    checkValidHashtag(e as InputEvent)
-  );
-
-  container.after(span);
-  setCursorPosition(span, 1);
-};
-
-// hashtag 유효성 확인하기
-const checkValidHashtag = (e: InputEvent) => {
-  e.preventDefault();
-  const target = e.target as HTMLElement;
-
-  // 해시 태그 클래스 안에서만 사용
-  if (!target.className.includes("hashtag")) return;
-
-  // 해시태그 안의 문자열
-  const text = target.innerText;
-
-  // 문자열의 유효성 검사
-  const isValid = validHashtag.test(text);
-
-  // 유효하지 않는 문자가 들어오면 사이 span 생성
-  if (!isValid) {
-    const validText =
-      text.match(/^#([가-힣ㄱ-ㅎㅏ-ㅣ\p{L}\p{N}_]+)/u)?.[0] || "";
-    let restText = text.replace(validText, "");
-
-    // 남은 문자열에서 첫 문자가 공백 문자면 삭제함
-    const first = restText.slice(0, 1);
-    const space = /\s/;
-    restText = space.test(first) ? restText.slice(1) : restText;
-    // 마지막 문자를 가져 처음 문자로 삽입함
-    createBetweenSpan(target, restText);
-
-    target.innerText = validText;
-  }
-};
-
-// 사이 span 생성하기
-// string은 공백을 trim한 문자가 와야 하는 듯
-const createBetweenSpan = (container: HTMLElement, startsWith: string = "") => {
-  console.log(startsWith);
-
-  const span = document.createElement("span");
-  span.setAttribute("class", `${styles.span} ${styles.between}`);
-  span.setAttribute("contentEditable", "true");
-
-  // 제공된 텍스트를 삽입
-  span.innerText = startsWith;
-
-  // 제공된 텍스트의 첫문자만 추출
-  const first = startsWith[0];
-
-  // 유효성 검사 정규 표현식
-  const valid = /([가-힣ㄱ-ㅎㅏ-ㅣ\p{L}\p{N}_]+)/u;
-
-  // 만약 유효하다면 0 아니면 1
-  // 유효한 경우 : 해시태그 안에서 스페이스를 누른 경우 왜냐면 공백문자는 삭제됨
-  // 유효하지 않은 경우: 그 외 허용되지 않는 문자 삽입한 경우
-  const point = valid.test(first) ? 0 : 1;
-
-  container.after(span);
-  setCursorPosition(span, point);
-};
-
-// mention 클래스 생성 가능 여부 확인하기
-const isMention = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  e.preventDefault();
-
-  const selection = window.getSelection();
-  if (!selection) return;
-
-  // 현재 요소
-  const focusNode = selection.focusNode as HTMLElement;
-  if (!focusNode) return;
-
-  // 현재 요소 내부의 텍스트
-  const text = focusNode.textContent;
-
-  // 현재 요소를 감싸고 있는 span 확인
-  const container = text ? (focusNode.parentElement as HTMLElement) : focusNode;
-
-  container.innerText = text + "@";
-  // 멘션 생성 가능 여부 확인하기
-
-  setCursorPosition(container, container.innerText.length);
-  // 멘션 클래스 생성하기
-  // createMention(container);
-};
-
 // normal span 클래스 생성
 const createNormalSpan = (container: HTMLElement, text: string = "") => {
   const span = document.createElement("span");
@@ -819,6 +565,21 @@ const createMention = (container: HTMLElement, text: string) => {
 
   // onInput 이벤트 핸들러 추가
   span.addEventListener("input", (e: Event) => checkValidMention(e));
+
+  container.after(span);
+
+  return span;
+};
+
+// hashtag 클래스 생성하기
+const createHashtag = (container: HTMLElement, textAfterSharp: string) => {
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.link} ${styles.hashtag}`);
+  span.setAttribute("contentEditable", "true");
+  span.innerText = textAfterSharp;
+
+  // onInput 이벤트 핸들러 추가
+  span.addEventListener("input", (e: Event) => checkValidHashtag(e));
 
   container.after(span);
 
@@ -874,9 +635,10 @@ const createUrl = (container: HTMLElement) => {
 
 // 현재 요소에 link 클래스에 적합한 것이 있는지 확인
 const hasLink = () => {
-  const hasIt = hasMention();
+  const isMention = hasMention();
+  const isHashtag = hasHashtag();
 
-  if (hasIt) {
+  if (isMention) {
     const { container, curText, cursorPos } = getContainerElement();
 
     if (!container) return;
@@ -892,7 +654,13 @@ const hasLink = () => {
     // 이후 문자열
     // 유효한 문자열 중 가장 마지막 문자열 이후 문자열들
     // 유효한 문자열 중 가장 마지막 문자열을 기준으로 split하여 1번째 요소를 취함
-    const textAfter = curText.split(valid[valid.length - 1])[1];
+    let lastIndex = 0;
+
+    while (validMention.exec(curText) !== null) {
+      lastIndex = validMention.lastIndex;
+    }
+    const textAfter = curText.slice(lastIndex);
+
     console.log("이후 문자열", textAfter);
 
     // 이후 문자열이 있는 경우
@@ -900,12 +668,10 @@ const hasLink = () => {
       let nextContainer: HTMLElement;
       // 공백 문자로 시작하는 경우
       if (checkSpace(textAfter)) {
-        const gap = createGapSpan(container, textAfter.slice(1));
-        nextContainer = gap;
+        nextContainer = createGapSpan(container, textAfter.slice(1));
       } else {
         // 공백 문자로 시작하지 않는 경우
-        const normal = createNormalSpan(container, textAfter);
-        nextContainer = normal;
+        nextContainer = createNormalSpan(container, textAfter);
       }
 
       const nextSibling = nextContainer.nextElementSibling;
@@ -998,16 +764,267 @@ const hasLink = () => {
 
     setCursorPosition(cursorElement, cursorText.length);
   }
+  if (isHashtag) {
+    const { container, curText, cursorPos } = getContainerElement();
+    if (!container) return;
+
+    // 커서 위치 지정을 위한 변수들
+    let cursorElement = container;
+    let cursorLength = curText.length;
+
+    // 유효한 문자열 배열
+    const valid = curText.match(validHashtag) as RegExpMatchArray;
+
+    console.log("유효한 해시태그 배열", valid);
+
+    // 이후 문자열
+    let lastIndex = 0;
+    while (validHashtag.exec(curText) !== null) {
+      lastIndex = validHashtag.lastIndex;
+    }
+
+    const textAfter = curText.slice(lastIndex);
+    console.log("이후 문자열", textAfter);
+
+    // 이후 문자열이 존재하는 경우: 이후 문자열에 커서가 오는 경우가 없음
+    if (textAfter) {
+      // 이후 문자열을 담은 요소
+      let nextContainer: HTMLElement;
+
+      // 현재 요소 뒤에 다음 요소가 있는지 여부 확인
+      const nextSibling = container.nextElementSibling;
+      const nextClassName = nextSibling?.className;
+      let nextText = "";
+
+      // 만약 다음 요소가 존재하고 그 요소가 span 클래스인 경우
+      if (nextSibling && nextClassName?.includes("span")) {
+        // 이후 span 요소가 gap 클래스인 경우 문자열 앞에 빈문자열을 넣어줌
+        nextText = nextClassName.includes("gap")
+          ? " "
+          : "" + (nextSibling.textContent || "");
+
+        // 다음 요소 삭제
+        nextSibling.remove();
+      }
+
+      // 공백 문자로 시작되는 경우
+      if (checkSpace(textAfter)) {
+        nextContainer = createGapSpan(container, textAfter.slice(1) + nextText);
+      } else {
+        // 공백 문자가 아닌 문자로 시작하는 경우
+        nextContainer = createNormalSpan(container, textAfter + nextText);
+      }
+    }
+
+    // 해시태그 클래스 생성
+    for (let i = valid.length - 1; i >= 0; i--) {
+      const text = valid[i];
+      console.log("유효한 문자열", text);
+      const hashtag = createHashtag(container, text);
+
+      // text가 유효한 문자열 중 마지막인 경우
+      // 다음 요소의 존재를 확인하고 해당 요소가 link인 경우
+      // 두 요소 사이에 normal span 요소를 추가함
+      if (i === valid.length - 1) {
+        const nextSibling = hashtag.nextElementSibling;
+        if (nextSibling && nextSibling.className.includes("link")) {
+          createNormalSpan(hashtag, "");
+        }
+      }
+
+      // 유효한 문자열이 하나밖에 없는 경우
+      if (i === 0 && valid.length === 1) {
+        cursorElement = hashtag;
+        cursorLength = text.length;
+      }
+
+      // 사이 문자열 : 유효한 문자열 사이에 존재하는 문자열
+      const textBetween =
+        // 유효한 문자열이 하나를 초과하고 i가 0보다 큰(이전 유효한 문자열이 존재하는) 경우
+        valid.length > 1 && i > 0
+          ? // 이전 유효한 문자열을 기준으로 문자열을 나누고
+            // 이전 유효한 문자열 다음의 문자열들 중
+            // 다시 @를 기준으로 나준 후 @ 앞의 문자열
+            curText.split(valid[i - 1])[1].split("#")[0]
+          : "";
+      console.log("사이 문자열", textBetween ? textBetween : "없음");
+
+      // 사이 문자열이 있는 경우
+      if (textBetween) {
+        let betweenContainer: HTMLElement;
+
+        // 사이 문자열이 공백 문자로 시작하는 경우
+        if (checkSpace(textBetween)) {
+          betweenContainer = createGapSpan(container, textBetween.slice(1));
+          cursorLength = textBetween.slice(1).length;
+        } else {
+          // 사이 문자열이 공백 문자로 시작하지 않는 경우
+          betweenContainer = createNormalSpan(container, textBetween);
+          cursorLength = textBetween.length;
+        }
+
+        cursorElement = betweenContainer;
+      }
+    }
+
+    // 이전 문자열
+    // 첫 유효한 문자열의 시작 인덱스
+    const index = validHashtag.exec(curText)?.index;
+    console.log("인덱스", index);
+
+    const textBefore = curText.slice(0, index);
+    console.log("이전 문자열", textBefore);
+
+    // 이전 문자열을 현재 요소에 삽입
+    container.innerText = textBefore;
+
+    // 이전 문자열이 있고 해당 문자열의 길이가 현재 커서의 위치보다 길거나 같을 때
+    if (textBefore && textBefore.length >= cursorPos) {
+      cursorElement = container;
+      cursorLength = textBefore.length;
+    } else if (!textBefore) {
+      // 이전 문자열이 없는 경우
+      const prevSibling = container.previousElementSibling;
+      // 이전 요소가 존재하지 않는 경우 : 현재 요소 삭제
+      // 현재 요소가 아무것도 포함하지 않고 이전 요소가 존재하지 않는 경우 삭제
+      if (!prevSibling) {
+        container.remove();
+      }
+    }
+
+    setCursorPosition(cursorElement, cursorLength);
+  }
+};
+
+// 현재 요소 안에 해시태그에 적합한 문자열이 있는지 확인
+const hasHashtag = () => {
+  const { container, curText } = getContainerElement();
+
+  if (!container) return;
+  console.log("현재 작성 중인 문자열", curText);
+
+  console.log("적용되는 정규 표현식", validHashtag);
+
+  const isValid = validHashtag.test(curText);
+
+  return isValid;
+};
+
+// 해시태그 클래스 내에서의 유효성 검사
+const checkValidHashtag = (e: Event) => {
+  const { container, curText, cursorPos } = getContainerElement();
+  if (!container) return;
+
+  // 현재 요소가 해시태그 클래스가 아니면 적용 안됨
+  if (!container.className.includes("hashtag")) return;
+
+  let cursorElement = container;
+  let cursorLength = curText.length;
+
+  // 이전 요소
+  const prevSibling = container.previousElementSibling as HTMLElement;
+  const prevText = prevSibling?.textContent || "";
+
+  // 이후 요소
+  const nextSibling = container.nextElementSibling;
+  const nextText = nextSibling?.textContent || "";
+
+  // 유효성을 충족하는 문자열 배열
+  const matchArr = curText.match(validHashtag);
+  console.log("유효성을 충족하는 해시태그 배열", matchArr);
+
+  // 유효성을 충족하지 않는 부분
+  const unmatched = curText.slice(matchArr?.[0].length);
+
+  // 현재 요소 안에 유효성을 충족하는 문자열이 없는 경우
+  if (!matchArr) {
+    // 현재 요소의 클래스 삭제
+    container.removeAttribute("class");
+
+    let combinedText = curText;
+
+    // 이후 요소가 존재하고 해당 클래스가 span인 경우 : 텍스트는 병합하고 이후 요소 삭제
+    if (nextSibling && nextSibling.className.includes("span")) {
+      // 현재 요소의 텍스트와 병합
+      combinedText =
+        curText + (nextSibling.className.includes("gap") ? " " : "") + nextText;
+
+      // 다음 요소 삭제
+      nextSibling.remove();
+    }
+
+    // 이전 요소가 존재하고 해당 클래스가 span인 경우 : 텍스트는 병합하고 현재 요소는 삭제
+    if (prevSibling && prevSibling.className.includes("span")) {
+      // 현재 텍스트와 병합
+      combinedText = prevText + combinedText;
+
+      // 병합한 텍스트를 이전 요소에 삽입
+      prevSibling.innerText = combinedText;
+
+      // 현재 클래스 삭제
+      container.remove();
+
+      // 커서 지정
+      cursorElement = prevSibling;
+      cursorLength = combinedText.length + cursorPos; // cursorPos가 필요한지 모르겠음
+    } else if (!prevSibling) {
+      // 이전 요소가 존재하지 않는 경우
+      // 병합한 문자열을 현재 문자열에 삽입
+      container.innerText = combinedText;
+
+      // 현재 요소를 normal span 클래스로 변경
+      container.setAttribute("class", `${styles.span} ${styles.normal}`);
+
+      // 커서 지정
+      cursorElement = container;
+      cursorLength = cursorPos;
+    }
+  } else if (unmatched) {
+    // 유효한 문자열이 존재하지만 유효하지 않는 문자열도 존재하는 경우
+    // 유효한 문자열은 현재 요소에 그대로 두고
+    // 유효하지 않는 문자열은 현재 요소 다음에 span을 생성해서 삽입함
+
+    // 유효하지 않는 문자열이 공백 문자로 시작하는지 여부에 따라 앞 부분을 잘라줌
+    let combinedText = checkSpace(unmatched) ? unmatched.slice(1) : unmatched;
+
+    // 이후 요소가 존재하고 span 클래스인 경우
+    if (nextSibling && nextSibling.className.includes("span")) {
+      // 이후 요소의 클래스를 병합
+      combinedText =
+        combinedText + (checkSpace(nextText) ? " " : "") + nextText;
+
+      // 이후 요소 삭제
+      nextSibling.remove();
+    }
+
+    // 유효하지 않는 문자열이 공백 문자로 시작하는지 여부 확인
+    if (checkSpace(unmatched)) {
+      const gap = createGapSpan(container, combinedText);
+
+      // 커서 지정
+      cursorElement = gap;
+      cursorLength = 0;
+    } else {
+      const normal = createNormalSpan(container, combinedText);
+
+      // 커서 지정
+      cursorElement = normal;
+      cursorLength = 1;
+    }
+
+    // 현재 요소에는 유효성에 적합한 문자열만 포함
+    container.innerText = matchArr[0];
+  }
+
+  setCursorPosition(cursorElement, cursorLength);
 };
 
 // 현재 요소가 멘션에 적합한 문자열이 있는지 확인
 const hasMention = () => {
-  const { container } = getContainerElement();
+  const { container, curText } = getContainerElement();
 
   if (!container) return;
 
-  // 현재 요소의 문자열
-  const curText = container.textContent || "";
   console.log("현재 작성 중인 문자열", curText);
 
   // 적용되는 정규 표현식
@@ -1155,12 +1172,9 @@ export {
   movedown,
   moveLeft,
   moveRight,
-  isHashtag,
   createHashtag,
-  isMention,
   createMention,
   isURL,
-  createBetweenSpan,
   createNormalSpan,
   setCursorPosition,
   hasLink,

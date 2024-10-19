@@ -4,7 +4,6 @@ import {
   createNewLine,
   getContainerElement,
   hasLink,
-  isHashtag,
   isURL,
   movedown,
   moveLeft,
@@ -65,10 +64,6 @@ const TextEditor = () => {
       moveLeft(e);
     } else if (key === "ArrowRight") {
       moveRight(e);
-    } else if (key === "#") {
-      isHashtag(e);
-    } else if (key === ".") {
-      isURL(e);
     }
   };
 

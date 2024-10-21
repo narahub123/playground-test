@@ -6,6 +6,7 @@ import {
   getContainerElement,
   hasLink,
   movedown,
+  moveEnd,
   moveLeft,
   moveRight,
   moveStart,
@@ -69,6 +70,8 @@ const TextEditor = () => {
       deleteByBackspace(e);
     } else if (key === "Home") {
       moveStart(e);
+    } else if (key === "End") {
+      moveEnd(e);
     }
   };
 

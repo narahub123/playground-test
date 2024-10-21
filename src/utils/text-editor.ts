@@ -986,19 +986,29 @@ const getContainerElement = () => {
 };
 
 /// ------------------------------------------------------
-// Home 키 
+// Home 키
 const moveStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
   const { container } = getContainerElement();
   if (!container) return;
 
   const line = container.parentElement as HTMLElement;
 
-  const children = line.children;
-
-  // 가장 첫 자식 요소
-  const firstChild = children[0] as HTMLElement;
+  const firstChild = line.firstChild as HTMLElement;
 
   setCursorPosition(firstChild, 0);
+};
+
+// End 키
+const moveEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const { container } = getContainerElement();
+  if (!container) return;
+
+  const line = container.parentElement as HTMLElement;
+
+  const lastChild = line.lastChild as HTMLElement;
+  const text = lastChild.textContent || "";
+
+  setCursorPosition(lastChild, text.length);
 };
 
 export {
@@ -1014,4 +1024,5 @@ export {
   deleteByBackspace,
   checkValidLink,
   moveStart,
+  moveEnd,
 };

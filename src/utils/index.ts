@@ -10,6 +10,7 @@ import {
   getContainerElement,
   deleteByBackspace,
   moveStart,
+  moveEnd,
 } from "./text-editor";
 
 export {
@@ -24,4 +25,5 @@ export {
   getContainerElement,
   deleteByBackspace,
   moveStart,
+  moveEnd,
 };

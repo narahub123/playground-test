@@ -8,6 +8,7 @@ import {
   setCursorPosition,
   hasLink,
   getContainerElement,
+  deleteByBackspace,
 } from "./text-editor";
 
 export {
@@ -20,4 +21,5 @@ export {
   setCursorPosition,
   hasLink,
   getContainerElement,
+  deleteByBackspace,
 };

@@ -1,5 +1,4 @@
 import { validHashtag, validMention, validURL } from "../data";
-import { Hashtag } from "../pages";
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
 const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -15,15 +14,19 @@ const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
   console.log("현재 선택된 요소", focusNode);
 
   if (!focusNode) return;
+
+  const text = focusNode.textContent;
   // 현재 커서가 있는 span의 부모 요소
-  const parent = focusNode.parentElement;
+  const parent = text
+    ? focusNode.parentElement?.parentElement
+    : focusNode.parentElement;
   console.log("현재 선택된 요소의 부모 요소 ", parent);
 
   const div = document.createElement("div");
   div.setAttribute("class", styles.line);
 
   const span = document.createElement("span");
-  span.setAttribute("class", styles.span);
+  span.setAttribute("class", `${styles.span} ${styles.normal}`);
   span.setAttribute("contentEditable", "true");
 
   div.appendChild(span);
@@ -130,7 +133,6 @@ const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
     return;
   }
-  console.log(selection);
 
   const focusNode = selection.focusNode as HTMLElement;
   const focusOffset = selection.focusOffset;
@@ -330,6 +332,101 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   }
 };
 
+// backspace를 이용한 삭제
+const deleteByBackspace = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  // backspace가 preventDefault가 되어 있더라도 process 인 경우에는
+  // 삭제가 진행됨 주의
+  const { container, curText, cursorPos } = getContainerElement();
+  if (!container) return;
+
+  let cursorElement = container;
+  let cursorLength = cursorPos;
+
+  // 부모 요소 : line
+  const line = container.parentElement;
+  if (!line) return;
+
+  // 이전 요소 : line
+  const prevLine = line.previousElementSibling as HTMLElement;
+
+  const lastPrevSpan = prevLine?.lastChild as HTMLElement;
+  const lastPrevText = lastPrevSpan?.textContent || "";
+
+  // 현재 span 이전 span
+  const prevSpan = container.previousElementSibling as HTMLElement;
+  const prevText = prevSpan?.textContent || "";
+
+  // 다음 요소들
+  const nextSpans = line.children;
+
+  // 현재 요소 내에서 위치가 0 인 경우
+  if (cursorPos === 0) {
+    // 이전 요소가 있는 경우
+    if (prevSpan) {
+      // span 앞에 link가 있는 경우만 생각하면됨
+      const combinedText = prevText + curText;
+      prevSpan.innerText = combinedText;
+
+      container.remove();
+
+      cursorElement = prevSpan;
+      cursorLength = prevText.length;
+    } else {
+      // 이전 요소가 없는 경우
+      // 이전 줄이 있는 경우
+      if (prevLine) {
+        // 다음 요소가 없는 경우
+
+        // 다음 요소가 있는 경우
+        for (let i = nextSpans.length - 1; i >= 0; i--) {
+          const nextSpan = nextSpans[i];
+
+          if (i === 0) {
+            // 이전 요소 삭제 방지
+            e.preventDefault();
+
+            if (
+              container.className.includes("span") &&
+              lastPrevSpan.className.includes("span")
+            ) {
+              const newText = lastPrevText + curText;
+              lastPrevSpan.innerText = newText;
+
+              container.remove();
+
+              // 커서 지정
+              cursorElement = lastPrevSpan;
+              cursorLength = lastPrevText.length;
+            } else if (
+              container.className.includes("link") &&
+              lastPrevSpan.className.includes("link")
+            ) {
+              lastPrevSpan.after(container);
+              const normal = createNormalSpan(lastPrevSpan, "");
+
+              // 커서 지정
+              cursorElement = normal;
+              cursorLength = 0;
+            } else {
+              lastPrevSpan.after(container);
+            }
+          } else {
+            lastPrevSpan.after(nextSpan);
+          }
+        }
+
+        line.remove();
+      }
+      // 이전 라인이 없는 경우는 첫 줄인 경우인데 이 경우에는 앞에 요소가 있는 경우만 생각함
+    }
+  }
+
+  // backspace가 누르면 가장 나중 문자를 삭제함(삭제 구현)
+  // container.innerText = curText.slice(0, curText.length - 1 || 0);
+  // 커서가 앞으로 움직이는 문제 해결 => 커서가 /삭제시에는 마지막 존재하도록 함
+  setCursorPosition(cursorElement, cursorLength);
+};
+
 // 커서 위치 찾기
 const getCursorPos = (selection: Selection) => {
   const focusNode = selection.focusNode as HTMLElement;
@@ -488,8 +585,10 @@ const getPreviousLineElementByPosition = (x: number, curElem: HTMLElement) => {
 // 요소 내 위치 찾기
 const getPosition = (elem: HTMLElement, pos: number) => {
   let index = 0;
+  console.log(elem);
+
   // 요소 내 문자열
-  const text = elem.textContent || "";
+  const text = elem?.textContent || "";
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -585,6 +684,7 @@ const createLinkClass = (
   return span;
 };
 
+// ---------------------------------------------------------
 // 현재 요소에 link 클래스에 적합한 것이 있는지 확인
 const hasLink = () => {
   const validLink = isLink();
@@ -855,6 +955,8 @@ const checkValidLink = () => {
   setCursorPosition(cursorElement, cursorLength);
 };
 
+// -----------------------------------------------------------
+
 // 공백 문자로 시작하는지 여부 확인
 const checkSpace = (text: string) => {
   return /^\s/.test(text);
@@ -893,4 +995,6 @@ export {
   setCursorPosition,
   hasLink,
   getContainerElement,
+  deleteByBackspace,
+  checkValidLink,
 };

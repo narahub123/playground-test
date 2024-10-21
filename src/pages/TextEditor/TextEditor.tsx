@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import styles from "./TextEditor.module.css";
 import {
   createNewLine,
+  deleteByBackspace,
   getContainerElement,
   hasLink,
   movedown,
@@ -51,7 +52,7 @@ const TextEditor = () => {
   // 키보드 이벤트
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const key = e.key;
-    // console.log("눌린 키", key);
+    console.log("눌린 키", key);
 
     if (key === "Enter") {
       createNewLine(e);
@@ -63,6 +64,8 @@ const TextEditor = () => {
       moveLeft(e);
     } else if (key === "ArrowRight") {
       moveRight(e);
+    } else if (key === "Backspace") {
+      deleteByBackspace(e);
     }
   };
 

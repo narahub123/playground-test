@@ -11,6 +11,8 @@ import {
   deleteByBackspace,
   moveStart,
   moveEnd,
+  movePageUp,
+  movePageDown,
 } from "./text-editor";
 
 export {
@@ -26,4 +28,6 @@ export {
   deleteByBackspace,
   moveStart,
   moveEnd,
+  movePageUp,
+  movePageDown,
 };

@@ -1011,6 +1011,94 @@ const moveEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
   setCursorPosition(lastChild, text.length);
 };
 
+// PgUp 키
+const movePageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const { container, cursorPos } = getContainerElement();
+
+  if (!container) return;
+
+  const content = container.parentElement?.parentElement;
+
+  if (!content) return;
+
+  const firstLine = content.firstChild as HTMLElement;
+
+  const selection = window.getSelection();
+
+  if (!selection) return;
+  const point = getCursorPos(selection);
+  console.log(point);
+
+  // 이동할 요소와 요소의 left 좌표
+  const { elem, xPos } = getElementInLineByPosition(
+    point,
+    container,
+    firstLine
+  );
+
+  console.log(elem, xPos);
+
+  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
+  const index = getPosition(elem, point - xPos);
+
+  setCursorPosition(elem, index);
+};
+
+const getElementInLineByPosition = (
+  x: number,
+  curElem: HTMLElement,
+  targetLine: HTMLElement
+) => {
+  let elem = undefined;
+  let xPos = undefined;
+  // 줄 요소 찾기
+  const line = curElem.parentElement;
+  // 현재 위치 고수
+  const length = curElem.textContent ? curElem.textContent.length : 0;
+
+  if (!line) {
+    elem = curElem;
+    xPos = length;
+
+    return { elem, xPos };
+  }
+
+  const children = targetLine.children;
+
+  // 자식 요소들의 left의 합
+  xPos = 0;
+
+  let i = 0;
+  let chosen = 0;
+
+  // 자식 요소들의 left의 좌표가 커서의 위치보다 클 때까지
+  while (xPos <= x && children[i]) {
+    const child = children[i];
+
+    const left = child.getBoundingClientRect().left;
+
+    if (left > x) {
+      chosen = i - 1;
+      xPos = children[i - 1].getBoundingClientRect().left;
+      break;
+    } else if (i === children.length - 1) {
+      chosen = i;
+      xPos = left;
+      break;
+    }
+
+    xPos = left;
+    i++;
+  }
+
+  elem = children[chosen];
+
+  return { elem: elem as HTMLElement, xPos };
+};
+
+// PgDn 키
+const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {};
+
 export {
   createNewLine,
   moveup,
@@ -1025,4 +1113,6 @@ export {
   checkValidLink,
   moveStart,
   moveEnd,
+  movePageUp,
+  movePageDown,
 };

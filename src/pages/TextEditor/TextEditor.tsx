@@ -8,6 +8,8 @@ import {
   movedown,
   moveEnd,
   moveLeft,
+  movePageDown,
+  movePageUp,
   moveRight,
   moveStart,
   moveup,
@@ -72,6 +74,10 @@ const TextEditor = () => {
       moveStart(e);
     } else if (key === "End") {
       moveEnd(e);
+    } else if (key === "PageUp") {
+      movePageUp(e);
+    } else if (key === "PageDown") {
+      movePageDown(e);
     }
   };
 

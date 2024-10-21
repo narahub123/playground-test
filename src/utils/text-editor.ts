@@ -723,8 +723,6 @@ const isLink = () => {
   const { container, curText } = getContainerElement();
   if (!container) return "";
 
-  console.log("적용되는 정규 표현식", validURL);
-
   const hashtag = validHashtag.test(curText);
 
   console.log(`유효한 hashtag 존재 ${hashtag ? "함" : "안함"}`);
@@ -738,58 +736,14 @@ const isLink = () => {
 
   console.log(`유효한 url 존재 ${url ? "함" : "안함"}`);
 
+  console.log(
+    "적용되는 정규 표현식",
+    hashtag ? validHashtag : mention ? validMention : validURL
+  );
+
   const isValid = hashtag ? "hashtag" : mention ? "mention" : url ? "url" : "";
 
   return isValid;
-};
-
-// 현재 요소 안에 url에 적합한 문자열이 있는지 확인
-const hasUrl = () => {
-  const { container, curText } = getContainerElement();
-  if (!container) return "";
-
-  console.log("적용되는 정규 표현식", validURL);
-
-  const isValid = validURL.test(curText);
-
-  console.log(`유효한 url 존재 ${isValid ? "함" : "안함"}`);
-
-  return isValid ? "url" : "";
-};
-
-// 현재 요소 안에 해시태그에 적합한 문자열이 있는지 확인
-const hasHashtag = () => {
-  const { container, curText } = getContainerElement();
-
-  if (!container) return "";
-
-  console.log("적용되는 정규 표현식", validHashtag);
-
-  const isValid = validHashtag.test(curText);
-
-  console.log(`유효한 hashtag 존재 ${isValid ? "함" : "안함"}`);
-
-  return isValid ? "hashtag" : "";
-};
-
-// 현재 요소가 멘션에 적합한 문자열이 있는지 확인
-const hasMention = () => {
-  const { container, curText } = getContainerElement();
-
-  if (!container) return "";
-
-  // 유효성을 검사하는 현재 텍스트
-  console.log("유효성 검사 텍스트", curText);
-
-  // 적용되는 정규 표현식
-  console.log("적용되는 정규 표현식", validMention);
-
-  // 유효한 문자열이 있는지 확인
-  const isValid = validMention.test(curText);
-
-  console.log(`유효한 mention 존재 ${isValid ? "함" : "안함"}`);
-
-  return isValid ? "mention" : "";
 };
 
 const checkValidLink = () => {

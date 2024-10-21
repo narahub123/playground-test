@@ -8,6 +8,7 @@ import {
   movedown,
   moveLeft,
   moveRight,
+  moveStart,
   moveup,
 } from "../../utils";
 
@@ -66,6 +67,8 @@ const TextEditor = () => {
       moveRight(e);
     } else if (key === "Backspace") {
       deleteByBackspace(e);
+    } else if (key === "Home") {
+      moveStart(e);
     }
   };
 

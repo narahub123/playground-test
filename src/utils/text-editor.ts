@@ -985,6 +985,22 @@ const getContainerElement = () => {
   return { container, curText: text, cursorPos: focusOffset };
 };
 
+/// ------------------------------------------------------
+// Home 키 
+const moveStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const { container } = getContainerElement();
+  if (!container) return;
+
+  const line = container.parentElement as HTMLElement;
+
+  const children = line.children;
+
+  // 가장 첫 자식 요소
+  const firstChild = children[0] as HTMLElement;
+
+  setCursorPosition(firstChild, 0);
+};
+
 export {
   createNewLine,
   moveup,
@@ -997,4 +1013,5 @@ export {
   getContainerElement,
   deleteByBackspace,
   checkValidLink,
+  moveStart,
 };

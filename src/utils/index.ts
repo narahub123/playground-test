@@ -9,6 +9,7 @@ import {
   hasLink,
   getContainerElement,
   deleteByBackspace,
+  moveStart,
 } from "./text-editor";
 
 export {
@@ -22,4 +23,5 @@ export {
   hasLink,
   getContainerElement,
   deleteByBackspace,
+  moveStart,
 };

@@ -1013,7 +1013,7 @@ const moveEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
 // PgUp 키
 const movePageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  const { container, cursorPos } = getContainerElement();
+  const { container } = getContainerElement();
 
   if (!container) return;
 
@@ -1027,7 +1027,6 @@ const movePageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   if (!selection) return;
   const point = getCursorPos(selection);
-  console.log(point);
 
   // 이동할 요소와 요소의 left 좌표
   const { elem, xPos } = getElementInLineByPosition(
@@ -1035,8 +1034,6 @@ const movePageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
     container,
     firstLine
   );
-
-  console.log(elem, xPos);
 
   // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
   const index = getPosition(elem, point - xPos);
@@ -1097,7 +1094,34 @@ const getElementInLineByPosition = (
 };
 
 // PgDn 키
-const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {};
+const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const { container } = getContainerElement();
+
+  if (!container) return;
+
+  const content = container.parentElement?.parentElement;
+
+  if (!content) return;
+
+  const lastChild = content.lastChild as HTMLElement;
+
+  const selection = window.getSelection();
+
+  if (!selection) return;
+  const point = getCursorPos(selection);
+
+  // 이동할 요소와 요소의 left 좌표
+  const { elem, xPos } = getElementInLineByPosition(
+    point,
+    container,
+    lastChild
+  );
+
+  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
+  const index = getPosition(elem, point - xPos);
+
+  setCursorPosition(elem, index);
+};
 
 export {
   createNewLine,

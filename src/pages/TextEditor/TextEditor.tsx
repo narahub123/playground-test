@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import styles from "./TextEditor.module.css";
 import {
   createNewLine,
   getContainerElement,
   hasLink,
-  isURL,
   movedown,
   moveLeft,
   moveRight,

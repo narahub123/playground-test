@@ -564,7 +564,7 @@ const createMention = (container: HTMLElement, text: string) => {
   span.innerText = text;
 
   // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", (e: Event) => checkValidMention(e));
+  span.addEventListener("input", () => checkValidLink());
 
   container.after(span);
 
@@ -579,7 +579,7 @@ const createHashtag = (container: HTMLElement, text: string) => {
   span.innerText = text;
 
   // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", (e: Event) => checkValidHashtag(e));
+  span.addEventListener("input", () => checkValidLink());
 
   container.after(span);
 
@@ -595,7 +595,35 @@ const createUrl = (container: HTMLElement, text: string) => {
   span.innerText = text;
 
   // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", (e: Event) => checkValidURL(e));
+  span.addEventListener("input", () => checkValidLink());
+
+  container.after(span);
+
+  return span;
+};
+
+const createLinkClass = (
+  container: HTMLElement,
+  text: string,
+  className: string
+) => {
+  const classname =
+    className === "mention"
+      ? styles.mention
+      : className === "hashtag"
+      ? styles.hashtag
+      : className === "url"
+      ? styles.url
+      : "";
+
+  const span = document.createElement("span");
+  span.setAttribute("class", `${styles.link} ${classname}`);
+  span.setAttribute("contentEditable", "true");
+
+  span.innerText = text;
+
+  // onInput 이벤트 핸들러 추가
+  span.addEventListener("input", () => checkValidLink());
 
   container.after(span);
 
@@ -1289,6 +1317,115 @@ const checkValidMention = (e: Event) => {
 
   // 멘션 클래스 내 유효성 충족하는 문자열의 배열
   const matchArr = curText.match(validMention);
+  console.log("멘션 클래스 내 유효성 충족하는 문자열의 배열", matchArr);
+
+  // 유효성을 충족하지 않는 부분
+  const unmatched = curText.slice(matchArr?.[0].length);
+
+  // 멘션 클래스 내에 유효성을 충족하는 문자열이 없는 경우
+  if (!matchArr) {
+    // 멘션 클래스 삭제
+    container.removeAttribute("class");
+
+    let combinedText = curText;
+    console.log(combinedText);
+
+    // 이후 요소가 존재하고 span 클래스라면 병합
+    if (nextSibling && nextSibling.className.includes("span")) {
+      combinedText =
+        curText + (nextSibling.className.includes("gap") ? " " : "") + nextText;
+
+      nextSibling.remove();
+    }
+
+    // 이전 요소가 있고 span 클래스라면 병합
+    if (prevSibling && prevSibling.className.includes("span")) {
+      // 이전 요소의 텍스트와 현재 텍스트와 병합
+      combinedText = prevText + combinedText;
+      // 합친 텍스트를 이전 요소에 삽입
+      prevSibling.innerText = combinedText;
+
+      // 현재 클래스 삭제
+      container.remove();
+      cursorElement = prevSibling;
+      cursorLength = combinedText.length + cursorPos;
+    } else if (!prevSibling) {
+      container.innerText = combinedText;
+
+      container.setAttribute("class", `${styles.span} ${styles.normal}`);
+      cursorElement = container;
+      cursorLength = cursorPos;
+    }
+  } else if (unmatched) {
+    // 멘션 클래스 내에 유효성을 충족하는 문자열의 배열이 있는 경우
+    // 유효성을 충족하는 부분은 그대로 남기로 충족하지 않는 부분만 span으로 넘김
+    console.log("유효성을 충족하지 않는 부분", unmatched);
+
+    // 문자열 공백 문자로 시작하면 제거하고 아니며 그대로
+    let newText = checkSpace(unmatched) ? unmatched.slice(1) : unmatched;
+    console.log(newText);
+
+    // 이후 요소가 존재하고 이후 요소가 span 클래스인 지 확인
+    if (nextSibling && nextSibling.className.includes("span")) {
+      // 유효성을 충족하지 않은 문자열과 다음 요소의 문자열을 병합
+      newText += (nextSibling.className.includes("gap") ? " " : "") + nextText;
+
+      // 이후 요소 삭제
+      nextSibling.remove();
+    }
+
+    // 유효성을 충족하지 않는 문자열이 공백문자로 시작하는지 확인
+    if (checkSpace(unmatched)) {
+      // 공백문자로 시작하는 경우 : gap span 생성
+      const gap = createGapSpan(container, newText);
+
+      cursorElement = gap;
+      cursorLength = 0;
+    } else {
+      // 공백문자로 시작하지 않는  경우 : normal 생성
+      const normal = createNormalSpan(container, newText);
+
+      cursorElement = normal;
+      cursorLength = 1;
+    }
+
+    // 현재 요소에 유효성 적합한 문자열만 포함
+    container.innerText = matchArr[0];
+  }
+
+  setCursorPosition(cursorElement, cursorLength);
+};
+
+const checkValidLink = () => {
+  const { container, curText, cursorPos } = getContainerElement();
+
+  if (!container) return;
+
+  // 링크 클래스 내에서의 유효성 검사이기 때문에 링크 클래스가 아닌 경우 적용 안됨
+  if (!container.className.includes("link")) return;
+
+  let cursorElement = container;
+  let cursorLength = curText.length;
+
+  // 이전 요소
+  const prevSibling = container.previousElementSibling as HTMLElement;
+  const prevText = prevSibling?.textContent || "";
+
+  // 이후 요소
+  const nextSibling = container.nextElementSibling as HTMLElement;
+  const nextText = nextSibling?.textContent || "";
+  console.log("이후 요소의 문자열", nextText);
+
+  const className = container.className;
+  const validation = className.includes("mention")
+    ? validMention
+    : className.includes("hashtag")
+    ? validHashtag
+    : className.includes("url")
+    ? validURL
+    : "";
+  // 멘션 클래스 내 유효성 충족하는 문자열의 배열
+  const matchArr = curText.match(validation);
   console.log("멘션 클래스 내 유효성 충족하는 문자열의 배열", matchArr);
 
   // 유효성을 충족하지 않는 부분

@@ -1,4 +1,5 @@
 import { validHashtag, validMention, validURL } from "../data";
+import { Hashtag } from "../pages";
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
 const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -556,52 +557,6 @@ const createGapSpan = (container: HTMLElement, text: string = "") => {
   return span;
 };
 
-// mention 클래스 생성
-const createMention = (container: HTMLElement, text: string) => {
-  const span = document.createElement("span");
-  span.setAttribute("class", `${styles.link} ${styles.mention}`);
-  span.setAttribute("contentEditable", "true");
-  span.innerText = text;
-
-  // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", () => checkValidLink());
-
-  container.after(span);
-
-  return span;
-};
-
-// hashtag 클래스 생성하기
-const createHashtag = (container: HTMLElement, text: string) => {
-  const span = document.createElement("span");
-  span.setAttribute("class", `${styles.link} ${styles.hashtag}`);
-  span.setAttribute("contentEditable", "true");
-  span.innerText = text;
-
-  // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", () => checkValidLink());
-
-  container.after(span);
-
-  return span;
-};
-
-// url 클래스 생성
-const createUrl = (container: HTMLElement, text: string) => {
-  const span = document.createElement("span");
-  span.setAttribute("class", `${styles.link} ${styles.url}`);
-  span.setAttribute("contentEditable", "true");
-
-  span.innerText = text;
-
-  // onInput 이벤트 핸들러 추가
-  span.addEventListener("input", () => checkValidLink());
-
-  container.after(span);
-
-  return span;
-};
-
 const createLinkClass = (
   container: HTMLElement,
   text: string,
@@ -632,11 +587,9 @@ const createLinkClass = (
 
 // 현재 요소에 link 클래스에 적합한 것이 있는지 확인
 const hasLink = () => {
-  const isMention = hasMention();
-  const isHashtag = hasHashtag();
-  const isUrl = hasUrl();
+  const validLink = isLink();
 
-  if (isMention) {
+  if (validLink) {
     const { container, curText, cursorPos } = getContainerElement();
 
     if (!container) return;
@@ -645,17 +598,25 @@ const hasLink = () => {
     let cursorElement = container;
     let cursorText = "";
 
+    const validation =
+      validLink === "hashtag"
+        ? validHashtag
+        : validLink === "mention"
+        ? validMention
+        : validLink === "url"
+        ? validURL
+        : undefined;
+
+    if (!validation) return;
+
     // 유효한 문자열 배열
-    const valid = curText.match(validMention) as RegExpMatchArray;
-
+    const valid = curText.match(validation) as RegExpMatchArray;
     console.log("유효한 문자열 배열", valid);
-    // 이후 문자열
-    // 유효한 문자열 중 가장 마지막 문자열 이후 문자열들
-    // 유효한 문자열 중 가장 마지막 문자열을 기준으로 split하여 1번째 요소를 취함
-    let lastIndex = 0;
 
-    while (validMention.exec(curText) !== null) {
-      lastIndex = validMention.lastIndex;
+    // 이후 문자열
+    let lastIndex = 0;
+    while (validation.exec(curText) !== null) {
+      lastIndex = validation.lastIndex;
     }
     const textAfter = curText.slice(lastIndex);
 
@@ -691,28 +652,26 @@ const hasLink = () => {
     for (let i = valid.length - 1; i >= 0; i--) {
       const text = valid[i];
       console.log("유효한 문자열", text);
-      const mention = createMention(container, text);
 
+      const link = createLinkClass(container, text, validLink);
+
+      if (!link) return;
       // text가 가장 나중 문자열인 경우
       if (i === valid.length - 1) {
         // 다음 요소 확인
-        const nextSpan = mention.nextElementSibling;
+        const nextSpan = link.nextElementSibling;
         if (nextSpan && nextSpan.className.includes("link")) {
-          createNormalSpan(mention, "");
+          createNormalSpan(link, "");
         }
       }
       if (i === 0 && valid.length === 1) {
         // 유효한 문자열이 하나만 존재한는 경우
-        cursorElement = mention;
+        cursorElement = link;
         cursorText = text;
       }
 
       // 사이 문자열
-      // 유효한 문자열이 2개 이상있을 때 그 사이의 문자열
-      // 이전 유효성 이후에 와야 함 curElement를 이전 유효성 요소로 변경
-      // 사이 문자열의 시작이 빈문자열인 경우 => gap span 생성
-      // 사이 문자열의 시작이 빈문자열이 아닌 경우 => normal span 생성
-      // 사이 문자열이 존재하는지 확인
+
       const textBetween =
         valid.length > 1 && i > 0
           ? curText.split(valid[i - 1])[1].split("@")[0]
@@ -735,11 +694,7 @@ const hasLink = () => {
     }
 
     // 이전 문자열
-    // 그 이외의 클래스에서는 존재할 수 있음
-    // 이전 문자열이 존재하는 경우 이전 문자열은 기존 클래스에 추가해야 함
-    // 이전 문자열
-    // 첫번째 유효한 문자열의 index를 찾기 위해서 exec를 이용함
-    const index = validMention.exec(curText)?.index;
+    const index = validation.exec(curText)?.index;
     const textBefore = curText.slice(0, index);
     console.log("이전 문자열", textBefore);
     // 이전 문자열은 기존 요소에 삽입
@@ -762,528 +717,69 @@ const hasLink = () => {
 
     setCursorPosition(cursorElement, cursorText.length);
   }
-  if (isHashtag) {
-    const { container, curText, cursorPos } = getContainerElement();
-    if (!container) return;
+};
 
-    // 커서 위치 지정을 위한 변수들
-    let cursorElement = container;
-    let cursorLength = curText.length;
+const isLink = () => {
+  const { container, curText } = getContainerElement();
+  if (!container) return "";
 
-    // 유효한 문자열 배열
-    const valid = curText.match(validHashtag) as RegExpMatchArray;
+  console.log("적용되는 정규 표현식", validURL);
 
-    console.log("유효한 해시태그 배열", valid);
+  const hashtag = validHashtag.test(curText);
 
-    // 이후 문자열
-    let lastIndex = 0;
-    while (validHashtag.exec(curText) !== null) {
-      lastIndex = validHashtag.lastIndex;
-    }
+  console.log(`유효한 hashtag 존재 ${hashtag ? "함" : "안함"}`);
 
-    const textAfter = curText.slice(lastIndex);
-    console.log("이후 문자열", textAfter);
+  // 유효한 문자열이 있는지 확인
+  const mention = validMention.test(curText);
 
-    // 이후 문자열이 존재하는 경우: 이후 문자열에 커서가 오는 경우가 없음
-    if (textAfter) {
-      // 현재 요소 뒤에 다음 요소가 있는지 여부 확인
-      const nextSibling = container.nextElementSibling;
-      const nextClassName = nextSibling?.className;
-      let nextText = "";
+  console.log(`유효한 mention 존재 ${mention ? "함" : "안함"}`);
 
-      // 만약 다음 요소가 존재하고 그 요소가 span 클래스인 경우
-      if (nextSibling && nextClassName?.includes("span")) {
-        // 이후 span 요소가 gap 클래스인 경우 문자열 앞에 빈문자열을 넣어줌
-        nextText = nextClassName.includes("gap")
-          ? " "
-          : "" + (nextSibling.textContent || "");
+  const url = validURL.test(curText);
 
-        // 다음 요소 삭제
-        nextSibling.remove();
-      }
+  console.log(`유효한 url 존재 ${url ? "함" : "안함"}`);
 
-      // 공백 문자로 시작되는 경우
-      if (checkSpace(textAfter)) {
-        createGapSpan(container, textAfter.slice(1) + nextText);
-      } else {
-        // 공백 문자가 아닌 문자로 시작하는 경우
-        createNormalSpan(container, textAfter + nextText);
-      }
-    }
+  const isValid = hashtag ? "hashtag" : mention ? "mention" : url ? "url" : "";
 
-    // 해시태그 클래스 생성
-    for (let i = valid.length - 1; i >= 0; i--) {
-      const text = valid[i];
-      console.log("유효한 문자열", text);
-      const hashtag = createHashtag(container, text);
-
-      // text가 유효한 문자열 중 마지막인 경우
-      // 다음 요소의 존재를 확인하고 해당 요소가 link인 경우
-      // 두 요소 사이에 normal span 요소를 추가함
-      if (i === valid.length - 1) {
-        const nextSibling = hashtag.nextElementSibling;
-        if (nextSibling && nextSibling.className.includes("link")) {
-          createNormalSpan(hashtag, "");
-        }
-      }
-
-      // 유효한 문자열이 하나밖에 없는 경우
-      if (i === 0 && valid.length === 1) {
-        cursorElement = hashtag;
-        cursorLength = text.length;
-      }
-
-      // 사이 문자열 : 유효한 문자열 사이에 존재하는 문자열
-      const textBetween =
-        // 유효한 문자열이 하나를 초과하고 i가 0보다 큰(이전 유효한 문자열이 존재하는) 경우
-        valid.length > 1 && i > 0
-          ? // 이전 유효한 문자열을 기준으로 문자열을 나누고
-            // 이전 유효한 문자열 다음의 문자열들 중
-            // 다시 @를 기준으로 나준 후 @ 앞의 문자열
-            curText.split(valid[i - 1])[1].split("#")[0]
-          : "";
-      console.log("사이 문자열", textBetween ? textBetween : "없음");
-
-      // 사이 문자열이 있는 경우
-      if (textBetween) {
-        let betweenContainer: HTMLElement;
-
-        // 사이 문자열이 공백 문자로 시작하는 경우
-        if (checkSpace(textBetween)) {
-          betweenContainer = createGapSpan(container, textBetween.slice(1));
-          cursorLength = textBetween.slice(1).length;
-        } else {
-          // 사이 문자열이 공백 문자로 시작하지 않는 경우
-          betweenContainer = createNormalSpan(container, textBetween);
-          cursorLength = textBetween.length;
-        }
-
-        cursorElement = betweenContainer;
-      }
-    }
-
-    // 이전 문자열
-    // 첫 유효한 문자열의 시작 인덱스
-    const index = validHashtag.exec(curText)?.index;
-    console.log("인덱스", index);
-
-    const textBefore = curText.slice(0, index);
-    console.log("이전 문자열", textBefore);
-
-    // 이전 문자열을 현재 요소에 삽입
-    container.innerText = textBefore;
-
-    // 이전 문자열이 있고 해당 문자열의 길이가 현재 커서의 위치보다 길거나 같을 때
-    if (textBefore && textBefore.length >= cursorPos) {
-      cursorElement = container;
-      cursorLength = textBefore.length;
-    } else if (!textBefore) {
-      // 이전 문자열이 없는 경우
-      const prevSibling = container.previousElementSibling;
-      // 이전 요소가 존재하지 않는 경우 : 현재 요소 삭제
-      // 현재 요소가 아무것도 포함하지 않고 이전 요소가 존재하지 않는 경우 삭제
-      if (!prevSibling) {
-        container.remove();
-      }
-    }
-
-    setCursorPosition(cursorElement, cursorLength);
-  }
-  if (isUrl) {
-    const { container, curText, cursorPos } = getContainerElement();
-    if (!container) return;
-
-    // 커서 위치 지정을 위한 변수
-    let cursorElement = container;
-    let cursorLength = curText.length;
-
-    // 유효한 문자열 배열
-    const valid = curText.match(validURL) as RegExpMatchArray;
-    console.log("유효한 url 문자열 배열", valid);
-
-    // 이후 문자열
-    let lastIndex = 0;
-    while (validURL.exec(curText) !== null) {
-      lastIndex = validURL.lastIndex;
-    }
-
-    const textAfter = curText.slice(lastIndex);
-    console.log("이후 문자열", textAfter);
-
-    // 이후 문자열이 존재하는 경우
-    if (textAfter) {
-      // 이후 요소
-      const nextSibling = container.nextElementSibling;
-      const nextClassName = nextSibling?.className;
-
-      let combinedText = textAfter;
-
-      // 다음 요소가 있고 다음 요소가 span 클래스인 경우
-      if (nextSibling && nextClassName?.includes("span")) {
-        const nextText = nextSibling.textContent || "";
-
-        // 다음 요소의 텍스트와 병합
-        combinedText =
-          textAfter + (nextClassName.includes("gap") ? " " : "") + nextText;
-
-        // 다음 요소 삭제
-        nextSibling.remove();
-      }
-
-      // 병합한 문자열이 공백 문자로 시작하는 경우
-      if (checkSpace(combinedText)) {
-        createGapSpan(container, combinedText.slice(1));
-      } else {
-        // 병합한 문자열이 공백 문자로 시작하지 않는 경우
-        createNormalSpan(container, combinedText);
-      }
-    }
-
-    // URL 클래스 생성
-    for (let i = valid.length - 1; i >= 0; i--) {
-      const text = valid[i];
-      console.log("유효한 문자열", text);
-
-      // url 클래스 생성
-      const url = createUrl(container, text);
-
-      // 해당 문자열이 마지막 유효한 문자열인 경우
-      if (i === valid.length - 1) {
-        const nextSibling = url.nextElementSibling;
-
-        // 다음 요소가 있고 해당 요소각 link 클래스인 경우
-        if (nextSibling && nextSibling.className.includes("link")) {
-          // url 클래스 옆에 normal span 생성
-          createNormalSpan(url, "");
-        }
-      }
-
-      // 유효한 문자열이 하나 인 경우
-      if (i === 0 && valid.length === 1) {
-        // 커서 지정
-        cursorElement = url;
-        cursorLength = text.length;
-      }
-
-      // 사이 문자열
-      let curIndex = 0;
-      let match;
-      let preLast = -1;
-      let curFirst = -1;
-
-      while ((match = validURL.exec(curText)) !== null) {
-        if (curIndex >= 0 && curIndex === i - 1) {
-          preLast = match.index + match[0].length;
-        } else if (i > 0 && curIndex === i) {
-          curFirst = match.index;
-        }
-
-        curIndex++;
-      }
-
-      // 사이 문자열 추출
-      const textBetween =
-        preLast !== -1 && curFirst !== -1
-          ? curText.slice(preLast, curFirst)
-          : ""; // 사이 문자열 추출
-
-      console.log("사이 문자열", textBetween);
-
-      // 사이 문자열이 있는 경우
-      if (textBetween) {
-        let betweenContainer: HTMLElement;
-
-        // 공백 문자로 시작하는 경우
-        if (checkSpace(textBetween)) {
-          betweenContainer = createGapSpan(container, textBetween.slice(1));
-          cursorLength = textBetween.slice(1).length;
-        } else {
-          // 공백 문자로 시작하지 않는 경우
-          betweenContainer = createNormalSpan(container, textBetween);
-          cursorLength = textBetween.length;
-        }
-
-        cursorElement = betweenContainer;
-      }
-    }
-
-    // 이전 문자열
-    // 첫 유효한 문자열의 시작 인덱스
-    const index = validURL.exec(curText)?.index || 0;
-    const textBefore = curText.slice(0, index);
-    console.log("이전 문자열", textBefore);
-
-    // 이전 문자열을 현재 문자열에 삽입
-    container.innerText = textBefore;
-
-    // 이전 문자열이 있고 해당 문자열의 길이가 현재 커서의 위치보다 길거나 같을 때
-    if (textBefore && textBefore.length >= cursorPos) {
-      cursorElement = container;
-      cursorLength = textBefore.length;
-    } else if (!textBefore) {
-      // 이전 문자열이 없는 경우
-      const prevSibling = container.previousElementSibling;
-      // 이전 요소가 존재하지 않는 경우 : 현재 요소 삭제
-      // 현재 요소가 아무것도 포함하지 않고 이전 요소가 존재하지 않는 경우 삭제
-      if (!prevSibling) {
-        container.remove();
-      }
-    }
-
-    setCursorPosition(cursorElement, cursorLength);
-  }
+  return isValid;
 };
 
 // 현재 요소 안에 url에 적합한 문자열이 있는지 확인
 const hasUrl = () => {
   const { container, curText } = getContainerElement();
-  if (!container) return;
+  if (!container) return "";
 
   console.log("적용되는 정규 표현식", validURL);
 
   const isValid = validURL.test(curText);
 
-  console.log("유효한 존재", isValid ? "함" : "안함");
+  console.log(`유효한 url 존재 ${isValid ? "함" : "안함"}`);
 
-  return isValid;
+  return isValid ? "url" : "";
 };
 
-const checkValidURL = (e: Event) => {
-  const { container, curText, cursorPos } = getContainerElement();
-  if (!container) return;
-
-  // 현재 요소가 해시태그 클래스가 아니면 적용 안됨
-  if (!container.className.includes("url")) return;
-
-  let cursorElement = container;
-  let cursorLength = curText.length;
-
-  // 이전 요소
-  const prevSibling = container.previousElementSibling as HTMLElement;
-  const prevText = prevSibling?.textContent || "";
-
-  // 이후 요소
-  const nextSibling = container.nextElementSibling;
-  const nextText = nextSibling?.textContent || "";
-
-  // 유효성을 충족하는 문자열 배열
-  const matchArr = curText.match(validURL);
-  console.log("유효성을 충족하는 해시태그 배열", matchArr);
-
-  // 유효성을 충족하지 않는 부분
-  const unmatched = curText.slice(matchArr?.[0].length);
-
-  // 현재 요소 안에 유효성을 충족하는 문자열이 없는 경우
-  if (!matchArr) {
-    // 현재 요소의 클래스 삭제
-    container.removeAttribute("class");
-
-    let combinedText = curText;
-
-    // 이후 요소가 존재하고 해당 클래스가 span인 경우 : 텍스트는 병합하고 이후 요소 삭제
-    if (nextSibling && nextSibling.className.includes("span")) {
-      // 현재 요소의 텍스트와 병합
-      combinedText =
-        curText + (nextSibling.className.includes("gap") ? " " : "") + nextText;
-
-      // 다음 요소 삭제
-      nextSibling.remove();
-    }
-
-    // 이전 요소가 존재하고 해당 클래스가 span인 경우 : 텍스트는 병합하고 현재 요소는 삭제
-    if (prevSibling && prevSibling.className.includes("span")) {
-      // 현재 텍스트와 병합
-      combinedText = prevText + combinedText;
-
-      // 병합한 텍스트를 이전 요소에 삽입
-      prevSibling.innerText = combinedText;
-
-      // 현재 클래스 삭제
-      container.remove();
-
-      // 커서 지정
-      cursorElement = prevSibling;
-      cursorLength = combinedText.length + cursorPos; // cursorPos가 필요한지 모르겠음
-    } else if (!prevSibling) {
-      // 이전 요소가 존재하지 않는 경우
-      // 병합한 문자열을 현재 문자열에 삽입
-      container.innerText = combinedText;
-
-      // 현재 요소를 normal span 클래스로 변경
-      container.setAttribute("class", `${styles.span} ${styles.normal}`);
-
-      // 커서 지정
-      cursorElement = container;
-      cursorLength = cursorPos;
-    }
-  } else if (unmatched) {
-    // 유효한 문자열이 존재하지만 유효하지 않는 문자열도 존재하는 경우
-    // 유효한 문자열은 현재 요소에 그대로 두고
-    // 유효하지 않는 문자열은 현재 요소 다음에 span을 생성해서 삽입함
-
-    // 유효하지 않는 문자열이 공백 문자로 시작하는지 여부에 따라 앞 부분을 잘라줌
-    let combinedText = checkSpace(unmatched) ? unmatched.slice(1) : unmatched;
-
-    // 이후 요소가 존재하고 span 클래스인 경우
-    if (nextSibling && nextSibling.className.includes("span")) {
-      // 이후 요소의 클래스를 병합
-      combinedText =
-        combinedText + (checkSpace(nextText) ? " " : "") + nextText;
-
-      // 이후 요소 삭제
-      nextSibling.remove();
-    }
-
-    // 유효하지 않는 문자열이 공백 문자로 시작하는지 여부 확인
-    if (checkSpace(unmatched)) {
-      const gap = createGapSpan(container, combinedText);
-
-      // 커서 지정
-      cursorElement = gap;
-      cursorLength = 0;
-    } else {
-      const normal = createNormalSpan(container, combinedText);
-
-      // 커서 지정
-      cursorElement = normal;
-      cursorLength = 1;
-    }
-
-    // 현재 요소에는 유효성에 적합한 문자열만 포함
-    container.innerText = matchArr[0];
-  }
-
-  setCursorPosition(cursorElement, cursorLength);
-};
 // 현재 요소 안에 해시태그에 적합한 문자열이 있는지 확인
 const hasHashtag = () => {
   const { container, curText } = getContainerElement();
 
-  if (!container) return;
+  if (!container) return "";
 
   console.log("적용되는 정규 표현식", validHashtag);
 
   const isValid = validHashtag.test(curText);
 
-  return isValid;
-};
+  console.log(`유효한 hashtag 존재 ${isValid ? "함" : "안함"}`);
 
-// 해시태그 클래스 내에서의 유효성 검사
-const checkValidHashtag = (e: Event) => {
-  const { container, curText, cursorPos } = getContainerElement();
-  if (!container) return;
-
-  // 현재 요소가 해시태그 클래스가 아니면 적용 안됨
-  if (!container.className.includes("hashtag")) return;
-
-  let cursorElement = container;
-  let cursorLength = curText.length;
-
-  // 이전 요소
-  const prevSibling = container.previousElementSibling as HTMLElement;
-  const prevText = prevSibling?.textContent || "";
-
-  // 이후 요소
-  const nextSibling = container.nextElementSibling;
-  const nextText = nextSibling?.textContent || "";
-
-  // 유효성을 충족하는 문자열 배열
-  const matchArr = curText.match(validHashtag);
-  console.log("유효성을 충족하는 해시태그 배열", matchArr);
-
-  // 유효성을 충족하지 않는 부분
-  const unmatched = curText.slice(matchArr?.[0].length);
-
-  // 현재 요소 안에 유효성을 충족하는 문자열이 없는 경우
-  if (!matchArr) {
-    // 현재 요소의 클래스 삭제
-    container.removeAttribute("class");
-
-    let combinedText = curText;
-
-    // 이후 요소가 존재하고 해당 클래스가 span인 경우 : 텍스트는 병합하고 이후 요소 삭제
-    if (nextSibling && nextSibling.className.includes("span")) {
-      // 현재 요소의 텍스트와 병합
-      combinedText =
-        curText + (nextSibling.className.includes("gap") ? " " : "") + nextText;
-
-      // 다음 요소 삭제
-      nextSibling.remove();
-    }
-
-    // 이전 요소가 존재하고 해당 클래스가 span인 경우 : 텍스트는 병합하고 현재 요소는 삭제
-    if (prevSibling && prevSibling.className.includes("span")) {
-      // 현재 텍스트와 병합
-      combinedText = prevText + combinedText;
-
-      // 병합한 텍스트를 이전 요소에 삽입
-      prevSibling.innerText = combinedText;
-
-      // 현재 클래스 삭제
-      container.remove();
-
-      // 커서 지정
-      cursorElement = prevSibling;
-      cursorLength = combinedText.length + cursorPos; // cursorPos가 필요한지 모르겠음
-    } else if (!prevSibling) {
-      // 이전 요소가 존재하지 않는 경우
-      // 병합한 문자열을 현재 문자열에 삽입
-      container.innerText = combinedText;
-
-      // 현재 요소를 normal span 클래스로 변경
-      container.setAttribute("class", `${styles.span} ${styles.normal}`);
-
-      // 커서 지정
-      cursorElement = container;
-      cursorLength = cursorPos;
-    }
-  } else if (unmatched) {
-    // 유효한 문자열이 존재하지만 유효하지 않는 문자열도 존재하는 경우
-    // 유효한 문자열은 현재 요소에 그대로 두고
-    // 유효하지 않는 문자열은 현재 요소 다음에 span을 생성해서 삽입함
-
-    // 유효하지 않는 문자열이 공백 문자로 시작하는지 여부에 따라 앞 부분을 잘라줌
-    let combinedText = checkSpace(unmatched) ? unmatched.slice(1) : unmatched;
-
-    // 이후 요소가 존재하고 span 클래스인 경우
-    if (nextSibling && nextSibling.className.includes("span")) {
-      // 이후 요소의 클래스를 병합
-      combinedText =
-        combinedText + (checkSpace(nextText) ? " " : "") + nextText;
-
-      // 이후 요소 삭제
-      nextSibling.remove();
-    }
-
-    // 유효하지 않는 문자열이 공백 문자로 시작하는지 여부 확인
-    if (checkSpace(unmatched)) {
-      const gap = createGapSpan(container, combinedText);
-
-      // 커서 지정
-      cursorElement = gap;
-      cursorLength = 0;
-    } else {
-      const normal = createNormalSpan(container, combinedText);
-
-      // 커서 지정
-      cursorElement = normal;
-      cursorLength = 1;
-    }
-
-    // 현재 요소에는 유효성에 적합한 문자열만 포함
-    container.innerText = matchArr[0];
-  }
-
-  setCursorPosition(cursorElement, cursorLength);
+  return isValid ? "hashtag" : "";
 };
 
 // 현재 요소가 멘션에 적합한 문자열이 있는지 확인
 const hasMention = () => {
   const { container, curText } = getContainerElement();
 
-  if (!container) return;
+  if (!container) return "";
 
-  console.log("현재 작성 중인 문자열", curText);
+  // 유효성을 검사하는 현재 텍스트
+  console.log("유효성 검사 텍스트", curText);
 
   // 적용되는 정규 표현식
   console.log("적용되는 정규 표현식", validMention);
@@ -1291,109 +787,9 @@ const hasMention = () => {
   // 유효한 문자열이 있는지 확인
   const isValid = validMention.test(curText);
 
-  return isValid;
-};
+  console.log(`유효한 mention 존재 ${isValid ? "함" : "안함"}`);
 
-// 멘션 클래스 내에서는 유효성 검사
-const checkValidMention = (e: Event) => {
-  const { container, curText, cursorPos } = getContainerElement();
-
-  if (!container) return;
-
-  // 멘션 클래스 내에서의 유효성 검사이기 때문에 멘션 클래스가 아닌 경우 적용 안됨
-  if (!container.className.includes("mention")) return;
-
-  let cursorElement = container;
-  let cursorLength = curText.length;
-
-  // 이전 요소
-  const prevSibling = container.previousElementSibling as HTMLElement;
-  const prevText = prevSibling?.textContent || "";
-
-  // 이후 요소
-  const nextSibling = container.nextElementSibling as HTMLElement;
-  const nextText = nextSibling?.textContent || "";
-  console.log("이후 요소의 문자열", nextText);
-
-  // 멘션 클래스 내 유효성 충족하는 문자열의 배열
-  const matchArr = curText.match(validMention);
-  console.log("멘션 클래스 내 유효성 충족하는 문자열의 배열", matchArr);
-
-  // 유효성을 충족하지 않는 부분
-  const unmatched = curText.slice(matchArr?.[0].length);
-
-  // 멘션 클래스 내에 유효성을 충족하는 문자열이 없는 경우
-  if (!matchArr) {
-    // 멘션 클래스 삭제
-    container.removeAttribute("class");
-
-    let combinedText = curText;
-    console.log(combinedText);
-
-    // 이후 요소가 존재하고 span 클래스라면 병합
-    if (nextSibling && nextSibling.className.includes("span")) {
-      combinedText =
-        curText + (nextSibling.className.includes("gap") ? " " : "") + nextText;
-
-      nextSibling.remove();
-    }
-
-    // 이전 요소가 있고 span 클래스라면 병합
-    if (prevSibling && prevSibling.className.includes("span")) {
-      // 이전 요소의 텍스트와 현재 텍스트와 병합
-      combinedText = prevText + combinedText;
-      // 합친 텍스트를 이전 요소에 삽입
-      prevSibling.innerText = combinedText;
-
-      // 현재 클래스 삭제
-      container.remove();
-      cursorElement = prevSibling;
-      cursorLength = combinedText.length + cursorPos;
-    } else if (!prevSibling) {
-      container.innerText = combinedText;
-
-      container.setAttribute("class", `${styles.span} ${styles.normal}`);
-      cursorElement = container;
-      cursorLength = cursorPos;
-    }
-  } else if (unmatched) {
-    // 멘션 클래스 내에 유효성을 충족하는 문자열의 배열이 있는 경우
-    // 유효성을 충족하는 부분은 그대로 남기로 충족하지 않는 부분만 span으로 넘김
-    console.log("유효성을 충족하지 않는 부분", unmatched);
-
-    // 문자열 공백 문자로 시작하면 제거하고 아니며 그대로
-    let newText = checkSpace(unmatched) ? unmatched.slice(1) : unmatched;
-    console.log(newText);
-
-    // 이후 요소가 존재하고 이후 요소가 span 클래스인 지 확인
-    if (nextSibling && nextSibling.className.includes("span")) {
-      // 유효성을 충족하지 않은 문자열과 다음 요소의 문자열을 병합
-      newText += (nextSibling.className.includes("gap") ? " " : "") + nextText;
-
-      // 이후 요소 삭제
-      nextSibling.remove();
-    }
-
-    // 유효성을 충족하지 않는 문자열이 공백문자로 시작하는지 확인
-    if (checkSpace(unmatched)) {
-      // 공백문자로 시작하는 경우 : gap span 생성
-      const gap = createGapSpan(container, newText);
-
-      cursorElement = gap;
-      cursorLength = 0;
-    } else {
-      // 공백문자로 시작하지 않는  경우 : normal 생성
-      const normal = createNormalSpan(container, newText);
-
-      cursorElement = normal;
-      cursorLength = 1;
-    }
-
-    // 현재 요소에 유효성 적합한 문자열만 포함
-    container.innerText = matchArr[0];
-  }
-
-  setCursorPosition(cursorElement, cursorLength);
+  return isValid ? "mention" : "";
 };
 
 const checkValidLink = () => {
@@ -1539,8 +935,6 @@ export {
   movedown,
   moveLeft,
   moveRight,
-  createHashtag,
-  createMention,
   createNormalSpan,
   setCursorPosition,
   hasLink,

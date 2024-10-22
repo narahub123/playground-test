@@ -1126,7 +1126,7 @@ const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
 // --------------------------------------------------------------------------
 
-// End로 현재 줄 마지막까지 선택하기 
+// shift + End로 현재 줄 마지막까지 선택하기
 const selectToEnd = () => {
   const { container, curText, cursorPos } = getContainerElement();
   if (!container) return;
@@ -1178,12 +1178,68 @@ const selectToEnd = () => {
   setCursorPosition(lastChild, lastText.length);
 };
 
-// selected span 생성하기 
+// shift + Home으로 현재 줄 시작까지 선택하기 
+const selectToStart = () => {
+  const { container, curText, cursorPos } = getContainerElement();
+  if (!container) return;
+
+  const line = container.parentElement;
+  if (!line) return;
+
+  // 현재 요소에서 선택되지 않은 요소
+  const unselectedText = curText.slice(cursorPos);
+  // 현재 요소에 삽입
+  container.innerText = unselectedText;
+
+  // 선택된 현재 문자열
+  const selectedText = curText.slice(0, cursorPos);
+
+  // 현재 요소와 동일한 클래스를 가지고 있는 선택 span 생성
+  const selectedSpan = createSelectedSpan(container, selectedText);
+
+  // 선택 span 현재 요소의 자식요소로 추가
+  container.prepend(selectedSpan);
+
+  // 현재 줄의 자식 요소 배열
+  const children = [...line.children] as HTMLElement[];
+
+  // 현재 요소의 index 알아내기
+  const index = children.indexOf(container);
+
+  // 현재 요소를 이후의 자식 요소
+  const selectedChildren = children.slice(0, index);
+
+  // 선택된 자식 요소에 selected 클래스 삽입하기
+  for (const child of selectedChildren) {
+    const className = child.getAttribute("class");
+
+    const classNames = className?.match(validClass) as string[];
+
+    // 기존 클래스에 selected 클래스 추가하기
+    child.setAttribute(
+      "class",
+      `${styles[classNames[0]]} ${styles[classNames[1]]} ${styles.selected}`
+    );
+  }
+
+  // 현재 줄의 마지막 자식 요소 및 해당 요소의 길이 알아내기(커서 위치 지정)
+  const firstChild = line.lastChild as HTMLElement;
+
+  setCursorPosition(firstChild, 0);
+};
+
+// selected span 생성하기
 const createSelectedSpan = (container: HTMLElement, text: string) => {
   const span = document.createElement("span");
 
   const classname = container.getAttribute("class");
-  const classNames = classname?.match(validClass) as string[];
+  const classNames = (classname?.match(validClass) as string[]).map((c) => {
+    if (c === "gap") return "normal";
+    else return c;
+  });
+
+  console.log(classNames);
+
   span.setAttribute(
     "class",
     `${styles[classNames[0]]} ${styles[classNames[1]]} ${styles.selected}`
@@ -1211,4 +1267,5 @@ export {
   movePageUp,
   movePageDown,
   selectToEnd,
+  selectToStart,
 };

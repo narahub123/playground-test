@@ -14,6 +14,7 @@ import {
   movePageUp,
   movePageDown,
   selectToEnd,
+  selectToStart,
 } from "./text-editor";
 
 export {
@@ -32,4 +33,5 @@ export {
   movePageUp,
   movePageDown,
   selectToEnd,
+  selectToStart,
 };

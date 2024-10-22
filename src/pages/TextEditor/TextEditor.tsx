@@ -14,6 +14,7 @@ import {
   moveStart,
   moveup,
   selectToEnd,
+  selectToStart,
   setCursorPosition,
 } from "../../utils";
 
@@ -129,10 +130,9 @@ const TextEditor = () => {
     } else if (e.shiftKey) {
       if (key === "End") {
         selectToEnd();
-      }
-      if (key === "ArrowRight") {
-        const { container, cursorPos } = getContainerElement();
-        if (!container) return;
+      } else if (key === "Home") {
+        selectToStart();
+      } else if (key === "ArrowRight") {
       }
     } else if (key === "Enter") {
       createNewLine(e);

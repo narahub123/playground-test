@@ -15,6 +15,8 @@ import {
   movePageDown,
   selectToEnd,
   selectToStart,
+  selectWithPgUp,
+  selectWithPgDn,
 } from "./text-editor";
 
 export {
@@ -34,4 +36,6 @@ export {
   movePageDown,
   selectToEnd,
   selectToStart,
+  selectWithPgUp,
+  selectWithPgDn,
 };

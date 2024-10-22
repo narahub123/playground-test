@@ -1178,7 +1178,7 @@ const selectToEnd = () => {
   setCursorPosition(lastChild, lastText.length);
 };
 
-// shift + Home으로 현재 줄 시작까지 선택하기 
+// shift + Home으로 현재 줄 시작까지 선택하기
 const selectToStart = () => {
   const { container, curText, cursorPos } = getContainerElement();
   if (!container) return;
@@ -1228,6 +1228,178 @@ const selectToStart = () => {
   setCursorPosition(firstChild, 0);
 };
 
+// shift + PgUp으로 문장 첫 번째 줄 현재 위치까지 선택하기
+const selectWithPgUp = () => {
+  const { container } = getContainerElement();
+  if (!container) return;
+
+  // 에디터
+  const content = container.parentElement?.parentElement as HTMLElement;
+  if (!content) return;
+
+  // 현재 줄
+  const line = container.parentElement;
+  if (!line) return;
+
+  // 에디터 내의 모든 줄
+  const lines = [...content.children] as HTMLElement[];
+
+  // 현재 줄의 위치
+  const indexOfline = lines.indexOf(line);
+
+  // 현 줄 이전의 줄 배열 -현재 첫째줄
+  const selectedLines = lines.slice(1, indexOfline);
+
+  // 선택된 줄들에 selected 클래스 추가하기
+  for (const line of selectedLines) {
+    // 줄 안의 모든 요소들
+    const children = line.children;
+    for (const child of children) {
+      const classname = child.getAttribute("class");
+      if (!classname) return;
+      const classnames = classname.match(validClass) as string[];
+
+      child.setAttribute(
+        "class",
+        `${styles[classnames[0]]} ${styles[classnames[1]]} ${styles.selected}`
+      );
+    }
+  }
+
+  // 마지막 줄
+  const firstLine = content.firstChild as HTMLElement;
+  const firstChildren = [...firstLine.children] as HTMLElement[];
+
+  const selection = getSelection();
+  if (!selection) return;
+
+  // 커서의 위치
+  const x = getCursorPos(selection);
+  console.log("커서 위치", x);
+
+  // 이동할 요소와 요소의 left 좌표
+  const { elem, xPos } = getElementInLineByPosition(x, container, firstLine);
+  console.log(elem, xPos);
+
+  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
+  const index = getPosition(elem, x - xPos);
+  console.log("문자열 내의 위치", index);
+
+  const indexOfSpan = firstChildren.indexOf(elem);
+
+  // 이 후 span 모두 selected 클래스로 변경
+  const nextSpans = firstChildren.slice(indexOfSpan + 1);
+
+  for (const span of nextSpans) {
+    const classname = span.getAttribute("class");
+    if (!classname) return;
+    const classnames = classname?.match(validClass) as string[];
+
+    span.setAttribute(
+      "class",
+      `${styles[classnames[0]]} ${styles[classnames[1]]} ${styles.selected}`
+    );
+  }
+
+  // 위치가 일치하는 span 중 index까지 변환
+  // 위치가 일치하는 요소의 text
+  const elemText = elem.textContent || "";
+  const selectedText = elemText.slice(index);
+  console.log("선택된 문자열", selectedText);
+
+  const unselectedText = elemText.slice(0, index);
+  console.log("선택 안 된 문자열", selectedText);
+  elem.innerText = unselectedText;
+
+  const selectedSpan = createSelectedSpan(elem, selectedText);
+  elem.appendChild(selectedSpan);
+
+  selectToStart();
+};
+
+// shift + PgDn으로 문장 마지막 줄 현재 위치까지 선택하기
+const selectWithPgDn = () => {
+  const { container } = getContainerElement();
+  if (!container) return;
+
+  // 에디터
+  const content = container.parentElement?.parentElement as HTMLElement;
+  if (!content) return;
+
+  // 현재 줄
+  const line = container.parentElement;
+  if (!line) return;
+
+  // 에디터 내의 모든 줄
+  const lines = [...content.children] as HTMLElement[];
+
+  // 현재 줄의 위치
+  const indexOfline = lines.indexOf(line);
+
+  // 현 줄 이후의 줄 배열 - 마지막 줄
+  const selectedLines = lines.slice(indexOfline + 1, lines.length - 1);
+
+  // 선택된 줄들에 selected 클래스 추가하기
+  for (const line of selectedLines) {
+    // 줄 안의 모든 요소들
+    const children = line.children;
+    for (const child of children) {
+      const classname = child.getAttribute("class");
+      if (!classname) return;
+      const classnames = classname.match(validClass) as string[];
+
+      child.setAttribute(
+        "class",
+        `${styles[classnames[0]]} ${styles[classnames[1]]} ${styles.selected}`
+      );
+    }
+  }
+
+  // 마지막 줄
+  const lastLine = content.lastChild as HTMLElement;
+  const lastChildren = [...lastLine.children] as HTMLElement[];
+
+  const selection = getSelection();
+  if (!selection) return;
+
+  // 커서의 위치
+  const x = getCursorPos(selection);
+
+  // 이동할 요소와 요소의 left 좌표
+  const { elem, xPos } = getElementInLineByPosition(x, container, lastLine);
+
+  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
+  const index = getPosition(elem, x - xPos);
+  const indexOfSpan = lastChildren.indexOf(elem);
+
+  // 이전 span 모두 selected 클래스로 변경
+  const prevSpans = lastChildren.slice(0, indexOfSpan);
+
+  for (const span of prevSpans) {
+    const classname = span.getAttribute("class");
+    if (!classname) return;
+    const classnames = classname?.match(validClass) as string[];
+
+    span.setAttribute(
+      "class",
+      `${styles[classnames[0]]} ${styles[classnames[1]]} ${styles.selected}`
+    );
+  }
+
+  // 위치가 일치하는 span 중 index까지 변환
+  // 위치가 일치하는 요소의 text
+  const elemText = elem.textContent || "";
+  const selectedText = elemText.slice(0, index);
+  const unselectedText = elemText.slice(index);
+  elem.innerText = unselectedText;
+
+  const selectedSpan = createSelectedSpan(elem, selectedText);
+  elem.prepend(selectedSpan);
+
+  // 첫 줄 커서 부터 마지막 까지 선택
+  selectToEnd();
+};
+
 // selected span 생성하기
 const createSelectedSpan = (container: HTMLElement, text: string) => {
   const span = document.createElement("span");
@@ -1268,4 +1440,6 @@ export {
   movePageDown,
   selectToEnd,
   selectToStart,
+  selectWithPgUp,
+  selectWithPgDn,
 };

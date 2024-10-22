@@ -15,6 +15,8 @@ import {
   moveup,
   selectToEnd,
   selectToStart,
+  selectWithPgDn,
+  selectWithPgUp,
   setCursorPosition,
 } from "../../utils";
 
@@ -132,6 +134,10 @@ const TextEditor = () => {
         selectToEnd();
       } else if (key === "Home") {
         selectToStart();
+      } else if (key === "PageUp") {
+        selectWithPgUp();
+      } else if (key === "PageDown") {
+        selectWithPgDn();
       } else if (key === "ArrowRight") {
       }
     } else if (key === "Enter") {

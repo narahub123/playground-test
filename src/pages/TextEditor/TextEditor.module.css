@@ -33,6 +33,11 @@
   font-weight: bold;
 }
 
+.selected {
+  background-color: cornflowerblue;
+  color: white;
+}
+
 .hashtag {
 }
 

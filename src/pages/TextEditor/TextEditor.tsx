@@ -13,6 +13,8 @@ import {
   moveRight,
   moveStart,
   moveup,
+  selectToEnd,
+  setCursorPosition,
 } from "../../utils";
 
 const TextEditor = () => {
@@ -45,12 +47,48 @@ const TextEditor = () => {
     const target = e.target as HTMLElement;
     console.log("클릭한 요소", target);
 
-    // 자식 요소 확인하기
-    const lastChild = target.lastElementChild as HTMLElement;
-    console.log("클릭한 요소의 마지막 child", lastChild);
+    const className = target.className;
 
-    // 마지막 요소에 focus 주기
-    lastChild.focus();
+    // 줄을 클릭한 경우
+    if (className.includes("line")) {
+      // 자식 요소 확인하기
+      const lastChild = target.lastElementChild as HTMLElement;
+      console.log("클릭한 요소의 마지막 child", lastChild);
+
+      // 마지막 요소에 focus 주기
+      lastChild.focus();
+    }
+
+    // span 혹은 link를 클릭한 경우
+    if (className.includes("span") || className.includes("link")) {
+      const { container, cursorPos } = getContainerElement();
+      if (!container) return;
+
+      const content = container.parentElement?.parentElement;
+
+      if (!content) return;
+      console.log(content?.textContent);
+
+      const children = content.children;
+
+      for (const child of children) {
+        const grand = child.children;
+
+        for (const grandChildren of grand) {
+          const gc = grandChildren as HTMLElement;
+
+          if (gc.className.includes("link")) {
+            gc.style.background = "white";
+            gc.style.color = "cornflowerblue";
+          } else {
+            gc.style.background = "white";
+            gc.style.color = "black";
+          }
+        }
+      }
+
+      setCursorPosition(container, cursorPos);
+    }
   };
 
   // 키보드 이벤트
@@ -58,7 +96,45 @@ const TextEditor = () => {
     const key = e.key;
     console.log("눌린 키", key);
 
-    if (key === "Enter") {
+    if (e.ctrlKey) {
+      if (key === "a") {
+        e.preventDefault();
+        const { container } = getContainerElement();
+        if (!container) return;
+
+        const content = container.parentElement?.parentElement;
+
+        if (!content) return;
+        console.log(content?.textContent);
+
+        const children = content.children;
+
+        for (const child of children) {
+          const grand = child.children;
+
+          for (const grandChildren of grand) {
+            const gc = grandChildren as HTMLElement;
+            gc.style.background = "cornflowerblue";
+            gc.style.color = "white";
+          }
+        }
+
+        const lastgrandChlid = content.lastChild?.lastChild as HTMLElement;
+
+        if (!lastgrandChlid) return;
+
+        const lastText = lastgrandChlid.textContent || "";
+        setCursorPosition(lastgrandChlid, lastText.length);
+      }
+    } else if (e.shiftKey) {
+      if (key === "End") {
+        selectToEnd();
+      }
+      if (key === "ArrowRight") {
+        const { container, cursorPos } = getContainerElement();
+        if (!container) return;
+      }
+    } else if (key === "Enter") {
       createNewLine(e);
     } else if (key === "ArrowDown") {
       movedown(e);

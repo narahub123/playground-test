@@ -9,6 +9,7 @@ import {
   validIp,
   validHashtag,
   validURL,
+  validClass,
 } from "./validation";
 
 export {
@@ -22,4 +23,5 @@ export {
   validIp,
   validHashtag,
   validURL,
+  validClass,
 };

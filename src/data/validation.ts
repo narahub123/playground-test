@@ -36,6 +36,7 @@ const validMention =
 const validURL = // 패스워드 도메인 제외
   /(?<=^|\s|[^a-zA-Z0-9@.-_])(?:(https?|ftp):\/\/)?(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6}(?::\d{2,5})?(?:\/[^\s?#]*)?(?:\?[^\s#]*)?(?:#[^\s]*)?(?=\s|[^a-zA-Z0-9@.+-]|$)/g;
 
+const validClass = /(?<=_)[a-z]+(?=_)()/g;
 export {
   validName,
   valideGender,
@@ -47,4 +48,5 @@ export {
   validIp,
   validHashtag,
   validURL,
+  validClass,
 };

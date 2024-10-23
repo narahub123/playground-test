@@ -1,7 +1,7 @@
 import { validClass, validHashtag, validMention, validURL } from "../data";
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
-// 다음 줄 생성하기 
+// 다음 줄 생성하기
 const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault(); // keydown 이벤트 전체에 적용하면 f5같은 기능이 먹히지 않음 주의할 것
 
@@ -87,24 +87,34 @@ const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
   const { curElem, prevLine } = getCurElement();
   if (!curElem) return;
 
-  console.log(prevLine);
-
   // 이전 줄이 존재하지 않으면 아무것도 하지 않음
   if (!prevLine) return;
 
+  // 이전 줄로 이동하기
+  const { spanMovedTo, index } = moveToDifferentLine(curElem, prevLine);
+
+  setCursorPosition(spanMovedTo, index);
+};
+
+// 다른 줄로 이동하기
+const moveToDifferentLine = (
+  curElem: HTMLElement,
+  lineMovedTo: HTMLElement
+) => {
   // 커서의 위치
-  const x = getCursorPos();
+  const cursorPosition = getCursorPos();
 
-  // 이동할 요소와 요소의 left 좌표
-  const { elem, xPos } = getElementInLineByPosition(x, curElem, prevLine);
+  // 커서가 이동할 요소와 커서의 left 좌표
+  const { spanMovedTo, xPos } = getElementInLineByPosition(
+    cursorPosition,
+    curElem,
+    lineMovedTo
+  );
 
-  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
-  const index = getPosition(elem, x - xPos);
+  // 이동할 요소 내에서의 위치
+  const index = getPosition(spanMovedTo, cursorPosition - xPos);
 
-  const moveTo = elem;
-  const pos = index;
-
-  setCursorPosition(moveTo, pos);
+  return { spanMovedTo, index };
 };
 
 // ↓ 방향키 사용시
@@ -117,19 +127,13 @@ const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 다음 줄이 존재하지 않으면 아무것도 하지 않음
   if (!nextLine) return;
 
-  // 커서의 위치
-  const x = getCursorPos();
+  // 다음 줄로 이동하기
+  const { spanMovedTo, index } = moveToDifferentLine(curElem, nextLine);
 
-  // 이동할 요소와 요소의 left 좌표
-  const { elem, xPos } = getElementInLineByPosition(x, curElem, nextLine);
-
-  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
-  const index = getPosition(elem, x - xPos);
-
-  setCursorPosition(elem, index);
+  setCursorPosition(spanMovedTo, index);
 };
 
-// <- 방향키 사용시
+// ← 방향키 사용시
 const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
 
@@ -843,15 +847,9 @@ const movePageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   const firstLine = content.firstChild as HTMLElement;
 
-  const point = getCursorPos();
+  const { spanMovedTo, index } = moveToDifferentLine(curElem, firstLine);
 
-  // 이동할 요소와 요소의 left 좌표
-  const { elem, xPos } = getElementInLineByPosition(point, curElem, firstLine);
-
-  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
-  const index = getPosition(elem, point - xPos);
-
-  setCursorPosition(elem, index);
+  setCursorPosition(spanMovedTo, index);
 };
 
 // PgDn 키
@@ -864,15 +862,9 @@ const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   const lastChild = content.lastChild as HTMLElement;
 
-  const point = getCursorPos();
+  const { spanMovedTo, index } = moveToDifferentLine(curElem, lastChild);
 
-  // 이동할 요소와 요소의 left 좌표
-  const { elem, xPos } = getElementInLineByPosition(point, curElem, lastChild);
-
-  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
-  const index = getPosition(elem, point - xPos);
-
-  setCursorPosition(elem, index);
+  setCursorPosition(spanMovedTo, index);
 };
 
 // 위치로 요소 찾기
@@ -881,7 +873,7 @@ const getElementInLineByPosition = (
   curElem: HTMLElement,
   targetLine: HTMLElement
 ) => {
-  let elem = undefined;
+  let spanMovedTo = undefined;
   let xPos = undefined;
 
   // 줄 요소 찾기
@@ -890,10 +882,10 @@ const getElementInLineByPosition = (
   const length = curElem.textContent ? curElem.textContent.length : 0;
 
   if (!line) {
-    elem = curElem;
+    spanMovedTo = curElem;
     xPos = length;
 
-    return { elem, xPos };
+    return { spanMovedTo, xPos };
   }
 
   const children = targetLine.children;
@@ -924,9 +916,9 @@ const getElementInLineByPosition = (
     i++;
   }
 
-  elem = children[chosen];
+  spanMovedTo = children[chosen];
 
-  return { elem: elem as HTMLElement, xPos };
+  return { spanMovedTo: spanMovedTo as HTMLElement, xPos };
 };
 
 // --------------------------------------------------------------------------
@@ -1217,18 +1209,9 @@ const selectWithPgUp = () => {
   if (!selection) return;
 
   // 커서의 위치
-  const x = getCursorPos();
-  console.log("커서 위치", x);
+  const { spanMovedTo, index } = moveToDifferentLine(curElem, firstLine);
 
-  // 이동할 요소와 요소의 left 좌표
-  const { elem, xPos } = getElementInLineByPosition(x, curElem, firstLine);
-  console.log(elem, xPos);
-
-  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
-  const index = getPosition(elem, x - xPos);
-  console.log("문자열 내의 위치", index);
-
-  const indexOfSpan = firstChildren.indexOf(elem);
+  const indexOfSpan = firstChildren.indexOf(spanMovedTo);
 
   // 이 후 span 모두 selected 클래스로 변경
   const nextSpans = firstChildren.slice(indexOfSpan + 1);
@@ -1246,16 +1229,16 @@ const selectWithPgUp = () => {
 
   // 위치가 일치하는 span 중 index까지 변환
   // 위치가 일치하는 요소의 text
-  const elemText = elem.textContent || "";
+  const elemText = spanMovedTo.textContent || "";
   const selectedText = elemText.slice(index);
   console.log("선택된 문자열", selectedText);
 
   const unselectedText = elemText.slice(0, index);
   console.log("선택 안 된 문자열", selectedText);
-  elem.innerText = unselectedText;
+  spanMovedTo.innerText = unselectedText;
 
-  const selectedSpan = createSelectedSpan(elem, selectedText);
-  elem.appendChild(selectedSpan);
+  const selectedSpan = createSelectedSpan(spanMovedTo, selectedText);
+  spanMovedTo.appendChild(selectedSpan);
 
   selectToStart();
 };
@@ -1301,15 +1284,9 @@ const selectWithPgDn = () => {
   const selection = getSelection();
   if (!selection) return;
 
-  // 커서의 위치
-  const x = getCursorPos();
+  const { spanMovedTo, index } = moveToDifferentLine(curElem, lastLine);
 
-  // 이동할 요소와 요소의 left 좌표
-  const { elem, xPos } = getElementInLineByPosition(x, curElem, lastLine);
-
-  // 이동할 요소 내에서 이동할 위치 찾기 => 반환 값은 index?
-  const index = getPosition(elem, x - xPos);
-  const indexOfSpan = lastChildren.indexOf(elem);
+  const indexOfSpan = lastChildren.indexOf(spanMovedTo);
 
   // 이전 span 모두 selected 클래스로 변경
   const prevSpans = lastChildren.slice(0, indexOfSpan);
@@ -1327,13 +1304,13 @@ const selectWithPgDn = () => {
 
   // 위치가 일치하는 span 중 index까지 변환
   // 위치가 일치하는 요소의 text
-  const elemText = elem.textContent || "";
+  const elemText = spanMovedTo.textContent || "";
   const selectedText = elemText.slice(0, index);
   const unselectedText = elemText.slice(index);
-  elem.innerText = unselectedText;
+  spanMovedTo.innerText = unselectedText;
 
-  const selectedSpan = createSelectedSpan(elem, selectedText);
-  elem.prepend(selectedSpan);
+  const selectedSpan = createSelectedSpan(spanMovedTo, selectedText);
+  spanMovedTo.prepend(selectedSpan);
 
   // 첫 줄 커서 부터 마지막 까지 선택
   selectToEnd();

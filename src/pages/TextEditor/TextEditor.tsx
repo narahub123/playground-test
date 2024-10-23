@@ -3,7 +3,7 @@ import styles from "./TextEditor.module.css";
 import {
   createNewLine,
   deleteByBackspace,
-  getContainerElement,
+  getCurElement,
   hasLink,
   initializeSelection,
   movedown,
@@ -72,13 +72,11 @@ const TextEditor = () => {
 
     // span 혹은 link를 클릭한 경우
     if (className.includes("span") || className.includes("link")) {
-      const { container, cursorPos } = getContainerElement();
-      if (!container) return;
+      const { curElem, curPosition } = getCurElement();
+      if (!curElem) return;
 
-      const content = container.parentElement?.parentElement;
-
+      const content = curElem.parentElement?.parentElement;
       if (!content) return;
-      console.log(content?.textContent);
 
       const children = content.children;
 
@@ -98,7 +96,7 @@ const TextEditor = () => {
         }
       }
 
-      setCursorPosition(container, cursorPos);
+      setCursorPosition(curElem, curPosition);
     }
   };
 
@@ -111,13 +109,12 @@ const TextEditor = () => {
     if (e.ctrlKey) {
       if (key === "a") {
         e.preventDefault();
-        const { container } = getContainerElement();
-        if (!container) return;
+        const { curElem } = getCurElement();
+        if (!curElem) return;
 
-        const content = container.parentElement?.parentElement;
-
+        // 최상위 클래스
+        const content = curElem.parentElement?.parentElement;
         if (!content) return;
-        console.log(content?.textContent);
 
         const children = content.children;
 
@@ -185,12 +182,15 @@ const TextEditor = () => {
 
   // input 이벤트
   const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
-    const { container } = getContainerElement();
+    const { curElem, curClassName } = getCurElement();
+    if (!curElem) return;
 
-    if (!container) return;
+    console.log(curClassName);
 
     // 현재 요소가 span 클래스인지 여부 확인
-    if (container.className.includes("span")) {
+    if (curClassName?.includes("span")) {
+      console.log("ㅗㅑ");
+
       hasLink();
     }
   };

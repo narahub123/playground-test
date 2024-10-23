@@ -216,62 +216,98 @@ const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 };
 
 // ← 방향키 사용시
+// const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
+//   e.preventDefault();
+//   const selection = window.getSelection();
+//   if (!selection) return;
+//   const focusNode = selection.focusNode as HTMLElement;
+//   if (!focusNode) return;
+
+//   // 해당 요소의 텍스트 요소
+//   const textContent = focusNode.textContent;
+
+//   if (!focusNode.parentElement) return;
+//   // span 요소(span)
+//   const span = textContent ? focusNode.parentElement : focusNode;
+
+//   // line 요소
+//   const line = span?.parentElement;
+
+//   // 현재 위치 구하기
+//   const focusOffset = selection.focusOffset;
+
+//   // 현재 요소의 클래스 이름
+//   const curClassName = span.className;
+
+//   let prevSpan = span?.previousSibling as HTMLElement;
+
+//   // 현재요소에 따른 기준 변화
+//   // 이전 요소가 있고 현재 요소의 클래스가 link라면 기준점 1 아니면 0
+//   const focalPoint = curClassName.includes("link") && prevSpan ? 1 : 0;
+
+//   if (focusOffset > focalPoint) {
+//     setCursorPosition(focusNode, focusOffset - 1);
+//   }
+
+//   // 상하 이동으로 link 클래스의 0으로 이동하면 left 이동이 안되는 문제
+//   // 때문에 focusOffset === 0 추가
+//   if (focusOffset === focalPoint || focusOffset === 0) {
+//     // 이전 이웃이 있는 경우
+//     if (prevSpan) {
+//       const length = prevSpan.textContent ? prevSpan.textContent.length : 0;
+
+//       setCursorPosition(prevSpan, length);
+
+//       // 이전 이웃이 없는 경우
+//     } else {
+//       const prevLine = line?.previousElementSibling;
+
+//       // 이전 줄이 존재하는 경우
+//       if (prevLine) {
+//         const length = prevLine.children.length;
+//         const childSpan = prevLine.children[length - 1] as HTMLElement;
+//         const index = childSpan.textContent ? childSpan.textContent.length : 0;
+
+//         setCursorPosition(childSpan, index);
+//       }
+//     }
+//   }
+// };
+
 const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
-  const selection = window.getSelection();
-  if (!selection) return;
-  const focusNode = selection.focusNode as HTMLElement;
-  if (!focusNode) return;
+  const { container, curText, cursorPos } = getContainerElement();
+  if (!container) return;
+  console.log("moveLeft 현재 요소", container);
+  console.log("moveLeft 현재 문자열", curText);
 
-  // 해당 요소의 텍스트 요소
-  const textContent = focusNode.textContent;
+  console.log("moveLeft 커서 위치", cursorPos);
 
-  if (!focusNode.parentElement) return;
-  // span 요소(span)
-  const span = textContent ? focusNode.parentElement : focusNode;
+  const line = container.parentElement as HTMLElement;
+  if (!line) return;
 
-  // line 요소
-  const line = span?.parentElement;
+  let cursorElement = container;
+  let cursorPosition = cursorPos;
+  const className = container.className;
 
-  // 현재 위치 구하기
-  const focusOffset = selection.focusOffset;
+  // 이전 요소
+  let prevSpan = container.previousElementSibling as HTMLElement;
+  let prevText = prevSpan?.textContent || "";
 
-  // 현재 요소의 클래스 이름
-  const curClassName = span.className;
+  // 기준점
+  const focalPoint = prevSpan && className.includes("link") ? 1 : 0;
 
-  let prevSpan = span?.previousSibling as HTMLElement;
-
-  // 현재요소에 따른 기준 변화
-  // 이전 요소가 있고 현재 요소의 클래스가 link라면 기준점 1 아니면 0
-  const focalPoint = curClassName.includes("link") && prevSpan ? 1 : 0;
-
-  if (focusOffset > focalPoint) {
-    setCursorPosition(focusNode, focusOffset - 1);
+  // 현재 커서의 위치가 기준점보다 큰 경우 : 하나 앞으로 이동
+  if (cursorPos > focalPoint) {
+    cursorElement = container;
+    cursorPosition = cursorPos - 1;
+  } else if (cursorPos === focalPoint) {
+    // 커서의 위치가 기준점과 같을 때
+    cursorElement = prevSpan;
+    cursorPosition = prevText.length;
   }
 
-  // 상하 이동으로 link 클래스의 0으로 이동하면 left 이동이 안되는 문제
-  // 때문에 focusOffset === 0 추가
-  if (focusOffset === focalPoint || focusOffset === 0) {
-    // 이전 이웃이 있는 경우
-    if (prevSpan) {
-      const length = prevSpan.textContent ? prevSpan.textContent.length : 0;
-
-      setCursorPosition(prevSpan, length);
-
-      // 이전 이웃이 없는 경우
-    } else {
-      const prevLine = line?.previousElementSibling;
-
-      // 이전 줄이 존재하는 경우
-      if (prevLine) {
-        const length = prevLine.children.length;
-        const childSpan = prevLine.children[length - 1] as HTMLElement;
-        const index = childSpan.textContent ? childSpan.textContent.length : 0;
-
-        setCursorPosition(childSpan, index);
-      }
-    }
-  }
+  setCursorPosition(cursorElement, cursorPosition);
 };
 
 // → 방향키 사용시
@@ -969,6 +1005,7 @@ const getContainerElement = () => {
 
   // 현재 요소
   const focusNode = selection.focusNode as HTMLElement;
+
   if (!focusNode) return { container: undefined, curText: "" };
   const focusOffset = selection.focusOffset;
 
@@ -1049,6 +1086,7 @@ const getElementInLineByPosition = (
 ) => {
   let elem = undefined;
   let xPos = undefined;
+
   // 줄 요소 찾기
   const line = curElem.parentElement;
   // 현재 위치 고수
@@ -1125,6 +1163,153 @@ const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 };
 
 // --------------------------------------------------------------------------
+// selection
+
+// 선택 초기화 하기
+const initializeSelection = (
+  setStart: (value: number) => void,
+  setSelectedText: (value: string) => void,
+  contentRef: React.RefObject<HTMLDivElement>
+) => {
+  // 커서 위치 불러오기
+  const { container, cursorPos } = getContainerElement();
+  if (!container) return;
+
+  console.log("현재 클릭된 요소", container);
+
+  const classNames = container.className.match(validClass) as string[];
+
+  const prevContainer = container.previousElementSibling as HTMLElement;
+  const prevText = prevContainer?.textContent || "";
+  const prevClassNames = prevContainer?.className.match(validClass) as string[];
+
+  const prevPrevContainer =
+    prevContainer?.previousElementSibling as HTMLElement;
+  const prevPrevText = prevPrevContainer?.textContent || "";
+  const prevPrevClassNames = prevPrevContainer?.className.match(
+    validClass
+  ) as string[];
+
+  // 커서 지정
+  const cursorElement =
+    prevPrevContainer &&
+    classNames[1] === prevClassNames[1] &&
+    prevClassNames[1] === prevPrevClassNames[1]
+      ? prevPrevContainer
+      : prevContainer && classNames[1] === prevClassNames[1]
+      ? prevContainer
+      : container;
+
+  const cursorPosition =
+    prevPrevContainer &&
+    classNames[1] === prevClassNames[1] &&
+    prevClassNames[1] === prevPrevClassNames[1]
+      ? (prevPrevText + prevText).length + cursorPos
+      : prevContainer && classNames[1] === prevClassNames[1]
+      ? prevText.length + cursorPos
+      : cursorPos;
+
+  // selected 클래스를 없앰
+  const content = contentRef.current;
+  if (!content) return;
+
+  // 컨텐트 내의 줄 배열
+  const lines = [...content?.children] as HTMLElement[];
+
+  for (let i = 0; i < lines.length; i++) {
+    // 줄 요소
+    const line = lines[i];
+
+    // 줄 안의 span 배열
+    const spans = [...line.children] as HTMLElement[];
+
+    for (let j = 0; j < spans.length; j++) {
+      // span 요소
+      const span = spans[j];
+
+      const className = span.className;
+
+      const classNames = className.match(validClass) as string[];
+
+      // select를 제외한 클래스만 남김
+      span.setAttribute(
+        "class",
+        `${styles[classNames[0]]} ${styles[classNames[1]]}`
+      );
+
+      const prevSpan = span.previousElementSibling as HTMLElement;
+      const prevClassNames = prevSpan?.className.match(validClass) as string[];
+
+      // 이전 클래스가 있고 이전 클래스와 현재 클래스가 같다면 합침
+      if (prevSpan) {
+        // link 클래스에 2 번째 클래스도 동일한 경우
+        if (classNames[0] === "link" && classNames[1] === prevClassNames[1]) {
+          const prevText = prevSpan.textContent || "";
+          const curText = span.textContent || "";
+
+          const combinedText = prevText + curText;
+
+          prevSpan.innerText = combinedText;
+
+          span.remove();
+
+          console.log("span의 className", className);
+          console.log("현재 요소의 className", container.className);
+
+          if (className === container.className) {
+          }
+        } else if (
+          // 둘 다 span 클래스인 경우
+          classNames[0] === "span" &&
+          classNames[0] === prevClassNames[0]
+        ) {
+          const prevText = prevSpan.textContent || "";
+          const curText = span.textContent || "";
+
+          const combinedText = prevText + curText;
+
+          prevSpan.innerText = combinedText;
+
+          span.remove();
+
+          // 통합된 문자열이 빈문자열로 시작하는 경우
+          // 이전 클래스가 gap이 아닌 경우 : gap이 normal 클래스로 변환된 경우
+          // 이전 이전 클래스가 있는 경우 : 이전 이전 클래스가 없으면 빈문자열로 시작해도 gap이 아님
+          const prevPrevSpan = prevSpan.previousElementSibling;
+          if (
+            combinedText.startsWith(" ") &&
+            prevClassNames[1] !== "gap" &&
+            prevPrevSpan
+          ) {
+            // 이전 클래스를 gap으로 변경
+            prevSpan.setAttribute("class", `${styles.span} ${styles.gap}`);
+            // 빈문자열을 삭제한 문자열을 넣어줌
+            prevSpan.innerText = combinedText.slice(1);
+          }
+
+          console.log("span의 className", className);
+          console.log("현재 요소의 className", container.className);
+        }
+      }
+    }
+  }
+
+  if (cursorPos) {
+    // 커서 위치에 대한 정보가 있는 경우
+    // 해당 커서 위치를 시작 위치로 지정
+    setStart(cursorPosition);
+  } else {
+    // 커서 위치에 대한 정보가 없는 경우
+    // 우선 0으로 지정
+    setStart(0);
+  }
+
+  // 저장된 텍스트를 빈문자열로 초기화
+  setSelectedText("");
+
+  // 커서 지정
+  setCursorPosition(cursorElement, cursorPosition);
+};
 
 // shift + End로 현재 줄 마지막까지 선택하기
 const selectToEnd = () => {
@@ -1400,6 +1585,168 @@ const selectWithPgDn = () => {
   selectToEnd();
 };
 
+const selectWithArrowRight = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  start: number,
+  setStart: (value: number) => void,
+  selectedText: string,
+  setSelectedText: (value: string) => void
+) => {
+  e.preventDefault();
+  const { container, curText } = getContainerElement();
+  if (!container) return;
+  const curline = container.parentElement as HTMLElement;
+  if (!curline) return;
+
+  // 현재 위치
+  let index = start;
+  console.log("현재 커서 위치", index);
+
+  // 현재 요소
+  let curElement = container;
+  const curClassNames = curElement.className.match(validClass) as string[];
+
+  // 현재 요소의 문자열
+  let selectedTexts = selectedText;
+
+  // 다음 요소
+  let nextSibling = curElement.nextElementSibling as HTMLElement;
+  const nextClassNames = nextSibling?.className.match(validClass) as string[];
+
+  // 다음 줄
+  const nextLine = curline.nextElementSibling as HTMLElement;
+  const nextFirst = nextLine?.firstChild as HTMLElement;
+
+  // 현재 요소가 selected가 아닌 경우
+  if (!curClassNames.includes("selected")) {
+    // 선택안된 문자열은 현재 요소에 삽입
+    const unselectedBefore = curText.slice(0, index);
+    console.log("선택 전 문자열", unselectedBefore);
+
+    const unselectedAfter = curText.slice(index + 1);
+    console.log("선택 후 문자열", unselectedAfter);
+
+    if (unselectedAfter) {
+      const className = container.className;
+      const classNames = className.match(validClass) as string[];
+
+      const span = document.createElement("span");
+      span.setAttribute(
+        "class",
+        `${styles[classNames[0]]} ${styles[classNames[1]]}`
+      );
+      span.setAttribute("contentEditable", "true");
+      span.innerText = unselectedAfter;
+
+      curElement.after(span);
+    }
+
+    // 선택된 문자열 현재 문자열 옆에 selected span으로 삽입
+    const selected = curText.slice(index, index + 1);
+    console.log("선택된 문자열", selected);
+
+    const selectedSpan = createSelectedSpan(container, selected);
+    console.log(curElement);
+
+    curElement.after(selectedSpan);
+
+    curElement = selectedSpan;
+    selectedTexts = selected;
+
+    index = 1;
+
+    setStart(index);
+    setSelectedText(selectedTexts);
+
+    if (unselectedBefore) {
+      container.innerText = unselectedBefore;
+    } else {
+      container.remove();
+    }
+  } else {
+    // 현재 요소가 selected 인 경우
+    // 다음 요소가 있는 경우
+    if (nextSibling) {
+      // 현재 요소와 다음 요소가 같은 클래스 인 경우 병합
+      // 혹은 현재 요소 다음 요소 모두 span 클래스인 경우
+      if (
+        (curClassNames[0] === nextClassNames[0] &&
+          curClassNames[1] === nextClassNames[1]) ||
+        (curClassNames[0] === "span" && nextClassNames[0] === "span")
+      ) {
+        const nextText = nextSibling.textContent || "";
+
+        // 첫 문자를 선택 문자열에 추가
+        selectedTexts += nextText.slice(0, 1);
+
+        // 선택 문자열을 현재 요소에 삽입
+        curElement.innerText = selectedTexts;
+        // 선택 문자열 업데이트
+        setSelectedText(selectedTexts);
+
+        // 위치를 선택 문자열의 길이로 업데이트
+        index = selectedTexts.length;
+
+        // 남은 문자열 추출
+        const remainedText = nextText.slice(1);
+
+        // 남은 문자열이 있다면
+        if (remainedText) {
+          // 다음 문자열에 남은 문자열 삽입
+          nextSibling.innerText = nextText.slice(1);
+        } else {
+          // 다음 문자열이 없다면 다음 요소 삭제
+          nextSibling.remove();
+        }
+      } else {
+        // 현재 요소와 다음 요소의 클래스가 다른 경우
+        const nextText = nextSibling.textContent || "";
+
+        const addedText =
+          (nextClassNames[1] === "gap" ? " " : "") + nextText.slice(0, 1);
+
+        // 다음 요소와 동일한 클래스의 selected Span 생성
+        const selectedSpan = createSelectedSpan(nextSibling, addedText);
+
+        curElement.after(selectedSpan);
+
+        setSelectedText(addedText);
+
+        const remainedText = nextText.slice(1);
+
+        if (nextClassNames[1] === "gap") {
+          nextSibling.setAttribute("class", `${styles.span} ${styles.normal}`);
+        }
+        if (remainedText) {
+          nextSibling.innerText = remainedText;
+        } else {
+          nextSibling.remove();
+        }
+
+        curElement = selectedSpan;
+        index = addedText.length;
+      }
+    } else {
+      // 다음 요소가 없는 경우
+      // 다음 줄이 있는 경우
+      if (nextLine) {
+        curElement = nextFirst;
+        index = 0;
+      }
+    }
+  }
+
+  console.log("선택된 문자열", selectedTexts);
+
+  console.log("현재 요소", curElement);
+  console.log("커서 위치", index);
+
+  setCursorPosition(curElement, index);
+};
+const selectWithArrowLeft = () => {};
+const selectWithArrowUp = () => {};
+const selectWithArrowDown = () => {};
+
 // selected span 생성하기
 const createSelectedSpan = (container: HTMLElement, text: string) => {
   const span = document.createElement("span");
@@ -1442,4 +1789,9 @@ export {
   selectToStart,
   selectWithPgUp,
   selectWithPgDn,
+  selectWithArrowRight,
+  selectWithArrowLeft,
+  selectWithArrowUp,
+  selectWithArrowDown,
+  initializeSelection,
 };

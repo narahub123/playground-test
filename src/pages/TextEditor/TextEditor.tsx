@@ -1,10 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./TextEditor.module.css";
 import {
   createNewLine,
   deleteByBackspace,
   getContainerElement,
   hasLink,
+  initializeSelection,
   movedown,
   moveEnd,
   moveLeft,
@@ -15,6 +16,7 @@ import {
   moveup,
   selectToEnd,
   selectToStart,
+  selectWithArrowRight,
   selectWithPgDn,
   selectWithPgUp,
   setCursorPosition,
@@ -22,6 +24,8 @@ import {
 
 const TextEditor = () => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [start, setStart] = useState(0);
+  const [selectedText, setSelectedText] = useState("");
 
   // 삭제된 코드: focus 확인 용
   useEffect(() => {
@@ -46,9 +50,13 @@ const TextEditor = () => {
 
   // 줄 클릭시 가장 마지막 요소에 포커스 주기
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.preventDefault();
     // 클릭한 대상 파악하기
     const target = e.target as HTMLElement;
-    console.log("클릭한 요소", target);
+
+    console.log(target);
+
+    initializeSelection(setStart, setSelectedText, contentRef);
 
     const className = target.className;
 
@@ -94,6 +102,7 @@ const TextEditor = () => {
     }
   };
 
+  console.log("클릭된 위치", start);
   // 키보드 이벤트
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const key = e.key;
@@ -139,26 +148,37 @@ const TextEditor = () => {
       } else if (key === "PageDown") {
         selectWithPgDn();
       } else if (key === "ArrowRight") {
+        selectWithArrowRight(e, start, setStart, selectedText, setSelectedText);
       }
     } else if (key === "Enter") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       createNewLine(e);
     } else if (key === "ArrowDown") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       movedown(e);
     } else if (key === "ArrowUp") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       moveup(e);
     } else if (key === "ArrowLeft") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       moveLeft(e);
     } else if (key === "ArrowRight") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       moveRight(e);
     } else if (key === "Backspace") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       deleteByBackspace(e);
     } else if (key === "Home") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       moveStart(e);
     } else if (key === "End") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       moveEnd(e);
     } else if (key === "PageUp") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       movePageUp(e);
     } else if (key === "PageDown") {
+      initializeSelection(setStart, setSelectedText, contentRef);
       movePageDown(e);
     }
   };

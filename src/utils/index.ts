@@ -17,6 +17,11 @@ import {
   selectToStart,
   selectWithPgUp,
   selectWithPgDn,
+  selectWithArrowRight,
+  selectWithArrowLeft,
+  selectWithArrowUp,
+  selectWithArrowDown,
+  initializeSelection,
 } from "./text-editor";
 
 export {
@@ -38,4 +43,9 @@ export {
   selectToStart,
   selectWithPgUp,
   selectWithPgDn,
+  selectWithArrowRight,
+  selectWithArrowLeft,
+  selectWithArrowUp,
+  selectWithArrowDown,
+  initializeSelection,
 };

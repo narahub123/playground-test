@@ -1,10 +1,34 @@
 import { validClass, validHashtag, validMention, validURL } from "../data";
 import styles from "../pages/TextEditor/TextEditor.module.css";
 
+// 다음 줄 생성하기 
 const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault(); // keydown 이벤트 전체에 적용하면 f5같은 기능이 먹히지 않음 주의할 것
 
-  const { curLine } = getCurElement();
+  const { curElem, curText, curPosition, curLine, nextElem } = getCurElement();
+
+  let newText = "";
+  let addedElems: HTMLElement[] = [];
+
+  // 현재 위치에 있을 문자열
+  const remainedText = curText.slice(0, curPosition);
+
+  curElem.innerText = remainedText;
+
+  // 이동할 문자열
+  newText = curText.slice(curPosition);
+
+  // 다음 요소가 존재하는 경우
+  if (nextElem) {
+    // 현재 줄의 자식 요소들
+    const childSpan = [...curLine.children] as HTMLElement[];
+
+    // 현재 요소의 위치
+    const indexOfCurElem = childSpan.indexOf(curElem);
+    console.log("현재 요소의 위치", indexOfCurElem);
+    // 이동 할 자식 요소들
+    addedElems = childSpan.slice(indexOfCurElem + 1);
+  }
 
   const div = document.createElement("div");
   div.setAttribute("class", styles.line);
@@ -18,7 +42,28 @@ const createNewLine = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 현재 선택된 요소의 다음에 새로운 라인 생성
   curLine?.after(div);
 
-  span.focus();
+  for (let i = 0; i < addedElems.length; i++) {
+    // 추가될 요소
+    const addedElem = addedElems[i];
+
+    // 첫번째 요소인 경우
+    if (i === 0) {
+      // 첫번째 요소가 span 클래스인 경우
+      if (addedElem.className.includes("span")) {
+        const text = addedElem?.textContent || "";
+        newText += addedElem.className.includes("gap") ? " " : "" + text;
+
+        addedElem.remove();
+      }
+    }
+
+    console.log(addedElem);
+
+    span.after(addedElem);
+  }
+
+  span.innerText = newText;
+  setCursorPosition(span, 0);
 };
 
 // 커서 위치 지정하기
@@ -1439,6 +1484,7 @@ const selectWithArrowRight = (
 
   setCursorPosition(curElement, index);
 };
+
 const selectWithArrowLeft = () => {};
 const selectWithArrowUp = () => {};
 const selectWithArrowDown = () => {};

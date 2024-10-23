@@ -100,7 +100,6 @@ const TextEditor = () => {
     }
   };
 
-  console.log("클릭된 위치", start);
   // 키보드 이벤트
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const key = e.key;

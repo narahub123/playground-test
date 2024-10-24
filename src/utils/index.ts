@@ -2,8 +2,6 @@ import {
   createNewLine,
   moveup,
   movedown,
-  moveLeft,
-  moveRight,
   createNormalSpan,
   setCursorPosition,
   hasLink,
@@ -22,7 +20,11 @@ import {
   selectWithArrowUp,
   selectWithArrowDown,
   initializeSelection,
-} from "./text-editor";
+} from "./text-editor/text-editor";
+
+import { moveRight, moveLeft } from "./text-editor/move";
+
+import { varifySelected } from "./text-editor/varify";
 
 export {
   createNewLine,
@@ -48,4 +50,5 @@ export {
   selectWithArrowUp,
   selectWithArrowDown,
   initializeSelection,
+  varifySelected,
 };

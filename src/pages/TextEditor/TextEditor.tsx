@@ -16,7 +16,10 @@ import {
   moveup,
   selectToEnd,
   selectToStart,
+  selectWithArrowDown,
+  selectWithArrowLeft,
   selectWithArrowRight,
+  selectWithArrowUp,
   selectWithPgDn,
   selectWithPgUp,
   setCursorPosition,
@@ -145,6 +148,12 @@ const TextEditor = () => {
         selectWithPgDn();
       } else if (key === "ArrowRight") {
         selectWithArrowRight(e, start, setStart, selectedText, setSelectedText);
+      } else if (key === "ArrowLeft") {
+        selectWithArrowLeft(e, start, setStart, selectedText, setSelectedText);
+      } else if (key === "ArrowUp") {
+        selectWithArrowUp(e, start, setStart, selectedText, setSelectedText);
+      } else if (key === "ArrowDown") {
+        selectWithArrowDown(e, start, setStart, selectedText, setSelectedText);
       }
     } else if (key === "Enter") {
       initializeSelection(setStart, setSelectedText, contentRef);
@@ -156,11 +165,9 @@ const TextEditor = () => {
       initializeSelection(setStart, setSelectedText, contentRef);
       moveup(e);
     } else if (key === "ArrowLeft") {
-      initializeSelection(setStart, setSelectedText, contentRef);
-      moveLeft(e);
+      moveLeft(e, setStart, setSelectedText, contentRef);
     } else if (key === "ArrowRight") {
-      initializeSelection(setStart, setSelectedText, contentRef);
-      moveRight(e);
+      moveRight(e, setStart, setSelectedText, contentRef);
     } else if (key === "Backspace") {
       initializeSelection(setStart, setSelectedText, contentRef);
       deleteByBackspace(e);

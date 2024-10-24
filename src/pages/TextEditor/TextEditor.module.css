@@ -11,7 +11,7 @@
 
 .span {
   outline: none;
-  border: 0px solid red;
+  border: 1px solid red;
   caret-color: auto;
 }
 
@@ -27,7 +27,7 @@
 
 .link {
   outline: none;
-  border: 0px solid cornflowerblue;
+  border: 1px solid cornflowerblue;
   caret-color: auto;
   color: cornflowerblue;
   font-weight: bold;

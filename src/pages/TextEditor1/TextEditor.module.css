@@ -1,0 +1,48 @@
+.content {
+  border: 2px solid black;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+.line {
+  border: 0px solid #ccc;
+  height: 18px;
+}
+
+.span {
+  outline: none;
+  border: 1px solid red;
+  caret-color: auto;
+}
+
+.normal {
+}
+.gap {
+  margin-left: 4px;
+}
+
+.between {
+  margin-left: 4px;
+}
+
+.link {
+  outline: none;
+  border: 1px solid cornflowerblue;
+  caret-color: auto;
+  color: cornflowerblue;
+  font-weight: bold;
+}
+
+.selected {
+  background-color: cornflowerblue;
+  color: white;
+}
+
+.hashtag {
+}
+
+.mention {
+}
+
+.url {
+}

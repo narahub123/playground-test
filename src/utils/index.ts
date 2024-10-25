@@ -39,7 +39,7 @@ import {
 
 import { varifySelected } from "./text-editor/varify";
 
-import { getFirstSelected } from "./text-editor/find";
+import { getFirstSelected, getNextTextNode } from "./text-editor/get";
 
 export {
   createNewLine,
@@ -71,4 +71,5 @@ export {
   initializeSelection,
   varifySelected,
   getFirstSelected,
+  getNextTextNode,
 };

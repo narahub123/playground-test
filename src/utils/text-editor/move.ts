@@ -1,4 +1,4 @@
-import { getFirstSelected } from "./find";
+import { getFirstSelected } from "./get";
 import {
   getCurElement,
   initializeSelection,
@@ -109,7 +109,7 @@ const moveLeft = (
   // 현재 요소가 selected 클래스인 확인하기
   const isSelected = varifySelected();
 
-  const { firstSelected, position } = getFirstSelected();
+  const { position } = getFirstSelected();
 
   // 커서 이동으로 인한 초기화 이전에 저장해야할 기존 정보들
   // selected 클래스 내의 문자열 및 클래스 이름, 이전 요소들의 문자열 및 클래스 이름
@@ -169,6 +169,7 @@ const moveLeft = (
     }
   } else {
     // 현재 요소가 selected 클래스 일 때
+    // 첫 선택 요소가 없어지는 경우의 위치를 알아야 함
     cursorPosition = position;
   }
 

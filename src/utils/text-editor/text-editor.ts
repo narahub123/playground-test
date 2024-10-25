@@ -5,6 +5,7 @@ import { createGapSpan, createLinkClass, createNormalSpan } from "./create";
 // 커서 위치 지정하기
 const setCursorPosition = (element: HTMLElement, index: number) => {
   const range = document.createRange();
+  console.log(range);
 
   range.setStart(
     element.childNodes[0] || element,
@@ -109,8 +110,6 @@ const deleteByBackspace = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 커서가 앞으로 움직이는 문제 해결 => 커서가 /삭제시에는 마지막 존재하도록 함
   setCursorPosition(cursorElement, cursorLength);
 };
-
-
 
 // ---------------------------------------------------------
 // 현재 요소에 link 클래스에 적합한 것이 있는지 확인
@@ -466,8 +465,6 @@ const getCurElement = () => {
 
 /// ------------------------------------------------------
 
-
-
 // --------------------------------------------------------------------------
 // selection
 
@@ -475,6 +472,7 @@ const getCurElement = () => {
 const initializeSelection = (
   setStart: (value: number) => void,
   setSelectedText: (value: string) => void,
+
   contentRef: React.RefObject<HTMLDivElement>
 ) => {
   // 커서 위치 불러오기

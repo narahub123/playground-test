@@ -3,6 +3,7 @@ import { createSelectedSpan } from "./create";
 import { getCurElement, setCursorPosition } from "./text-editor";
 import styles from "../../pages/TextEditor/TextEditor.module.css";
 import { moveToDifferentLine } from "./move";
+import { getNextTextNode } from "./get";
 
 // shift + End로 현재 줄 마지막까지 선택하기
 const selectToEnd = () => {
@@ -253,9 +254,195 @@ const selectWithPgDn = () => {
 };
 
 // shift + →
+// const selectWithArrowRight = (
+//   e: React.KeyboardEvent<HTMLDivElement>,
+//   setStart: (value: number) => void,
+//   selectedText: string,
+//   setSelectedText: (value: string) => void
+// ) => {
+//   e.preventDefault();
+
+//   const {
+//     curElem,
+//     curText,
+//     curClassNames,
+//     curPosition,
+//     nextElem,
+//     nextText,
+//     nextClassNames,
+//     nextLine,
+//   } = getCurElement();
+//   if (!curElem) return;
+
+//   // 커서가 위치할 요소
+//   let cursorElement = curElem;
+//   // 커서 위치
+//   let cursorIndex = curPosition;
+
+//   // 선택한 문자열
+//   let selection = selectedText;
+
+//   // 다음 줄의 첫 번째 요소
+//   const nextFirst = nextLine?.firstChild as HTMLElement;
+
+//   // 현재 요소가 selected가 아닌 경우
+//   if (!curClassNames.includes("selected")) {
+//     // 선택 전 문자열 : 현재 요소에 삽입
+//     const unselectedBefore = curText.slice(0, cursorIndex);
+//     // 선택 후 문자열 : 새로운 요소에 삽입
+//     const unselectedAfter = curText.slice(cursorIndex + 1);
+
+//     // 선택 후 문자열이 있는 경우 : 현재 요소와 동일한 클래스를 생성해서 넣어 줌
+//     if (unselectedAfter) {
+//       const span = document.createElement("span");
+//       span.setAttribute(
+//         "class",
+//         `${styles[curClassNames[0]]} ${styles[curClassNames[1]]}`
+//       );
+//       span.setAttribute("contentEditable", "true");
+//       span.innerText = unselectedAfter;
+
+//       cursorElement.after(span);
+//     }
+
+//     // 선택된 문자: 현재 커서와 그 다음 위치에 있는 문자
+//     const selected = curText.slice(cursorIndex, cursorIndex + 1);
+
+//     // 선택 span 생성 : 선택된 문자열을 선택 span에 삽입하여 생성
+//     const selectedSpan = createSelectedSpan(curElem, selected);
+
+//     // 선택 span을 현재 요소 옆에 삽입
+//     cursorElement.after(selectedSpan);
+
+//     // 커서 지정
+//     cursorElement = selectedSpan; // 새로 생성된 selected span
+//     cursorIndex = 1; // 추가된 문자 다음
+
+//     setStart(cursorIndex);
+//     // 선택된 문자 저장
+//     setSelectedText(selected);
+
+//     // 선택 전 문자열이 있는 경우 : 선택 전 문자열을 현재 요소에 삽입
+//     if (unselectedBefore) {
+//       curElem.innerText = unselectedBefore;
+//     } else {
+//       // 선택 전 문자열이 없는 경우 : 현재 요소 삭제
+//       curElem.remove();
+//     }
+//   } else {
+//     // 현재 요소가 selected 인 경우
+//     // 다음 요소가 있는 경우
+//     if (nextElem) {
+//       // 현재 요소와 다음 요소가 같은 클래스 인 경우 병합
+//       // 혹은 현재 요소 다음 요소 모두 span 클래스인 경우
+//       if (
+//         (curClassNames[0] === nextClassNames[0] &&
+//           curClassNames[1] === nextClassNames[1]) ||
+//         (curClassNames[0] === "span" && nextClassNames[0] === "span")
+//       ) {
+//         // 첫 문자를 선택 문자열에 추가
+//         selection += nextText.slice(0, 1);
+
+//         // 선택 문자열을 현재 요소에 삽입
+//         cursorElement.innerText = selection;
+//         // 선택 문자열 업데이트
+//         setSelectedText(selection);
+
+//         // 위치를 선택 문자열의 길이로 업데이트
+//         cursorIndex = selection.length;
+
+//         // 남은 문자열 추출
+//         const remainedText = nextText.slice(1);
+
+//         // 남은 문자열이 있다면
+//         if (remainedText) {
+//           // 다음 문자열에 남은 문자열 삽입
+//           nextElem.innerText = nextText.slice(1);
+//         } else {
+//           // 다음 문자열이 없다면 다음 요소 삭제
+//           nextElem.remove();
+//         }
+//       } else {
+//         // 현재 요소와 다음 요소의 클래스가 다른 경우
+//         const addedText =
+//           (nextClassNames[1] === "gap" ? " " : "") + nextText.slice(0, 1);
+
+//         // 다음 요소와 동일한 클래스의 selected Span 생성
+//         const selectedSpan = createSelectedSpan(nextElem, addedText);
+
+//         cursorElement.after(selectedSpan);
+
+//         setSelectedText(addedText);
+
+//         const remainedText = nextText.slice(1);
+
+//         if (nextClassNames[1] === "gap") {
+//           nextElem.setAttribute("class", `${styles.span} ${styles.normal}`);
+//         }
+//         if (remainedText) {
+//           nextElem.innerText = remainedText;
+//         } else {
+//           nextElem.remove();
+//         }
+
+//         cursorElement = selectedSpan;
+//         cursorIndex = addedText.length;
+//       }
+//     } else {
+//       // 다음 요소가 없는 경우
+//       // 다음 줄이 있는 경우
+//       if (nextLine) {
+//         cursorElement = nextFirst;
+//         cursorIndex = 0;
+//       }
+//     }
+//   }
+
+//   setCursorPosition(cursorElement, cursorIndex);
+// };
+
 const selectWithArrowRight = (
   e: React.KeyboardEvent<HTMLDivElement>,
-  start: number,
+  selection: Selection
+) => {
+  e.preventDefault(); // 기본 동작 방지
+
+  if (selection.rangeCount > 0) {
+    const range = selection.getRangeAt(0);
+    const endContainer = range.endContainer;
+    if (!endContainer) return;
+    const endOffset = range.endOffset;
+
+    // 현재 선택이 텍스트 노드의 끝에 도달했는지 확인
+    if (
+      endContainer.nodeType === Node.TEXT_NODE &&
+      endOffset === endContainer.textContent?.length
+    ) {
+      if (!endContainer.parentNode) return;
+      const { nextNode, start } = getNextTextNode(endContainer.parentNode); // 다음 텍스트 노드를 가져옴
+
+      // 다음 노드가 있는지 확인
+      // 다음 노드가 있는 경우
+      if (nextNode) {
+        range.setEnd(nextNode, start); // 다음 span의 시작으로 선택 확장
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else {
+        // 다음 노드가 없는 경우
+        // 다음 줄이있는 경우
+      }
+    } else {
+      // 아직 끝에 도달하지 않았으면 그냥 한 글자만 확장
+      range.setEnd(endContainer, endOffset + 1);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  }
+};
+
+// shift + ←
+const selectWithArrowLeft = (
+  e: React.KeyboardEvent<HTMLDivElement>,
   setStart: (value: number) => void,
   selectedText: string,
   setSelectedText: (value: string) => void
@@ -267,153 +454,6 @@ const selectWithArrowRight = (
     curText,
     curClassNames,
     curPosition,
-    nextElem,
-    nextText,
-    nextClassNames,
-    nextLine,
-  } = getCurElement();
-  if (!curElem) return;
-
-  // 현재 위치
-  let index = curPosition;
-  console.log("현재 커서 위치", index);
-
-  // 현재 요소
-  let curElement = curElem;
-
-  // 현재 요소의 문자열
-  let selectedTexts = selectedText;
-
-  const nextFirst = nextLine?.firstChild as HTMLElement;
-
-  // 현재 요소가 selected가 아닌 경우
-  if (!curClassNames.includes("selected")) {
-    // 선택안된 문자열은 현재 요소에 삽입
-    const unselectedBefore = curText.slice(0, index);
-    console.log("선택 전 문자열", unselectedBefore);
-
-    const unselectedAfter = curText.slice(index + 1);
-    console.log("선택 후 문자열", unselectedAfter);
-
-    if (unselectedAfter) {
-      const span = document.createElement("span");
-      span.setAttribute(
-        "class",
-        `${styles[curClassNames[0]]} ${styles[curClassNames[1]]}`
-      );
-      span.setAttribute("contentEditable", "true");
-      span.innerText = unselectedAfter;
-
-      curElement.after(span);
-    }
-
-    // 선택된 문자열 현재 문자열 옆에 selected span으로 삽입
-    const selected = curText.slice(index, index + 1);
-    console.log("선택된 문자열", selected);
-
-    const selectedSpan = createSelectedSpan(curElem, selected);
-
-    curElement.after(selectedSpan);
-
-    curElement = selectedSpan;
-    selectedTexts = selected;
-
-    index = 1;
-
-    setStart(index);
-    setSelectedText(selectedTexts);
-
-    if (unselectedBefore) {
-      curElem.innerText = unselectedBefore;
-    } else {
-      curElem.remove();
-    }
-  } else {
-    // 현재 요소가 selected 인 경우
-    // 다음 요소가 있는 경우
-    if (nextElem) {
-      // 현재 요소와 다음 요소가 같은 클래스 인 경우 병합
-      // 혹은 현재 요소 다음 요소 모두 span 클래스인 경우
-      if (
-        (curClassNames[0] === nextClassNames[0] &&
-          curClassNames[1] === nextClassNames[1]) ||
-        (curClassNames[0] === "span" && nextClassNames[0] === "span")
-      ) {
-        // 첫 문자를 선택 문자열에 추가
-        selectedTexts += nextText.slice(0, 1);
-
-        // 선택 문자열을 현재 요소에 삽입
-        curElement.innerText = selectedTexts;
-        // 선택 문자열 업데이트
-        setSelectedText(selectedTexts);
-
-        // 위치를 선택 문자열의 길이로 업데이트
-        index = selectedTexts.length;
-
-        // 남은 문자열 추출
-        const remainedText = nextText.slice(1);
-
-        // 남은 문자열이 있다면
-        if (remainedText) {
-          // 다음 문자열에 남은 문자열 삽입
-          nextElem.innerText = nextText.slice(1);
-        } else {
-          // 다음 문자열이 없다면 다음 요소 삭제
-          nextElem.remove();
-        }
-      } else {
-        // 현재 요소와 다음 요소의 클래스가 다른 경우
-        const addedText =
-          (nextClassNames[1] === "gap" ? " " : "") + nextText.slice(0, 1);
-
-        // 다음 요소와 동일한 클래스의 selected Span 생성
-        const selectedSpan = createSelectedSpan(nextElem, addedText);
-
-        curElement.after(selectedSpan);
-
-        setSelectedText(addedText);
-
-        const remainedText = nextText.slice(1);
-
-        if (nextClassNames[1] === "gap") {
-          nextElem.setAttribute("class", `${styles.span} ${styles.normal}`);
-        }
-        if (remainedText) {
-          nextElem.innerText = remainedText;
-        } else {
-          nextElem.remove();
-        }
-
-        curElement = selectedSpan;
-        index = addedText.length;
-      }
-    } else {
-      // 다음 요소가 없는 경우
-      // 다음 줄이 있는 경우
-      if (nextLine) {
-        curElement = nextFirst;
-        index = 0;
-      }
-    }
-  }
-
-  setCursorPosition(curElement, index);
-};
-
-// shift + ←
-const selectWithArrowLeft = (
-  e: React.KeyboardEvent<HTMLDivElement>,
-  start: number,
-  setStart: (value: number) => void,
-  selectedText: string,
-  setSelectedText: (value: string) => void
-) => {
-  e.preventDefault();
-
-  const {
-    curElem,
-    curText,
-    curClassNames,
     prevElem,
     prevText,
     prevClassNames,
@@ -422,7 +462,7 @@ const selectWithArrowLeft = (
   if (!curElem) return;
 
   // 현재 위치
-  let cursorPostion = start;
+  let cursorPostion = curPosition;
   console.log("현재 커서 위치", cursorPostion);
 
   // 현재 요소

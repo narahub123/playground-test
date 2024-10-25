@@ -39,6 +39,8 @@ import {
 
 import { varifySelected } from "./text-editor/varify";
 
+import { getFirstSelected } from "./text-editor/find";
+
 export {
   createNewLine,
   createNormalSpan,
@@ -68,4 +70,5 @@ export {
   deleteByBackspace,
   initializeSelection,
   varifySelected,
+  getFirstSelected,
 };

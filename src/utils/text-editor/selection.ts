@@ -266,6 +266,7 @@ const selectWithArrowRight = (
     curElem,
     curText,
     curClassNames,
+    curPosition,
     nextElem,
     nextText,
     nextClassNames,
@@ -274,7 +275,7 @@ const selectWithArrowRight = (
   if (!curElem) return;
 
   // 현재 위치
-  let index = start;
+  let index = curPosition;
   console.log("현재 커서 위치", index);
 
   // 현재 요소

@@ -1,3 +1,4 @@
+import { getFirstSelected } from "./find";
 import {
   getCurElement,
   initializeSelection,
@@ -108,6 +109,8 @@ const moveLeft = (
   // 현재 요소가 selected 클래스인 확인하기
   const isSelected = varifySelected();
 
+  const { firstSelected, position } = getFirstSelected();
+
   // 커서 이동으로 인한 초기화 이전에 저장해야할 기존 정보들
   // selected 클래스 내의 문자열 및 클래스 이름, 이전 요소들의 문자열 및 클래스 이름
   let { prevText, curClassNames } = getCurElement();
@@ -132,7 +135,7 @@ const moveLeft = (
   // 커서의 요소 내의 위치
   let cursorPosition = curPosition;
 
-  // 현재 요소가 selected 클래스 일 때
+  // 현재 요소가 selected 클래스가 아닐 때
   if (!isSelected) {
     // 현재 요소가 selected 클래스 안이 아닌 경우
     // 기준점
@@ -164,6 +167,9 @@ const moveLeft = (
         cursorPosition = prevLastText.length;
       }
     }
+  } else {
+    // 현재 요소가 selected 클래스 일 때
+    cursorPosition = position;
   }
 
   // 커서 위치 지정하기

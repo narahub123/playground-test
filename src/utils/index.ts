@@ -4,7 +4,7 @@ import {
   getCurElement,
   deleteByBackspace,
   initializeSelection,
-} from "./text-editor/text-editor";
+} from "./text-editor1/text-editor";
 
 import {
   moveRight,
@@ -16,7 +16,7 @@ import {
   movedown,
   moveup,
   moveToDifferentLine,
-} from "./text-editor/move";
+} from "./text-editor1/move";
 
 import {
   createNewLine,
@@ -24,7 +24,7 @@ import {
   createSelectedSpan,
   createGapSpan,
   createLinkClass,
-} from "./text-editor/create";
+} from "./text-editor1/create";
 
 import {
   selectToEnd,
@@ -35,11 +35,11 @@ import {
   selectWithArrowUp,
   selectWithPgDn,
   selectWithPgUp,
-} from "./text-editor/selection";
+} from "./text-editor1/selection";
 
-import { varifySelected } from "./text-editor/varify";
+import { varifySelected } from "./text-editor1/varify";
 
-import { getFirstSelected, getNextTextNode } from "./text-editor/get";
+import { getFirstSelected, getNextTextNode } from "./text-editor1/get";
 
 export {
   createNewLine,

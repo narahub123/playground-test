@@ -28,6 +28,9 @@ import {
 const TextEditor = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [start, setStart] = useState(0);
+  const [leftPosition, setLeftPosition] = useState<number | undefined>(
+    undefined
+  );
   const [selectedText, setSelectedText] = useState("");
 
   // 삭제된 코드: focus 확인 용
@@ -160,29 +163,35 @@ const TextEditor = () => {
       createNewLine(e);
     } else if (key === "ArrowDown") {
       initializeSelection(setStart, setSelectedText, contentRef);
-      movedown(e);
+      movedown(e, leftPosition, setLeftPosition);
     } else if (key === "ArrowUp") {
       initializeSelection(setStart, setSelectedText, contentRef);
-      moveup(e);
+      moveup(e, leftPosition, setLeftPosition);
     } else if (key === "ArrowLeft") {
       moveLeft(e, setStart, setSelectedText, contentRef);
+      setLeftPosition(undefined);
     } else if (key === "ArrowRight") {
       moveRight(e, setStart, setSelectedText, contentRef);
+      setLeftPosition(undefined);
     } else if (key === "Backspace") {
       initializeSelection(setStart, setSelectedText, contentRef);
       deleteByBackspace(e);
     } else if (key === "Home") {
       initializeSelection(setStart, setSelectedText, contentRef);
       moveStart(e);
+      setLeftPosition(undefined);
     } else if (key === "End") {
       initializeSelection(setStart, setSelectedText, contentRef);
       moveEnd(e);
+      setLeftPosition(undefined);
     } else if (key === "PageUp") {
       initializeSelection(setStart, setSelectedText, contentRef);
       movePageUp(e);
+      setLeftPosition(undefined);
     } else if (key === "PageDown") {
       initializeSelection(setStart, setSelectedText, contentRef);
       movePageDown(e);
+      setLeftPosition(undefined);
     }
   };
 

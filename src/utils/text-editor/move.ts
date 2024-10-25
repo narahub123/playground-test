@@ -110,7 +110,7 @@ const moveLeft = (
 
   // 커서 이동으로 인한 초기화 이전에 저장해야할 기존 정보들
   // selected 클래스 내의 문자열 및 클래스 이름, 이전 요소들의 문자열 및 클래스 이름
-  let { curText, prevText, curClassNames } = getCurElement();
+  let { prevText, curClassNames } = getCurElement();
 
   // 선택 초기화
   initializeSelection(setStart, setSelectedText, contentRef);
@@ -121,7 +121,6 @@ const moveLeft = (
 
   // 현재 요소가 selected 클래스가 아닌 경우
   if (!isSelected) {
-    curText = getCurElement().curText;
     // 아래 요소들은 selected가 아닌 클래스에서 사용하지 않는데
     // 갱신이 필요한지 모르겠음
     prevText = getCurElement().prevText;
@@ -173,9 +172,12 @@ const moveLeft = (
   setStart(cursorPosition);
 };
 
-// ------------------------- 여기서부터 시작할 것 -----------------------
 // ↑ 방향키 사용시
-const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const moveup = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  leftPosition: number | undefined,
+  setLeftPosition: (value: number) => void
+) => {
   e.preventDefault();
   const { curElem, prevLine } = getCurElement();
   if (!curElem) return;
@@ -183,14 +185,23 @@ const moveup = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 이전 줄이 존재하지 않으면 아무것도 하지 않음
   if (!prevLine) return;
 
-  // 이전 줄로 이동하기
-  const { spanMovedTo, index } = moveToDifferentLine(curElem, prevLine);
+  // 이전 줄로 이동하기: 이전의 같은 위치로 이동
+  const { spanMovedTo, index } = moveToDifferentLine(
+    curElem,
+    prevLine,
+    leftPosition,
+    setLeftPosition
+  );
 
   setCursorPosition(spanMovedTo, index);
 };
 
 // ↓ 방향키 사용시
-const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const movedown = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  leftPosition: number | undefined,
+  setLeftPosition: (value: number) => void
+) => {
   e.preventDefault();
 
   const { curElem, nextLine } = getCurElement();
@@ -199,130 +210,225 @@ const movedown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 다음 줄이 존재하지 않으면 아무것도 하지 않음
   if (!nextLine) return;
 
-  // 다음 줄로 이동하기
-  const { spanMovedTo, index } = moveToDifferentLine(curElem, nextLine);
+  // 다음 줄로 이동하기 : 다음 줄의 같은 위치
+  const { spanMovedTo, index } = moveToDifferentLine(
+    curElem,
+    nextLine,
+    leftPosition,
+    setLeftPosition
+  );
 
   setCursorPosition(spanMovedTo, index);
 };
 
 // Home 키
 const moveStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
   const { curElem, curLine } = getCurElement();
-  if (!curElem) return;
+  if (!curElem || !curLine) return;
 
-  const firstChild = curLine?.firstChild as HTMLElement;
+  // 현재 줄의 첫 번째 요소
+  const firstChild = curLine.firstChild as HTMLElement;
 
+  // 현재 줄의 첫 번째 요소의 0으로 이동
   setCursorPosition(firstChild, 0);
 };
 
 // End 키
 const moveEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
   const { curElem, curLine } = getCurElement();
-  if (!curElem) return;
+  if (!curElem || !curLine) return;
 
-  const lastChild = curLine?.lastChild as HTMLElement;
+  // 현재 줄의 마지막 요소
+  const lastChild = curLine.lastChild as HTMLElement;
+  // 현재 줄의 마지막 요소의 문자열
   const text = lastChild?.textContent || "";
 
+  // 현재 줄 마지막 요소의 마지막 위치에 커서 지정
   setCursorPosition(lastChild, text.length);
 };
 
 // PgUp 키
 const movePageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
   const { curElem } = getCurElement();
   if (!curElem) return;
 
+  // 현재 요소가 포함된 컨텐트
   const content = curElem.parentElement?.parentElement;
   if (!content) return;
 
+  // 컨텐트의 첫 번째 줄
   const firstLine = content.firstChild as HTMLElement;
 
+  // 이동해야 할 요소와 요소 내의 위치 찾기 : 첫 번째 줄의 요소에서 찾아야 함
   const { spanMovedTo, index } = moveToDifferentLine(curElem, firstLine);
 
+  // 커서 지정
   setCursorPosition(spanMovedTo, index);
 };
 
 // PgDn 키
 const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
   const { curElem } = getCurElement();
   if (!curElem) return;
 
+  // 현재 요소가 포함된 컨텐트
   const content = curElem?.parentElement?.parentElement;
   if (!content) return;
 
-  const lastChild = content.lastChild as HTMLElement;
+  // 컨텐트의 마지막 줄
+  const lastLine = content.lastChild as HTMLElement;
 
-  const { spanMovedTo, index } = moveToDifferentLine(curElem, lastChild);
+  // 커서가 이동할 요소와 요소 내의 위치 찾기 : 마지막 줄의 요소
+  const { spanMovedTo, index } = moveToDifferentLine(curElem, lastLine);
 
+  // 커서 지정
   setCursorPosition(spanMovedTo, index);
 };
+
+// ------------------------- 여기서부터 시작할 것 -----------------------
 
 // 다른 줄로 이동하기
 const moveToDifferentLine = (
   curElem: HTMLElement,
-  lineMovedTo: HTMLElement
+  lineMovedTo: HTMLElement,
+  leftPosition?: number | undefined,
+  setLeftPosition?: (value: number) => void
 ) => {
-  // 커서의 위치
-  const cursorPosition = getCursorPos();
+  // 커서의 위치 : 좌측 좌표가 존재하면 좌측 좌표를 사용하고 아니면 계산해야함
+  const cursorPosition = leftPosition
+    ? leftPosition
+    : getCursorPos(setLeftPosition);
 
   // 커서가 이동할 요소와 커서의 left 좌표
-  const { spanMovedTo, xPos } = getElementInLineByPosition(
+  const { spanMovedTo, index } = getElementInLineByPosition(
     cursorPosition,
     curElem,
     lineMovedTo
   );
 
-  // 이동할 요소 내에서의 위치
-  const index = getPosition(spanMovedTo, cursorPosition - xPos);
-
   return { spanMovedTo, index };
 };
 
-// 커서 위치 찾기
-const getCursorPos = () => {
-  const selection = window.getSelection();
-  if (!selection) return 0;
-
-  const focusNode = selection.focusNode as HTMLElement;
-  const focusOffset = selection.focusOffset;
-
-  const length = focusNode.textContent ? focusNode.textContent.length : 0;
-
-  if (!focusNode.parentElement) return 0;
-
-  // 문자를 감싸는 컨테이너
-  const span = length === 0 ? focusNode : focusNode.parentElement;
+// 커서 좌표 찾기 : left
+const getCursorPos = (setLeftPosition?: (value: number) => void) => {
+  const { curElem, curText, curPosition } = getCurElement();
 
   // 해당 컨네이터의 좌측 좌표 구하기
-  let x = span.getBoundingClientRect().left;
+  let leftPosition = curElem.getBoundingClientRect().left;
 
-  // 컨테이너 내에서 커서 이전의 문자열 가져오기
-  const text = focusNode.textContent || "";
-
-  const textBeforeCursor = text ? text.slice(0, focusOffset) : "";
+  // 커서 이전의 문자열
+  const textBeforeCursor = curText ? curText.slice(0, curPosition) : "";
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
 
   if (!canvas || !context) return 0;
 
-  const style = window.getComputedStyle(span);
+  // 현재 요소의 css 스타일 얻기
+  const style = window.getComputedStyle(curElem);
 
+  // 현재 요소의 폰트
   const font = style.font;
 
+  // context의 폰트에 현재 요소의 폰트 삽입
   context.font = font;
 
   // 문자열의 길이 계산
-  const width = context.measureText(textBeforeCursor).width;
+  const widthOfTextBeforeCursor = context.measureText(textBeforeCursor).width;
 
-  x += width;
+  // 현재 요소의 좌측 좌표에 커서 이전 문자열의 길이 추가하기
+  leftPosition += widthOfTextBeforeCursor;
 
-  return x;
+  if (setLeftPosition) setLeftPosition(leftPosition);
+  return leftPosition;
+};
+
+// left 좌표로 요소 찾기
+const getElementInLineByPosition = (
+  leftPosition: number, // left 좌표
+  curElem: HTMLElement,
+  targetLine: HTMLElement
+) => {
+  // 이동할 요소
+  let spanMovedTo = undefined;
+  let index = 0;
+  // 이동할 요소의 left 좌표
+  let xPos = 0;
+
+  // 현재 줄
+  const line = curElem.parentElement;
+
+  // 현재 줄이 없는 경우
+  if (!line) {
+    spanMovedTo = curElem;
+
+    return { spanMovedTo, index };
+  }
+
+  // 이동할 줄의 자식 요소
+  const children = targetLine.children;
+
+  let i = 0;
+
+  // 이동할 자식 요소의 순서
+  let chosen = 0;
+
+  // 자식 요소들의 left의 좌표가 커서의 위치보다 클 때까지
+  // 자식 요소가 있고 이전 자식 요소의 left 좌표가 leftPosition 보다 작거나 같은 경우
+  while (xPos <= leftPosition && children[i]) {
+    // 검사할 자식 요소
+    const child = children[i];
+
+    // 검사하는 자식 요소의 left 좌표
+    const left = child.getBoundingClientRect().left;
+
+    // 현재 자식 요소의 left 좌표가 leftPosition보다 큰 경우
+    if (left > leftPosition) {
+      // 이동할 자식 요소의 순서는 이전 자식 요소
+      chosen = i - 1;
+      // 이전 자식 요소의 left 좌표 삽입
+      xPos = children[i - 1].getBoundingClientRect().left;
+
+      // 이전 자식 요소의 left 좌표는 이미 xPos에 저장되어 있음
+      break;
+    } else if (left === leftPosition) {
+      // 현재 자식 요소의 left 좌표와 leftPosition이 같은 경우
+      // 이동할 자식 요소는 현재 자식 요소
+      chosen = i;
+      // 현재 자식 요소의 left 좌표 삽입
+      xPos = left;
+    } else if (i === children.length - 1) {
+      // 현재 자식 요소가 자식 요소 배열의 마지막인 경우
+
+      // 이동할 자식 요소는 현재 자식 요소
+      chosen = i;
+      // left 좌표를 현재 자식 요소의 left 좌표 삽입
+      xPos = left;
+      break;
+    }
+
+    // 위의 조건에 맞지 않는 경우: 다음 자식 요소로 이동
+    i++;
+  }
+
+  // 이동할 요소
+  spanMovedTo = children[chosen] as HTMLElement;
+
+  index = getPosition(spanMovedTo, leftPosition - xPos);
+
+  return { spanMovedTo, index };
 };
 
 // 요소 내 위치 찾기
-const getPosition = (elem: HTMLElement, pos: number) => {
+const getPosition = (
+  elem: HTMLElement, // 검사할 요소
+  remainedLength: number // leftPosition에서 검사할 요소의 left 좌표를 길이
+) => {
   let index = 0;
-  console.log(elem);
 
   // 요소 내 문자열
   const text = elem?.textContent || "";
@@ -330,8 +436,8 @@ const getPosition = (elem: HTMLElement, pos: number) => {
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
 
+  // 컨버스나 컨텍스트가 없는 경우
   if (!canvas || !context) {
-    index = 0;
     return index;
   }
 
@@ -345,83 +451,47 @@ const getPosition = (elem: HTMLElement, pos: number) => {
     // 문자열을 순서대로
     const cut = text.slice(0, i);
 
-    // 해당 문자열의 길이
-    const width = context.measureText(cut).width;
+    // 문자열의 길이
+    const widthOfCut = context.measureText(cut).width;
 
-    if (width >= pos) {
-      const iB4 = i > 0 ? i - 1 : 0;
-      const cutB4 = text.slice(0, iB4);
+    // 문자열의 길이가 남은 길이보다 크거나 같은 경우: 이 후 조사를 진행하지 않음
+    if (widthOfCut >= remainedLength) {
+      // 이전 순서
+      const indexBefore = i > 0 ? i - 1 : 0;
+      console.log(indexBefore);
 
-      const widthB4 = context.measureText(cutB4).width;
+      // 이전 순서 문자열
+      const cutIndexBefore = text.slice(0, indexBefore);
 
-      if (width - pos <= pos - widthB4) {
+      // 이전 문자열의 길이
+      const widthOfCutIndexBefore = context.measureText(cutIndexBefore).width;
+
+      // (문자열의 길이 - 남은 길이)가 (남은 길이 - 이전 문자열의 길이) 보다 작거나 같은 경우
+      if (
+        widthOfCut - remainedLength <=
+        remainedLength - widthOfCutIndexBefore
+      ) {
+        // 현재 순서
         index = i;
       } else {
+        // 이전 순서
         index = i - 1;
       }
 
       break;
     } else {
+      // 문자열의 길이가 남은 길이보다 작은 경우
+      // 문자열의 길이를 순서로 삽입
+
       index = text.length;
     }
   }
 
+  console.log("인덱스", index);
+
   return index;
 };
 
-// 위치로 요소 찾기
-const getElementInLineByPosition = (
-  x: number,
-  curElem: HTMLElement,
-  targetLine: HTMLElement
-) => {
-  let spanMovedTo = undefined;
-  let xPos = undefined;
-
-  // 줄 요소 찾기
-  const line = curElem.parentElement;
-  // 현재 위치 고수
-  const length = curElem.textContent ? curElem.textContent.length : 0;
-
-  if (!line) {
-    spanMovedTo = curElem;
-    xPos = length;
-
-    return { spanMovedTo, xPos };
-  }
-
-  const children = targetLine.children;
-
-  // 자식 요소들의 left의 합
-  xPos = 0;
-
-  let i = 0;
-  let chosen = 0;
-
-  // 자식 요소들의 left의 좌표가 커서의 위치보다 클 때까지
-  while (xPos <= x && children[i]) {
-    const child = children[i];
-
-    const left = child.getBoundingClientRect().left;
-
-    if (left > x) {
-      chosen = i - 1;
-      xPos = children[i - 1].getBoundingClientRect().left;
-      break;
-    } else if (i === children.length - 1) {
-      chosen = i;
-      xPos = left;
-      break;
-    }
-
-    xPos = left;
-    i++;
-  }
-
-  spanMovedTo = children[chosen];
-
-  return { spanMovedTo: spanMovedTo as HTMLElement, xPos };
-};
 export {
   moveRight,
   moveLeft,

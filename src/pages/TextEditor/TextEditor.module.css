@@ -1,15 +1,22 @@
 .content {
-  border: 1px solid #ccc;
+  border: 0px solid #ccc;
 }
 
 .line {
   height: 20px;
 }
 
+.container {
+  outline: none;
+}
+
 .span {
-  border: 1px solid black;
+  border: 0px solid black;
+  outline: none;
 }
 
 .link {
-  border: 1px solid cornflowerblue;
+  outline: none;
+  border: 0px solid cornflowerblue;
+  color: cornflowerblue;
 }

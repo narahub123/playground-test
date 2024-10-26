@@ -1,3 +1,6 @@
+import { getNextTextNode } from "./get";
 import { setCursorPosition } from "./set";
 
-export { setCursorPosition };
+import { moveRight } from "./move";
+
+export { getNextTextNode, setCursorPosition, moveRight };

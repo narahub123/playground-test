@@ -1,4 +1,4 @@
-import { setCursorPosition } from "../../utils/text-editor";
+import { moveRight, setCursorPosition } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
 const TextEditor = () => {
@@ -21,13 +21,43 @@ const TextEditor = () => {
     }
   };
 
+  // key down 이벤트
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const key = e.key;
+
+    // shift 키를 누르면서
+    if (e.shiftKey) {
+      const selection = getSelection();
+      if (!selection) return;
+      if (key === "ArrowRight") {
+      }
+    } else if (key === "ArrowRight") {
+      moveRight(e);
+    }
+  };
   return (
     <div className="text-editor">
-      <div className={styles.content} onClick={(e) => handleClick(e)}>
+      <div
+        className={styles.content}
+        onClick={(e) => handleClick(e)}
+        onKeyDown={(e) => handleKeyDown(e)}
+      >
         <div className={styles.line}>
           {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
           <span className={`${styles.container}`}>
             <span className={styles.span} contentEditable></span>
+          </span>
+          <span className={`${styles.container}`}>
+            <span className={styles.link} contentEditable></span>
+          </span>
+        </div>
+        <div className={styles.line}>
+          {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
+          <span className={`${styles.container}`}>
+            <span className={styles.span} contentEditable></span>
+          </span>
+          <span className={`${styles.container}`}>
+            <span className={styles.link} contentEditable></span>
           </span>
           <span className={`${styles.container}`}>
             <span className={styles.span} contentEditable></span>

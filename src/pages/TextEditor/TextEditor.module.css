@@ -11,12 +11,12 @@
 }
 
 .span {
-  border: 0px solid black;
+  /* border: 1px solid black; */
   outline: none;
 }
 
 .link {
   outline: none;
-  border: 0px solid cornflowerblue;
+  /* border: 1px solid cornflowerblue; */
   color: cornflowerblue;
 }

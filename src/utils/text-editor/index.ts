@@ -1,6 +1,15 @@
-import { getNextTextNode } from "./get";
+import { getNextTextNode, getPrevTextNode, getNodeAndIndex } from "./get";
 import { setCursorPosition } from "./set";
 
-import { moveRight } from "./move";
+import { moveRight, moveLeft, moveUp, moveDown } from "./move";
 
-export { getNextTextNode, setCursorPosition, moveRight };
+export {
+  getNextTextNode,
+  getPrevTextNode,
+  getNodeAndIndex,
+  setCursorPosition,
+  moveRight,
+  moveLeft,
+  moveDown,
+  moveUp,
+};

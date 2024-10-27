@@ -1,6 +1,10 @@
 // 커서의 위치를 지정하는 메서드
-const setCursorPosition = (element: HTMLElement, index: number) => {
-  //
+const setCursorPosition = (
+  element: HTMLElement | Node | null,
+  index: number
+) => {
+  if (!element) return;
+  
   const range = document.createRange();
 
   range.setStart(

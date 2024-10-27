@@ -1,4 +1,10 @@
-import { moveRight, setCursorPosition } from "../../utils/text-editor";
+import {
+  moveDown,
+  moveLeft,
+  moveRight,
+  moveUp,
+  setCursorPosition,
+} from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
 const TextEditor = () => {
@@ -14,10 +20,25 @@ const TextEditor = () => {
       const lastChild = (target as HTMLElement).lastElementChild
         ?.children[0] as HTMLElement;
       if (!lastChild) return;
-      console.log("마지막 요소", lastChild);
+
       const text = lastChild?.textContent || "";
 
       setCursorPosition(lastChild, text.length);
+    }
+    // 클릭한 요소가 link인 경우 이전 요소로 이동
+    if (className.includes("link")) {
+      const selection = window.getSelection();
+      if (!selection) return;
+
+      const prev = (target as HTMLElement).parentElement
+        ?.previousElementSibling;
+
+      // 이전 요소가 있다면
+      if (prev && selection.focusOffset === 0) {
+        const prevText = prev.textContent || "";
+
+        setCursorPosition(prev.firstChild, prevText.length);
+      }
     }
   };
 
@@ -33,6 +54,12 @@ const TextEditor = () => {
       }
     } else if (key === "ArrowRight") {
       moveRight(e);
+    } else if (key === "ArrowLeft") {
+      moveLeft(e);
+    } else if (key === "ArrowUp") {
+      moveUp(e);
+    } else if (key === "ArrowDown") {
+      moveDown(e);
     }
   };
   return (
@@ -60,7 +87,10 @@ const TextEditor = () => {
             <span className={styles.link} contentEditable></span>
           </span>
           <span className={`${styles.container}`}>
-            <span className={styles.span} contentEditable></span>
+            <span
+              className={`${styles.span} ${styles.gap}`}
+              contentEditable
+            ></span>
           </span>
         </div>
       </div>

@@ -67,4 +67,72 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   setCursorPosition(cursorElement, cursorPosition);
 };
 
-export { moveRight };
+const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+  // 현재 노드
+  const currentNode = selection.focusNode as HTMLElement;
+  if (!currentNode) return;
+  // 현재 요소 내의 위치
+  const currentPosition = selection.focusOffset;
+
+  // 현재 노드 내 문자열
+  const curText = currentNode.textContent || "";
+
+  // 현재 요소: 현재 노드 내 문자열이 있는 경우와 없는 경우 현재 요소의 위치가 달라짐
+  const curElem = curText ? currentNode.parentElement : currentNode;
+
+  // 현재 컨테이너
+  const curContainer = curElem?.parentElement;
+  if (!curContainer) return;
+
+  // 현재 줄
+  const curLine = curContainer.parentElement;
+  if (!curLine) return;
+
+  let cursorElement = currentNode;
+  let cursorPosition = currentPosition;
+
+  // 기준점: link 클래스이고 문자열이 존재하는 경우 1 아닌 경우 0
+  const focalPoint = curElem?.className.includes("link") && curText ? 1 : 0;
+
+  // 현재 커서의 위치가 기준점과 일치하는 경우
+  if (currentPosition === focalPoint) {
+    console.log("현재 커서의 위치가 기준점과 일치함");
+    const prevContainer = curContainer.previousElementSibling;
+
+    // 이전 컨테이너가 존재하는 경우 이전 요소의 마지막으로 이동
+    if (prevContainer) {
+      console.log("이전 컨테이너가 있는 경우");
+      const prevElem = prevContainer.children[0] as HTMLElement;
+      const prevText = prevElem?.textContent || "";
+
+      cursorElement = prevElem;
+      cursorPosition = prevText.length;
+    } else {
+      // 이전 컨테이너가 없는 경우
+      console.log("이전 컨테이너가 없는 경우");
+      const prevLine = curLine.previousElementSibling;
+
+      // 이전 줄이 존재하는 경우
+      if (prevLine) {
+        const lastElem = prevLine.lastChild?.firstChild as HTMLElement;
+
+        const lastText = lastElem?.textContent || "";
+
+        cursorElement = lastElem;
+        cursorPosition = lastText.length;
+      }
+    }
+  } else {
+    // 현재 커서의 위치가 기준점과 일치하지 않는 경우
+    console.log("현재 커서의 위치가 기준점과 일치하지 않음");
+    // 현재 위치에서 왼쪽으로 한 칸 이동함
+    cursorPosition -= 1;
+  }
+
+  setCursorPosition(cursorElement, cursorPosition);
+};
+
+export { moveRight, moveLeft };

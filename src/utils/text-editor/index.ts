@@ -1,5 +1,5 @@
 import { setCursorPosition } from "./set";
 
-import { moveRight } from "./move";
+import { moveRight, moveLeft } from "./move";
 
-export { setCursorPosition, moveRight };
+export { setCursorPosition, moveRight, moveLeft };

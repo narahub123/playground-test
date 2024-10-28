@@ -1,3 +1,4 @@
+import { setCursorPosition } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
 const TextEditor = () => {
@@ -8,18 +9,30 @@ const TextEditor = () => {
     // 클릭한 요소의 클래스 이름
     const className = target.className;
 
+    let cursorElement = target;
+    let cursorPosition = 0;
+
+    // 선택 초기화 코드 필요함
+
     // line 클래스를 클릭한 경우
     if (className.includes("line")) {
       console.log("line 클래스를 클릭함");
       // 해당 클래스 내의 가장 마지막 요소의 마지막 위치에 커서를 위치함
-      const lastChild = target.lastElementChild?.children[0];
+      const lastChild = target.lastElementChild?.firstChild as HTMLElement;
+      // 마지막 요소의 텍스트
       const lastChildText = lastChild?.textContent || "";
+
+      // 마지막 요소의 마지막 위치에 커서 지정
+      cursorElement = lastChild;
+      cursorPosition = lastChildText.length;
     }
+
+    setCursorPosition(cursorElement, cursorPosition);
   };
   return (
     <div className="text-editor">
       <div className={styles.content} onClick={(e) => handleClick(e)}>
-        <div className={styles.line}>
+        <div className={styles.line} data-line={0}>
           {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
           <span className={`${styles.container}`}>
             <span className={styles.span} contentEditable></span>
@@ -28,7 +41,7 @@ const TextEditor = () => {
             <span className={styles.link} contentEditable></span>
           </span>
         </div>
-        <div className={styles.line}>
+        <div className={styles.line} data-line={1}>
           {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
           <span className={`${styles.container}`}>
             <span className={styles.span} contentEditable></span>

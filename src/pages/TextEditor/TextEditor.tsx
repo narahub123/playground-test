@@ -1,6 +1,7 @@
 import {
   moveLeft,
   moveRight,
+  moveUp,
   setCursorPosition,
 } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
@@ -48,6 +49,8 @@ const TextEditor = () => {
       moveRight(e);
     } else if (key === "ArrowLeft") {
       moveLeft(e);
+    } else if (key === "ArrowUp") {
+      moveUp(e);
     }
   };
   return (

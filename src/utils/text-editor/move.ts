@@ -1,3 +1,4 @@
+import { getTargetAndIndex } from "./get";
 import { setCursorPosition } from "./set";
 
 const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -135,4 +136,51 @@ const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   setCursorPosition(cursorElement, cursorPosition);
 };
 
-export { moveRight, moveLeft };
+const moveUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  console.log("안녕");
+  const selection = window.getSelection();
+  if (!selection) return;
+  const curNode = selection.focusNode;
+  if (!curNode) return;
+  const curPosition = selection.focusOffset;
+
+  const curText = curNode.textContent || "";
+
+  const curElem = curText ? curNode.parentElement : (curNode as HTMLElement);
+  if (!curElem) return;
+  const curContainer = curElem?.parentElement;
+  if (!curContainer) return;
+  const curLine = curContainer?.parentElement;
+  if (!curLine) return;
+
+  let cursorElement = curNode;
+  let cursorPosition = curPosition;
+
+  const prevLine = curLine.previousElementSibling as HTMLElement;
+  // 이전 줄이 존재하는 경우
+  if (prevLine) {
+    console.log("이전 줄이 존재함");
+    // 이전 줄의 동일한 위치의 요소와 해당 요소에서의 커서의 위치
+    const { target, index } = getTargetAndIndex(
+      curElem,
+      cursorPosition,
+      prevLine
+    );
+
+    cursorElement = target.firstChild as HTMLElement;
+    cursorPosition = index;
+  } else {
+    // 이전 줄이 존재하지 않는 경우
+    console.log("이전 줄이 존재하지 않음");
+    // 현재 줄의 처음으로 이동
+    const firstElem = curLine.firstChild?.firstChild;
+    if (!firstElem) return;
+
+    cursorElement = firstElem;
+    cursorPosition = 0;
+  }
+
+  setCursorPosition(cursorElement, cursorPosition);
+};
+export { moveRight, moveLeft, moveUp };

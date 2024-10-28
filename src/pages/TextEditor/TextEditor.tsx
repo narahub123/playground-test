@@ -2,6 +2,7 @@ import {
   moveDown,
   moveLeft,
   moveRight,
+  moveStart,
   moveUp,
   setCursorPosition,
 } from "../../utils/text-editor";
@@ -54,6 +55,8 @@ const TextEditor = () => {
       moveUp(e);
     } else if (key === "ArrowDown") {
       moveDown(e);
+    } else if (key === "Home") {
+      moveStart(e);
     }
   };
   return (

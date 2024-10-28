@@ -231,4 +231,31 @@ const moveDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   setCursorPosition(cursorElement, cursorPosition);
 };
-export { moveRight, moveLeft, moveUp, moveDown };
+
+const moveStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+  const curNode = selection.focusNode;
+  if (!curNode) return;
+  const curElem =
+    curNode.nodeType === Node.TEXT_NODE
+      ? curNode.parentElement
+      : (curNode as HTMLElement);
+  if (!curElem) return;
+
+  const curContainer = curElem.parentElement;
+  if (!curContainer) return;
+  const curLine = curContainer.parentElement;
+  if (!curLine) return;
+
+  // 현재 줄의 첫 번째 컨테이너
+  const firstContainer = curLine.firstChild;
+  if (!firstContainer) return;
+  // 현재 줄의 첫 번째 요소
+  const firstElem = firstContainer?.firstChild;
+  if (!firstElem) return;
+
+  setCursorPosition(firstElem, 0);
+};
+export { moveRight, moveLeft, moveUp, moveDown, moveStart };

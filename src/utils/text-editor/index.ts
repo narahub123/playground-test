@@ -7,6 +7,8 @@ import {
   moveDown,
   moveStart,
   moveEnd,
+  movePageUp,
+  movePageDown,
 } from "./move";
 
 import {
@@ -24,6 +26,8 @@ export {
   moveDown,
   moveStart,
   moveEnd,
+  movePageUp,
+  movePageDown,
   getXCoord,
   getTargetAndRemainedLength,
   getIndexInTarget,

@@ -287,4 +287,68 @@ const moveEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   setCursorPosition(lastElem, lastText.length);
 };
-export { moveRight, moveLeft, moveUp, moveDown, moveStart, moveEnd };
+
+const movePageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+  const curNode = selection.focusNode;
+  if (!curNode) return;
+  const curElem =
+    curNode.nodeType === Node.TEXT_NODE
+      ? curNode.parentElement
+      : (curNode as HTMLElement);
+  if (!curElem) return;
+
+  const curContainer = curElem.parentElement;
+  if (!curContainer) return;
+  const curLine = curContainer.parentElement;
+  if (!curLine) return;
+
+  const content = curLine.parentElement;
+  if (!content) return;
+
+  const firstLine = content.firstElementChild;
+  const firstContainer = firstLine?.firstElementChild;
+  const firstElem = firstContainer?.firstElementChild as HTMLElement;
+
+  setCursorPosition(firstElem, 0);
+};
+
+const movePageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+  const curNode = selection.focusNode;
+  if (!curNode) return;
+  const curElem =
+    curNode.nodeType === Node.TEXT_NODE
+      ? curNode.parentElement
+      : (curNode as HTMLElement);
+  if (!curElem) return;
+
+  const curContainer = curElem.parentElement;
+  if (!curContainer) return;
+  const curLine = curContainer.parentElement;
+  if (!curLine) return;
+
+  const content = curLine.parentElement;
+  if (!content) return;
+
+  const lastLine = content.lastChild;
+  const lastContainer = lastLine?.lastChild;
+  const lastElem = lastContainer?.firstChild as HTMLElement;
+  const lastText = lastElem.textContent || "";
+
+  setCursorPosition(lastElem, lastText.length);
+};
+export {
+  moveRight,
+  moveLeft,
+  moveUp,
+  moveDown,
+  moveStart,
+  moveEnd,
+  movePageUp,
+  movePageDown,
+};

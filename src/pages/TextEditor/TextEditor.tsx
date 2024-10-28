@@ -6,6 +6,8 @@ import {
   moveEnd,
   moveUp,
   setCursorPosition,
+  movePageUp,
+  movePageDown,
 } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
@@ -60,6 +62,10 @@ const TextEditor = () => {
       moveStart(e);
     } else if (key === "End") {
       moveEnd(e);
+    } else if (key === "PageUp") {
+      movePageUp(e);
+    } else if (key === "PageDown") {
+      movePageDown(e);
     }
   };
   return (

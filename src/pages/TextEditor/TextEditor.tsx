@@ -1,4 +1,4 @@
-import { setCursorPosition } from "../../utils/text-editor";
+import { moveRight, setCursorPosition } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
 const TextEditor = () => {
@@ -38,6 +38,12 @@ const TextEditor = () => {
     setCursorPosition(cursorElement, cursorPosition);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const key = e.key;
+    if (key === "ArrowRight") {
+      moveRight(e);
+    }
+  };
   return (
     <div className="text-editor">
       <div

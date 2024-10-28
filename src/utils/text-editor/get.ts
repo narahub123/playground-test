@@ -180,7 +180,8 @@ const getCurElement = () => {
 
   // 이전 요소
   const prevElem = prevContainer?.firstElementChild as HTMLElement;
-
+  // 이전 노드
+  const prevNode = prevElem?.firstChild;
   // 이전 요소의 문자열
   const prevText = prevElem?.textContent || "";
 
@@ -226,6 +227,7 @@ const getCurElement = () => {
     curClassName,
     curLine,
     prevElem,
+    prevNode,
     prevText,
     prevLastElem,
     prevLastText,

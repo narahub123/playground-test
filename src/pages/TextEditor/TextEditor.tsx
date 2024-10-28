@@ -9,6 +9,7 @@ import {
   movePageUp,
   movePageDown,
   selectRight,
+  selectLeft,
 } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
@@ -69,6 +70,8 @@ const TextEditor = () => {
     if (e.shiftKey) {
       if (key === "ArrowRight") {
         selectRight(e);
+      } else if (key === "ArrowLeft") {
+        selectLeft(e);
       }
     } else if (key === "ArrowRight") {
       moveRight(e);

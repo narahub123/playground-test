@@ -19,7 +19,7 @@ import {
   getCurElement,
 } from "./get";
 
-import { selectRight } from "./selection";
+import { selectRight, selectLeft } from "./selection";
 
 export {
   setCursorPosition,
@@ -37,4 +37,5 @@ export {
   getTargetAndIndex,
   getCurElement,
   selectRight,
+  selectLeft,
 };

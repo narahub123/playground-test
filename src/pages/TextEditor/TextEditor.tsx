@@ -6,11 +6,19 @@ const TextEditor = () => {
     // 클릭한 요소
     const target = e.target as HTMLElement;
     console.log("클릭한 요소", target);
+
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    // 현재 커서 위치
+    const currentPosition = selection.focusOffset;
+
     // 클릭한 요소의 클래스 이름
     const className = target.className;
 
+    // 하단의 조건에 만족하지 않는다면 현재 클래스의 현재 위치에 커서 지정
     let cursorElement = target;
-    let cursorPosition = 0;
+    let cursorPosition = currentPosition;
 
     // 선택 초기화 코드 필요함
 
@@ -29,9 +37,14 @@ const TextEditor = () => {
 
     setCursorPosition(cursorElement, cursorPosition);
   };
+
   return (
     <div className="text-editor">
-      <div className={styles.content} onClick={(e) => handleClick(e)}>
+      <div
+        className={styles.content}
+        onClick={(e) => handleClick(e)}
+        onKeyDown={(e) => handleKeyDown(e)}
+      >
         <div className={styles.line} data-line={0}>
           {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
           <span className={`${styles.container}`}>

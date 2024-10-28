@@ -53,6 +53,15 @@ const getIndexInTarget = (target: HTMLElement, length: number) => {
 
     // 남은 길이가 문자열의 너비보다 작은 경우
     if (length < width) {
+      const prevCut = text.slice(0, i - 1);
+      const prevWidth = getTextWidth(target, prevCut);
+      // 현재 커서에서 현재 검사하는 문자열의 문자열 다음 커서와
+      // 이전에 검사한 문자열 다음 커서와의 거리를 비교해서
+      // 현재 검사하는 문자열 뒤의 커서가 더 가까우면 현재 검사 문자열 다음으로 커서 이동
+      if (width - length <= length - prevWidth) {
+        index = i;
+      }
+
       // 검사를 종료함
       break;
     }

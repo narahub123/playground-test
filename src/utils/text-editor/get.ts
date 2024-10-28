@@ -116,9 +116,93 @@ const getTargetAndIndex = (
     index,
   };
 };
+
+const getCurElement = () => {
+  const selection = window.getSelection();
+
+  // 현재 노드
+  const curNode = selection?.focusNode;
+
+  // 현재 커서 위치
+  const curPosition = selection?.focusOffset || 0;
+
+  // 현재 노드의 문자열
+  const curText = curNode?.textContent || "";
+
+  // 현재 요소 : 클래스가 있는 곳
+  const curElem =
+    curNode?.nodeType === Node.TEXT_NODE
+      ? curNode?.parentElement
+      : (curNode as HTMLElement);
+
+  // 현재 요소의 클래스
+  const curClassName = curElem?.className;
+
+  // 현재 컨테이너
+  const curContainer = curElem?.parentElement;
+
+  // 현재 줄
+  const curLine = curContainer?.parentElement;
+
+  // 컨텐트
+  const content = curLine?.parentElement;
+
+  // 이전 컨테이너
+  const prevContainer = curContainer?.previousElementSibling as HTMLElement;
+  // 이전 요소
+  const prevElem = prevContainer?.firstElementChild as HTMLElement;
+  // 이전 요소의 문자열
+  const prevText = prevElem?.textContent || "";
+
+  // 다음 컨테이너
+  const nextContainer = curContainer?.nextElementSibling as HTMLElement;
+  // 다음 요소
+  const nextElem = nextContainer?.firstChild as HTMLElement;
+  // 다음 요소 클래스
+  const nextClassName = nextElem?.className;
+
+  // 이전 줄
+  const prevLine = curLine?.previousElementSibling as HTMLElement;
+  // 이전 줄 마지막 컨테이너
+  const prevLastContainer = prevLine?.lastElementChild as HTMLElement;
+  // 이전 줄 마지막 요소
+  const prevLastElem = prevLastContainer?.firstChild as HTMLElement;
+  // 이전 줄 마지막 요소의 문자열
+  const prevLastText = prevLastElem?.textContent || "";
+
+  // 다음 줄
+  const nextLine = curLine?.nextElementSibling as HTMLElement;
+
+  // 다음 줄 첫 컨테이너
+  const nextFirstContainer = nextLine?.firstElementChild as HTMLElement;
+
+  // 다음 줄 첫 요소
+  const nextFirstElem = nextFirstContainer?.firstChild as HTMLElement;
+
+  return {
+    curNode,
+    curPosition,
+    curText,
+    curElem,
+    curClassName,
+    curLine,
+    prevElem,
+    prevText,
+    prevLastElem,
+    prevLastText,
+    prevLine,
+    nextContainer,
+    nextElem,
+    nextClassName,
+    nextFirstElem,
+    nextLine,
+    content,
+  };
+};
 export {
   getXCoord,
   getTargetAndRemainedLength,
   getIndexInTarget,
   getTargetAndIndex,
+  getCurElement,
 };

@@ -16,6 +16,7 @@ import {
   getTargetAndRemainedLength,
   getIndexInTarget,
   getTargetAndIndex,
+  getCurElement,
 } from "./get";
 
 export {
@@ -32,4 +33,5 @@ export {
   getTargetAndRemainedLength,
   getIndexInTarget,
   getTargetAndIndex,
+  getCurElement,
 };

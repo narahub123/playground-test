@@ -3,6 +3,7 @@ import {
   moveLeft,
   moveRight,
   moveStart,
+  moveEnd,
   moveUp,
   setCursorPosition,
 } from "../../utils/text-editor";
@@ -57,6 +58,8 @@ const TextEditor = () => {
       moveDown(e);
     } else if (key === "Home") {
       moveStart(e);
+    } else if (key === "End") {
+      moveEnd(e);
     }
   };
   return (

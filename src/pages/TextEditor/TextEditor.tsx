@@ -1,4 +1,5 @@
 import {
+  moveDown,
   moveLeft,
   moveRight,
   moveUp,
@@ -51,6 +52,8 @@ const TextEditor = () => {
       moveLeft(e);
     } else if (key === "ArrowUp") {
       moveUp(e);
+    } else if (key === "ArrowDown") {
+      moveDown(e);
     }
   };
   return (

@@ -14,8 +14,8 @@ const getXCoord = (curElem: HTMLElement, text: string) => {
 
 // x좌표를 통해서 특정 줄로 이동할 때 이동할 요소와 해당 요소의 left 좌표 구하기
 const getTargetAndRemainedLength = (x: number, line: HTMLElement) => {
-  let target = line.lastElementChild as HTMLElement;
-  let leftPosition = line.lastElementChild?.getBoundingClientRect().left || 0;
+  let target = line.firstElementChild as HTMLElement;
+  let leftPosition = line.firstElementChild?.getBoundingClientRect().left || 0;
 
   // line의 자식 요소
   const children = [...line.children] as HTMLElement[];
@@ -23,7 +23,7 @@ const getTargetAndRemainedLength = (x: number, line: HTMLElement) => {
   for (const child of children) {
     // 자식 요소의 left 좌표
     const leftOfChild = child.getBoundingClientRect().left;
-
+    console.log(leftOfChild);
     // 현재 커서의 위치가 자식 요소의 left 좌표 보다 작을 때
     if (x <= leftOfChild) {
       break;

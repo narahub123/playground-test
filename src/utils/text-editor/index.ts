@@ -1,6 +1,6 @@
 import { setCursorPosition } from "./set";
 
-import { moveRight, moveLeft, moveUp } from "./move";
+import { moveRight, moveLeft, moveUp, moveDown } from "./move";
 
 import {
   getXCoord,
@@ -14,6 +14,7 @@ export {
   moveRight,
   moveLeft,
   moveUp,
+  moveDown,
   getXCoord,
   getTargetAndRemainedLength,
   getIndexInTarget,

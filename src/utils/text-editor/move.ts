@@ -138,7 +138,6 @@ const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
 const moveUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
-  console.log("안녕");
   const selection = window.getSelection();
   if (!selection) return;
   const curNode = selection.focusNode;
@@ -183,4 +182,53 @@ const moveUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   setCursorPosition(cursorElement, cursorPosition);
 };
-export { moveRight, moveLeft, moveUp };
+
+const moveDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const selection = window.getSelection();
+  if (!selection) return;
+  const curNode = selection.focusNode;
+  if (!curNode) return;
+  const curPosition = selection.focusOffset;
+
+  const curText = curNode.textContent || "";
+
+  const curElem = curText ? curNode.parentElement : (curNode as HTMLElement);
+  if (!curElem) return;
+  const curContainer = curElem?.parentElement;
+  if (!curContainer) return;
+  const curLine = curContainer?.parentElement;
+  if (!curLine) return;
+
+  let cursorElement = curNode;
+  let cursorPosition = curPosition;
+
+  const nextLine = curLine.nextElementSibling as HTMLElement;
+
+  // 다음 줄이 있는 경우
+  if (nextLine) {
+    console.log("다음 줄이 있음");
+    const { target, index } = getTargetAndIndex(curElem, curPosition, nextLine);
+
+    console.log("이동할 요소 및 위치", target, index);
+
+    cursorElement = target.firstChild as HTMLElement;
+    cursorPosition = index;
+  } else {
+    // 다음 줄이 없는 경우
+    console.log("다음 줄이 없음");
+    // 현재 줄의 마지막으로 이동
+    // 현재 줄의 마지막 요소
+    const lastElem = curLine.lastChild?.firstChild as HTMLElement;
+    if (!lastElem) return;
+
+    // 마지막 요소의 문자열
+    const lastText = lastElem.textContent || "";
+
+    cursorElement = lastElem;
+    cursorPosition = lastText.length;
+  }
+
+  setCursorPosition(cursorElement, cursorPosition);
+};
+export { moveRight, moveLeft, moveUp, moveDown };

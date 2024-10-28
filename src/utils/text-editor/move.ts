@@ -50,54 +50,58 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   setCursorPosition(cursorElement, cursorPosition);
 };
 
-const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
-  e.preventDefault();
-  const {
-    curNode,
-    curPosition,
-    curClassName,
-    curText,
-    prevElem,
-    prevText,
-    prevLastElem,
-    prevLastText,
-  } = getCurElement();
-  if (!curNode) return;
+  const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const {
+      curNode,
+      curPosition,
+      curClassName,
+      curText,
+      prevElem,
+      prevText,
+      prevLastElem,
+      prevLastText,
+    } = getCurElement();
+    if (!curNode) return;
 
-  let cursorElement = curNode;
-  let cursorPosition = curPosition;
+    let cursorElement = curNode;
+    let cursorPosition = curPosition;
 
-  // 기준점: link 클래스이고 문자열이 존재하는 경우 1 아닌 경우 0
-  const focalPoint = curClassName?.includes("link") && curText ? 1 : 0;
+    // 기준점: link 클래스이고 문자열이 존재하고 이전 요소가 존재하는 경우 1 아닌 경우 0
+    const focalPoint =
+      curClassName?.includes("link") && curText && prevElem ? 1 : 0;
 
-  // 현재 커서의 위치가 기준점과 일치하는 경우
-  if (curPosition === focalPoint) {
-    console.log("현재 커서의 위치가 기준점과 일치함");
+    // 현재 커서의 위치가 기준점과 일치하는 경우
+    if (curPosition === focalPoint) {
+      console.log("현재 커서의 위치가 기준점과 일치함");
 
-    // 이전 컨테이너가 존재하는 경우 이전 요소의 마지막으로 이동
-    if (prevElem) {
-      console.log("이전 컨테이너가 있는 경우");
+      // 이전 컨테이너가 존재하는 경우 이전 요소의 마지막으로 이동
+      if (prevElem) {
+        console.log("이전 컨테이너가 있는 경우");
 
-      cursorElement = prevElem;
-      cursorPosition = prevText.length;
-    } else {
-      // 이전 컨테이너가 없는 경우
-      console.log("이전 컨테이너가 없는 경우");
-      // 이전 줄이 존재하는 경우
-      if (prevLastElem) {
-        cursorElement = prevLastElem;
-        cursorPosition = prevLastText.length;
+        cursorElement = prevElem;
+        cursorPosition = prevText.length;
+      } else {
+        // 이전 컨테이너가 없는 경우
+        console.log("이전 컨테이너가 없는 경우");
+        // 이전 줄이 존재하는 경우
+        if (prevLastElem) {
+          console.log("이전 줄이 있는 경우");
+
+          cursorElement = prevLastElem;
+          cursorPosition = prevLastText.length;
+        }
+        console.log("이전 줄이 없는 경우");
       }
+    } else {
+      // 현재 커서의 위치가 기준점과 일치하지 않는 경우
+      console.log("현재 커서의 위치가 기준점과 일치하지 않음");
+      // 현재 위치에서 왼쪽으로 한 칸 이동함
+      cursorPosition -= 1;
     }
-  } else {
-    // 현재 커서의 위치가 기준점과 일치하지 않는 경우
-    console.log("현재 커서의 위치가 기준점과 일치하지 않음");
-    // 현재 위치에서 왼쪽으로 한 칸 이동함
-    cursorPosition -= 1;
-  }
 
-  setCursorPosition(cursorElement, cursorPosition);
-};
+    setCursorPosition(cursorElement, cursorPosition);
+  };
 
 const moveUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();

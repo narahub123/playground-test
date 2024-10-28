@@ -23,7 +23,7 @@ const getTargetAndRemainedLength = (x: number, line: HTMLElement) => {
   for (const child of children) {
     // 자식 요소의 left 좌표
     const leftOfChild = child.getBoundingClientRect().left;
-    console.log(leftOfChild);
+
     // 현재 커서의 위치가 자식 요소의 left 좌표 보다 작을 때
     if (x <= leftOfChild) {
       break;
@@ -111,6 +111,22 @@ const getTargetAndIndex = (
   // 대응하는 요소 내의 위치 알아내기
   const index = getIndexInTarget(target, length);
 
+  //이동할 요소가 link이고 인덱스가 0이면서 이전 요소가 있는 경우
+  if (
+    target.firstElementChild?.className.includes("link") &&
+    index === 0 &&
+    target.previousElementSibling
+  ) {
+    const prevElem = target.previousElementSibling
+      .firstElementChild as HTMLElement;
+    const prevText = prevElem?.textContent || "";
+
+    return {
+      target: prevElem,
+      index: prevText.length,
+    };
+  }
+
   return {
     target,
     index,
@@ -140,6 +156,7 @@ const getCurElement = () => {
 
   // 현재 컨테이너
   const curContainer = curElem?.parentElement;
+  console.log(curContainer);
 
   // 현재 줄
   const curLine = curContainer?.parentElement;
@@ -149,8 +166,12 @@ const getCurElement = () => {
 
   // 이전 컨테이너
   const prevContainer = curContainer?.previousElementSibling as HTMLElement;
+  console.log(prevContainer);
+
   // 이전 요소
   const prevElem = prevContainer?.firstElementChild as HTMLElement;
+  console.log(prevElem);
+
   // 이전 요소의 문자열
   const prevText = prevElem?.textContent || "";
 

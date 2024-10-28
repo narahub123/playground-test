@@ -43,6 +43,21 @@ const TextEditor = () => {
       // 마지막 요소의 마지막 위치에 커서 지정
       cursorElement = lastChild;
       cursorPosition = lastChildText.length;
+    } else if (className.includes("link") && currentPosition === 0) {
+      // link 클래스를 클릭했고 현재 커서의 위치가 0인 경우
+      console.log("link 클래스 0 포인트 클릭");
+      const curContainer = target.parentElement;
+      // 이전 컨테이너
+      const prevContainer = curContainer?.previousElementSibling as HTMLElement;
+      const prevElem = prevContainer?.firstElementChild as HTMLElement;
+      const prevText = prevElem?.textContent || "";
+      if (prevElem) {
+        // 이전 요소가 존재하는 경우 이전 요소의 마지막으로 커서 이동
+        console.log("이전 요소가 존재하는 경우");
+
+        cursorElement = prevElem;
+        cursorPosition = prevText.length;
+      }
     }
 
     setCursorPosition(cursorElement, cursorPosition);
@@ -89,6 +104,19 @@ const TextEditor = () => {
           <span className={`${styles.container}`}>
             <span className={styles.span} contentEditable></span>
           </span>
+          <span className={`${styles.container}`}>
+            <span className={styles.link} contentEditable></span>
+          </span>
+          <span className={`${styles.container}`}>
+            <span
+              className={`${styles.span} ${styles.gap}`}
+              contentEditable
+            ></span>
+          </span>
+        </div>
+        <div className={styles.line} data-line={1}>
+          {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
+
           <span className={`${styles.container}`}>
             <span className={styles.link} contentEditable></span>
           </span>

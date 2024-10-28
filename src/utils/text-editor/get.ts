@@ -142,6 +142,18 @@ const getCurElement = () => {
   // 현재 커서 위치
   const curPosition = selection?.focusOffset || 0;
 
+  // 시작 노드
+  const startNode = selection?.anchorNode;
+
+  // 시작 위치
+  const startOffset = selection?.anchorOffset || 0;
+
+  // 종료 노드
+  const endNode = selection?.focusNode;
+
+  // 종료 위치
+  const endOffset = selection?.focusOffset || 0;
+
   // 현재 노드의 문자열
   const curText = curNode?.textContent || "";
 
@@ -156,7 +168,6 @@ const getCurElement = () => {
 
   // 현재 컨테이너
   const curContainer = curElem?.parentElement;
-  console.log(curContainer);
 
   // 현재 줄
   const curLine = curContainer?.parentElement;
@@ -166,11 +177,9 @@ const getCurElement = () => {
 
   // 이전 컨테이너
   const prevContainer = curContainer?.previousElementSibling as HTMLElement;
-  console.log(prevContainer);
 
   // 이전 요소
   const prevElem = prevContainer?.firstElementChild as HTMLElement;
-  console.log(prevElem);
 
   // 이전 요소의 문자열
   const prevText = prevElem?.textContent || "";
@@ -179,6 +188,11 @@ const getCurElement = () => {
   const nextContainer = curContainer?.nextElementSibling as HTMLElement;
   // 다음 요소
   const nextElem = nextContainer?.firstChild as HTMLElement;
+  // 다음 노드
+  const nextNode = nextElem?.firstChild;
+  // 다음 문자열
+  const nextText = nextElem?.textContent || "";
+
   // 다음 요소 클래스
   const nextClassName = nextElem?.className;
 
@@ -200,7 +214,11 @@ const getCurElement = () => {
   // 다음 줄 첫 요소
   const nextFirstElem = nextFirstContainer?.firstChild as HTMLElement;
 
+  // 다음 줄 첫 노드
+  const nextFirstNode = nextFirstElem?.firstChild;
+
   return {
+    selection,
     curNode,
     curPosition,
     curText,
@@ -214,10 +232,17 @@ const getCurElement = () => {
     prevLine,
     nextContainer,
     nextElem,
+    nextNode,
+    nextText,
     nextClassName,
     nextFirstElem,
+    nextFirstNode,
     nextLine,
     content,
+    startNode,
+    startOffset,
+    endNode,
+    endOffset,
   };
 };
 export {

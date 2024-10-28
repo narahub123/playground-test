@@ -8,6 +8,7 @@ import {
   setCursorPosition,
   movePageUp,
   movePageDown,
+  selectRight,
 } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
@@ -65,7 +66,11 @@ const TextEditor = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const key = e.key;
-    if (key === "ArrowRight") {
+    if (e.shiftKey) {
+      if (key === "ArrowRight") {
+        selectRight(e);
+      }
+    } else if (key === "ArrowRight") {
       moveRight(e);
     } else if (key === "ArrowLeft") {
       moveLeft(e);

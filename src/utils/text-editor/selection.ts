@@ -438,24 +438,88 @@ const selectStart = (
 
 const selectEnd = (
   e: React.KeyboardEvent<HTMLDivElement>,
+  direction: string,
   setDirection: React.Dispatch<React.SetStateAction<string>>
 ) => {
   e.preventDefault();
-  const { selection, startNode, startOffset, curLine } = getCurElement();
-  if (!startNode || !curLine) return;
+  const { selection, startNode, startOffset, endNode, endOffset } =
+    getCurElement();
+  if (!startNode || !endNode) return;
+
+  let start = startNode;
+  let startPoint = startOffset;
+  let end = endNode;
+  let endPoint = endOffset;
+
+  // 기준 노드
+  const focalNode =
+    selection?.isCollapsed || direction === "right" ? end : start;
+
+  // 현재 줄 : 방향성이 왼쪽인 경우에는 처음 줄 그 외에는 종료 줄
+  const curLine =
+    focalNode?.nodeType === Node.TEXT_NODE
+      ? focalNode.parentNode?.parentNode?.parentNode
+      : focalNode.parentNode?.parentNode;
+  if (!curLine) return;
 
   // 현재 줄의 마지막 노드
   const lastNode = curLine.lastChild?.firstChild?.firstChild;
   if (!lastNode) return;
   const lastText = lastNode.textContent || "";
 
+  const startLine =
+    start?.nodeType === Node.TEXT_NODE
+      ? start.parentNode?.parentNode?.parentNode
+      : start.parentNode?.parentNode;
+
+  const endLine =
+    end?.nodeType === Node.TEXT_NODE
+      ? end.parentNode?.parentNode?.parentNode
+      : end.parentNode?.parentNode;
+
+  if (!startLine || !endLine) return;
+
   const range = document.createRange();
-  range.setStart(startNode, startOffset);
-  range.setEnd(lastNode, lastText.length);
+
+  // 시작줄과 종료줄이 같은 경우
+  if (startLine === endLine) {
+    console.log("시작 줄과 종료 줄이 같은 경우");
+    if (selection?.isCollapsed || direction === "right") {
+      if (selection?.isCollapsed)
+        console.log("시작 노드과 종료 노드가 같은 경우");
+      if (direction === "right")
+        console.log("시작 노드과 종료 노드가 다르고 방향성이 오른쪽 경우");
+      // 시작점은 그대로 두고 종료점만 해당 줄의 마지막으로 이동
+      end = lastNode;
+      endPoint = lastText.length;
+    } else if (direction === "left") {
+      console.log("시작 노드과 종료 노드가 다르고 방향성이 왼쪽 경우");
+      start = endNode;
+      startPoint = endOffset;
+      end = lastNode;
+      endPoint = lastText.length;
+    }
+    setDirection("right");
+  } else {
+    console.log("시작 줄과 종료 줄이 같은 경우");
+    if (direction === "left") {
+      console.log("시작 줄과 종료 줄이 같고 방향성이 왼쪽인 경우");
+      start = lastNode;
+      startPoint = lastText.length;
+      setDirection("left");
+    } else if (direction === "right") {
+      console.log("시작 줄과 종료 줄이 같고 방향성이 오른쪽인 경우");
+      end = lastNode;
+      endPoint = lastText.length;
+      setDirection("right");
+    }
+  }
+
+  range.setStart(start, startPoint);
+  range.setEnd(end, endPoint);
 
   selection?.removeAllRanges();
   selection?.addRange(range);
-  setDirection("right");
 };
 
 const selectPageUp = (

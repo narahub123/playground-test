@@ -87,7 +87,7 @@ const TextEditor = () => {
       } else if (key === "Home") {
         selectStart(e, direction, setDirection);
       } else if (key === "End") {
-        selectEnd(e, setDirection);
+        selectEnd(e, direction, setDirection);
       } else if (key === "PageUp") {
         selectPageUp(e, setDirection);
       } else if (key === "PageDown") {

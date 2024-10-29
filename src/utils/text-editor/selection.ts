@@ -129,7 +129,6 @@ const selectUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
     endOffset,
     curElem,
     curPosition,
-    curLine,
   } = getCurElement();
   if (!startNode || !endNode || !curElem) return;
 
@@ -137,6 +136,12 @@ const selectUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   let start = startNode;
   let startPoint = startOffset;
+
+  // 현재 줄
+  const curLine =
+    start.nodeType === Node.TEXT_NODE
+      ? (start.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (start.parentNode?.parentNode as HTMLElement);
 
   // 이전 줄 : 기준 포인트를 새로 바뀐 start 노드로 해야 함
   let prevLine =
@@ -189,15 +194,20 @@ const selectDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     endOffset,
     curElem,
     curPosition,
-    curLine,
   } = getCurElement();
 
-  if (!startNode || !endNode || !curElem || !curLine) return;
+  if (!startNode || !endNode || !curElem) return;
 
   const range = document.createRange();
 
   let end = endNode;
   let endPoint = endOffset;
+
+  // 현재 줄
+  const curLine =
+    end.nodeType === Node.TEXT_NODE
+      ? (end.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (end.parentNode?.parentNode as HTMLElement);
 
   let nextLine =
     end.nodeType === Node.TEXT_NODE

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   moveDown,
   moveLeft,
@@ -20,6 +21,7 @@ import {
 import styles from "./TextEditor.module.css";
 
 const TextEditor = () => {
+  const [direction, setDirection] = useState<string>("");
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     // 클릭한 요소
     const target = e.target as HTMLElement;
@@ -71,13 +73,15 @@ const TextEditor = () => {
     setCursorPosition(cursorElement, cursorPosition);
   };
 
+  console.log(direction);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const key = e.key;
     if (e.shiftKey) {
       if (key === "ArrowRight") {
-        selectRight(e);
+        selectRight(e, direction, setDirection);
       } else if (key === "ArrowLeft") {
-        selectLeft(e);
+        selectLeft(e, direction, setDirection);
       } else if (key === "ArrowUp") {
         selectUp(e);
       } else if (key === "ArrowDown") {
@@ -91,22 +95,25 @@ const TextEditor = () => {
       } else if (key === "PageDown") {
         selectPageDown(e);
       }
-    } else if (key === "ArrowRight") {
-      moveRight(e);
-    } else if (key === "ArrowLeft") {
-      moveLeft(e);
-    } else if (key === "ArrowUp") {
-      moveUp(e);
-    } else if (key === "ArrowDown") {
-      moveDown(e);
-    } else if (key === "Home") {
-      moveStart(e);
-    } else if (key === "End") {
-      moveEnd(e);
-    } else if (key === "PageUp") {
-      movePageUp(e);
-    } else if (key === "PageDown") {
-      movePageDown(e);
+    } else {
+      setDirection("");
+      if (key === "ArrowRight") {
+        moveRight(e);
+      } else if (key === "ArrowLeft") {
+        moveLeft(e);
+      } else if (key === "ArrowUp") {
+        moveUp(e);
+      } else if (key === "ArrowDown") {
+        moveDown(e);
+      } else if (key === "Home") {
+        moveStart(e);
+      } else if (key === "End") {
+        moveEnd(e);
+      } else if (key === "PageUp") {
+        movePageUp(e);
+      } else if (key === "PageDown") {
+        movePageDown(e);
+      }
     }
   };
   return (

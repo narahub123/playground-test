@@ -268,6 +268,43 @@ const selectEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
   selection?.addRange(range);
 };
 
+const selectPageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+
+  const { selection, endNode, endOffset, content } = getCurElement();
+  if (!endNode || !content) return;
+
+  // 현재 문단의 첫 노드
+  const firstNode = content.firstChild?.firstChild?.firstChild?.firstChild;
+  if (!firstNode) return;
+
+  const range = document.createRange();
+  range.setStart(firstNode, 0);
+  range.setEnd(endNode, endOffset);
+
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+};
+
+const selectPageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+
+  const { selection, startNode, startOffset, content } = getCurElement();
+  if (!startNode || !content) return;
+
+  // 현재 문단의 마지막 노드
+  const lastNode = content.lastChild?.lastChild?.firstChild?.firstChild;
+  if (!lastNode) return;
+  const lastText = lastNode.textContent || "";
+
+  const range = document.createRange();
+  range.setStart(startNode, startOffset);
+  range.setEnd(lastNode, lastText.length);
+
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+};
+
 export {
   selectRight,
   selectLeft,
@@ -275,4 +312,6 @@ export {
   selectDown,
   selectStart,
   selectEnd,
+  selectPageUp,
+  selectPageDown,
 };

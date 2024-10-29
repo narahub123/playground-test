@@ -26,6 +26,8 @@ import {
   selectDown,
   selectStart,
   selectEnd,
+  selectPageUp,
+  selectPageDown,
 } from "./selection";
 
 export {
@@ -49,4 +51,6 @@ export {
   selectDown,
   selectStart,
   selectEnd,
+  selectPageUp,
+  selectPageDown,
 };

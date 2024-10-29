@@ -14,6 +14,8 @@ import {
   selectUp,
   selectStart,
   selectEnd,
+  selectPageUp,
+  selectPageDown,
 } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
@@ -84,6 +86,10 @@ const TextEditor = () => {
         selectStart(e);
       } else if (key === "End") {
         selectEnd(e);
+      } else if (key === "PageUp") {
+        selectPageUp(e);
+      } else if (key === "PageDown") {
+        selectPageDown(e);
       }
     } else if (key === "ArrowRight") {
       moveRight(e);

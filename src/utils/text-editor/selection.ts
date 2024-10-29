@@ -147,7 +147,7 @@ const selectUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
   if (prevLine) {
     console.log("이전 줄 있음");
     // 커서를 이전 줄의 동일한 위치로 이동
-    const { target, index } = getTargetAndIndex(curElem, startPoint, prevLine);
+    const { target, index } = getTargetAndIndex(curElem, endOffset, prevLine);
 
     const targetNode = target.firstChild?.firstChild;
     if (!targetNode) return;
@@ -203,7 +203,7 @@ const selectDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   // 다음 줄이 있는 경우
   if (nextLine) {
     console.log("다음 줄 있음");
-    const { target, index } = getTargetAndIndex(curElem, endPoint, nextLine);
+    const { target, index } = getTargetAndIndex(curElem, endOffset, nextLine);
 
     const targetNode = target.firstChild?.firstChild;
     if (!targetNode) return;

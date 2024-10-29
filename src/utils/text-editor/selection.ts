@@ -46,6 +46,7 @@ const selectRight = (
       // 다음 요소가 존재하는 경우
       if (nextNode) {
         console.log("다음 요소가 존재하는 경우");
+
         end = nextNode;
         endPoint = 1;
       } else {

@@ -37,7 +37,8 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
       // 다음 컨테이너의 자식요소가 link 클래스인 경우 1로 이동 아니면 0으로 이동
 
       cursorElement = nextElem;
-      cursorPosition = nextClassName.includes("link") ? 1 : 0;
+      cursorPosition =
+        nextClassName.includes("link") || nextClassName.includes("gap") ? 1 : 0;
     } else {
       console.log("다음 요소 없음");
       // 다음 줄이 있는지 확인하고 있다면 다음 줄의 첫 요소의 0에 커서 위치
@@ -76,9 +77,13 @@ const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   let cursorElement = curNode;
   let cursorPosition = startOffset;
 
-  // 기준점: link 클래스이고 문자열이 존재하고 이전 요소가 존재하는 경우 1 아닌 경우 0
+  // 기준점: link 클래스이거나 gap이고 문자열이 존재하고 이전 요소가 존재하는 경우 1 아닌 경우 0
   const focalPoint =
-    curClassName?.includes("link") && curText && prevElem ? 1 : 0;
+    (curClassName?.includes("link") || curClassName?.includes("gap")) &&
+    curText &&
+    prevElem
+      ? 1
+      : 0;
 
   // range의 시작과 종료가 일치하지 않는 경우 : 선택 영역이 있는 경우
   if (startOffset !== endOffset) {

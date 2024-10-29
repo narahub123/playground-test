@@ -9,7 +9,6 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
     endOffset,
     endNode,
     curNode,
-    curPosition,
     curText,
     nextElem,
     nextClassName,
@@ -19,7 +18,7 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   if (!curNode || !endNode) return;
 
   let cursorElement = curNode;
-  let cursorPosition = curPosition;
+  let cursorPosition = endOffset;
 
   // range의 시작과 종료가 일치하지 않는 경우 : 선택 영역이 있는 경우
   if (startOffset !== endOffset) {
@@ -27,7 +26,7 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
     cursorPosition = endOffset;
   }
   // 현재 위치가 현재 요소 내의 문자열의 길이와 일치하는 경우
-  else if (curPosition === curText.length) {
+  else if (cursorPosition === curText.length) {
     console.log("현재 요소 내의 문자열의 길이와 현재 위치가 일치함");
     // 다음 컨테이너가 있는지 확인하고 있다면 이동
     // 다음 컨테이너
@@ -65,7 +64,6 @@ const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
     startOffset,
     endOffset,
     curNode,
-    curPosition,
     curClassName,
     curText,
     prevElem,
@@ -76,7 +74,7 @@ const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   if (!curNode || !startNode) return;
 
   let cursorElement = curNode;
-  let cursorPosition = curPosition;
+  let cursorPosition = startOffset;
 
   // 기준점: link 클래스이고 문자열이 존재하고 이전 요소가 존재하는 경우 1 아닌 경우 0
   const focalPoint =
@@ -88,7 +86,7 @@ const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
     cursorPosition = startOffset;
   }
   // 현재 커서의 위치가 기준점과 일치하는 경우
-  else if (curPosition === focalPoint) {
+  else if (cursorPosition === focalPoint) {
     console.log("현재 커서의 위치가 기준점과 일치함");
 
     // 이전 컨테이너가 존재하는 경우 이전 요소의 마지막으로 이동
@@ -121,11 +119,11 @@ const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
 const moveUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
-  const { curNode, curPosition, curElem, curLine, prevLine } = getCurElement();
+  const { startOffset, curNode, curElem, curLine, prevLine } = getCurElement();
   if (!curNode || !curElem) return;
 
   let cursorElement = curNode;
-  let cursorPosition = curPosition;
+  let cursorPosition = startOffset;
 
   // 이전 줄이 존재하는 경우
   if (prevLine) {
@@ -155,16 +153,20 @@ const moveUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
 const moveDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
-  const { curNode, curPosition, curElem, curLine, nextLine } = getCurElement();
+  const { endOffset, curNode, curElem, curLine, nextLine } = getCurElement();
   if (!curNode || !curElem) return;
 
   let cursorElement = curNode;
-  let cursorPosition = curPosition;
+  let cursorPosition = endOffset;
 
   // 다음 줄이 있는 경우
   if (nextLine) {
     console.log("다음 줄이 있음");
-    const { target, index } = getTargetAndIndex(curElem, curPosition, nextLine);
+    const { target, index } = getTargetAndIndex(
+      curElem,
+      cursorPosition,
+      nextLine
+    );
 
     cursorElement = target.firstChild as HTMLElement;
     cursorPosition = index;

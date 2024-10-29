@@ -139,9 +139,6 @@ const getCurElement = () => {
   // 현재 노드
   const curNode = selection?.focusNode;
 
-  // 현재 커서 위치
-  const curPosition = selection?.focusOffset || 0;
-
   // 시작 노드
   const startNode = selection?.anchorNode;
 
@@ -221,7 +218,6 @@ const getCurElement = () => {
   return {
     selection,
     curNode,
-    curPosition,
     curText,
     curElem,
     curClassName,

@@ -234,7 +234,10 @@ const selectLeft = (
   }
 };
 
-const selectUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const selectUp = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  setDirection: React.Dispatch<React.SetStateAction<string>>
+) => {
   e.preventDefault();
   const { selection, startNode, startOffset, endNode, endOffset, curElem } =
     getCurElement();
@@ -290,9 +293,13 @@ const selectUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
   selection?.removeAllRanges();
 
   selection?.addRange(range);
+  setDirection("left");
 };
 
-const selectDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const selectDown = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  setDirection: React.Dispatch<React.SetStateAction<string>>
+) => {
   e.preventDefault();
 
   const { selection, startNode, startOffset, endNode, endOffset, curElem } =
@@ -342,6 +349,7 @@ const selectDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   selection?.removeAllRanges();
   selection?.addRange(range);
+  setDirection("right");
 };
 
 const selectStart = (
@@ -389,7 +397,10 @@ const selectEnd = (
   setDirection("right");
 };
 
-const selectPageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const selectPageUp = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  setDirection: React.Dispatch<React.SetStateAction<string>>
+) => {
   e.preventDefault();
 
   const { selection, endNode, endOffset, content } = getCurElement();
@@ -405,9 +416,13 @@ const selectPageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   selection?.removeAllRanges();
   selection?.addRange(range);
+  setDirection("right");
 };
 
-const selectPageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const selectPageDown = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  setDirection: React.Dispatch<React.SetStateAction<string>>
+) => {
   e.preventDefault();
 
   const { selection, startNode, startOffset, content } = getCurElement();
@@ -424,6 +439,7 @@ const selectPageDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   selection?.removeAllRanges();
   selection?.addRange(range);
+  setDirection("right");
 };
 
 export {

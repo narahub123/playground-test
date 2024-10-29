@@ -19,7 +19,14 @@ import {
   getCurElement,
 } from "./get";
 
-import { selectRight, selectLeft, selectUp, selectDown } from "./selection";
+import {
+  selectRight,
+  selectLeft,
+  selectUp,
+  selectDown,
+  selectStart,
+  selectEnd,
+} from "./selection";
 
 export {
   setCursorPosition,
@@ -40,4 +47,6 @@ export {
   selectLeft,
   selectUp,
   selectDown,
+  selectStart,
+  selectEnd,
 };

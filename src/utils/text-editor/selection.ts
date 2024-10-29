@@ -232,4 +232,47 @@ const selectDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   selection?.addRange(range);
 };
 
-export { selectRight, selectLeft, selectUp, selectDown };
+const selectStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const { selection, endNode, endOffset, curLine } = getCurElement();
+  if (!endNode || !curLine) return;
+
+  const range = document.createRange();
+
+  // 현재 줄의 첫 노드
+  const firstNode = curLine.firstChild?.firstChild?.firstChild;
+  if (!firstNode) return;
+
+  range.setStart(firstNode, 0);
+  range.setEnd(endNode, endOffset);
+
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+};
+
+const selectEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const { selection, startNode, startOffset, curLine } = getCurElement();
+  if (!startNode || !curLine) return;
+
+  // 현재 줄의 마지막 노드
+  const lastNode = curLine.lastChild?.firstChild?.firstChild;
+  if (!lastNode) return;
+  const lastText = lastNode.textContent || "";
+
+  const range = document.createRange();
+  range.setStart(startNode, startOffset);
+  range.setEnd(lastNode, lastText.length);
+
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+};
+
+export {
+  selectRight,
+  selectLeft,
+  selectUp,
+  selectDown,
+  selectStart,
+  selectEnd,
+};

@@ -12,6 +12,8 @@ import {
   selectLeft,
   selectDown,
   selectUp,
+  selectStart,
+  selectEnd,
 } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
@@ -78,6 +80,10 @@ const TextEditor = () => {
         selectUp(e);
       } else if (key === "ArrowDown") {
         selectDown(e);
+      } else if (key === "Home") {
+        selectStart(e);
+      } else if (key === "End") {
+        selectEnd(e);
       }
     } else if (key === "ArrowRight") {
       moveRight(e);

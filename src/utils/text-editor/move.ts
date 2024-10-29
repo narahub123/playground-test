@@ -190,7 +190,13 @@ const moveDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
 const moveStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
-  const { curLine } = getCurElement();
+  const { startNode } = getCurElement();
+  if (!startNode) return;
+
+  const curLine =
+    startNode.nodeType === Node.TEXT_NODE
+      ? (startNode.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (startNode.parentNode?.parentNode as HTMLElement);
 
   // 현재 줄의 첫 번째 컨테이너
   const firstContainer = curLine?.firstChild;
@@ -204,8 +210,13 @@ const moveStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
 const moveEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
-  const { curLine } = getCurElement();
+  const { endNode } = getCurElement();
+  if (!endNode) return;
 
+  const curLine =
+    endNode.nodeType === Node.TEXT_NODE
+      ? (endNode.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (endNode.parentNode?.parentNode as HTMLElement);
   //현재 줄의 마지막 컨테이너
   const lastContainer = curLine?.lastChild;
   if (!lastContainer) return;

@@ -1,4 +1,4 @@
-import { getCurElement } from "./get";
+import { getCurElement, getTargetAndIndex } from "./get";
 
 const selectRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
@@ -119,4 +119,117 @@ const selectLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
   selection?.addRange(range);
 };
 
-export { selectRight, selectLeft };
+const selectUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const {
+    selection,
+    startNode,
+    startOffset,
+    endNode,
+    endOffset,
+    curElem,
+    curPosition,
+    curLine,
+  } = getCurElement();
+  if (!startNode || !endNode || !curElem) return;
+
+  const range = document.createRange();
+
+  let start = startNode;
+  let startPoint = startOffset;
+
+  // 이전 줄 : 기준 포인트를 새로 바뀐 start 노드로 해야 함
+  let prevLine =
+    start.nodeType === Node.TEXT_NODE
+      ? (start.parentNode?.parentNode?.parentNode
+          ?.previousSibling as HTMLElement)
+      : (start.parentNode?.parentNode?.previousSibling as HTMLElement);
+
+  // 이전 줄의 마지막 요소가 있다면
+  if (prevLine) {
+    console.log("이전 줄 있음");
+    // 커서를 이전 줄의 동일한 위치로 이동
+    const { target, index } = getTargetAndIndex(curElem, curPosition, prevLine);
+
+    const targetNode = target.firstChild?.firstChild;
+    if (!targetNode) return;
+
+    start = targetNode;
+    startPoint = index;
+  } else {
+    // 이전 줄이 없다는 경우
+    console.log("이전 줄 없음");
+    const firstNode = curLine?.firstChild?.firstChild?.firstChild;
+    if (!firstNode) return;
+
+    start = firstNode;
+    startPoint = 0;
+  }
+
+  range.setStart(start, startPoint);
+
+  range.setEnd(endNode, endOffset);
+
+  // 이전 줄이 있다면 이전 줄의 동일 위치로 이동
+
+  // 이전 줄이 없다면 현재 줄의 처음으로 이동
+
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+};
+
+const selectDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+
+  const {
+    selection,
+    startNode,
+    startOffset,
+    endNode,
+    endOffset,
+    curElem,
+    curPosition,
+    curLine,
+  } = getCurElement();
+
+  if (!startNode || !endNode || !curElem || !curLine) return;
+
+  const range = document.createRange();
+
+  let end = endNode;
+  let endPoint = endOffset;
+
+  let nextLine =
+    end.nodeType === Node.TEXT_NODE
+      ? (end.parentNode?.parentNode?.parentNode?.nextSibling as HTMLElement)
+      : (end.parentNode?.parentNode?.nextSibling as HTMLElement);
+
+  // 다음 줄이 있는 경우
+  if (nextLine) {
+    console.log("다음 줄 있음");
+    const { target, index } = getTargetAndIndex(curElem, curPosition, nextLine);
+
+    const targetNode = target.firstChild?.firstChild;
+    if (!targetNode) return;
+
+    end = targetNode;
+    endPoint = index;
+  } else {
+    console.log("다음 줄 없음");
+
+    // 다음 줄이 없는 경우 : 현재 줄의 마지막으로 이동
+    const lastNode = curLine.lastChild?.firstChild?.firstChild;
+    if (!lastNode) return;
+    const lastText = lastNode.textContent || "";
+
+    end = lastNode;
+    endPoint = lastText.length;
+  }
+  range.setStart(startNode, startOffset);
+  range.setEnd(end, endPoint);
+
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+};
+
+export { selectRight, selectLeft, selectUp, selectDown };

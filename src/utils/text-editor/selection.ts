@@ -355,25 +355,85 @@ const selectDown = (
 
 const selectStart = (
   e: React.KeyboardEvent<HTMLDivElement>,
+  direction: string,
   setDirection: React.Dispatch<React.SetStateAction<string>>
 ) => {
   e.preventDefault();
-  const { selection, startNode, startOffset, curLine } = getCurElement();
-  if (!startNode || !curLine) return;
+  const { selection, startNode, startOffset, endNode, endOffset } =
+    getCurElement();
+  if (!startNode || !endNode) return;
 
   const range = document.createRange();
 
+  let start = startNode;
+  let startPoint = startOffset;
+  let end = endNode;
+  let endPoint = endOffset;
+
+  const focalNode =
+    selection?.isCollapsed || direction === "left" ? start : end;
+
+  const curLine =
+    focalNode.nodeType === Node.TEXT_NODE
+      ? focalNode.parentNode?.parentNode?.parentNode
+      : focalNode.parentNode?.parentNode;
+
   // 현재 줄의 첫 노드
-  const firstNode = curLine.firstChild?.firstChild?.firstChild;
+  const firstNode = curLine?.firstChild?.firstChild?.firstChild;
   if (!firstNode) return;
 
-  range.setStart(firstNode, 0);
-  range.setEnd(startNode, startOffset);
+  // 시작 노드가 위치한 줄
+  const startLine =
+    start.nodeType === Node.TEXT_NODE
+      ? start.parentNode?.parentNode?.parentNode
+      : start.parentNode?.parentNode;
+
+  // 종료 노드가 위치한 줄
+  const endLine =
+    end.nodeType === Node.TEXT_NODE
+      ? end.parentNode?.parentNode?.parentNode
+      : end.parentNode?.parentNode;
+
+  // 시작 노드와 종료 노드가 같은 줄인 경우
+  if (startLine === endLine) {
+    // 시작점과 종료점이 같은 경우
+    // 방향성이 오른쪽인 경우
+    if (selection?.isCollapsed || direction === "right") {
+      start = firstNode;
+      startPoint = 0;
+      end = startNode;
+      endPoint = startOffset;
+    } else if (direction === "left") {
+      // 시작점과 종료점이 아니라고 방향성이 왼쪽인 경우
+      start = firstNode;
+      startPoint = 0;
+    } else if (direction === "right") {
+      start = firstNode;
+      startPoint = 0;
+      end = startNode;
+      endPoint = startOffset;
+    }
+    setDirection("left");
+  } else if (startLine !== endLine) {
+    // 시작 노드와 종료 노드가 같은 줄이 아닌 경우
+    if (direction === "left") {
+      // 방향성이 왼쪽인 경우
+      start = firstNode;
+      startPoint = 0;
+      setDirection("left");
+    } else if (direction === "right") {
+      // 방향성이 오른쪽인 경우
+      end = firstNode;
+      endPoint = 0;
+      setDirection("right");
+    }
+  }
+
+  range.setStart(start, startPoint);
+  range.setEnd(end, endPoint);
 
   selection?.removeAllRanges();
   selection?.addRange(range);
-
-  setDirection("left");
 };
 
 const selectEnd = (

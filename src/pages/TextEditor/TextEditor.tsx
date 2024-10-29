@@ -73,8 +73,6 @@ const TextEditor = () => {
     setCursorPosition(cursorElement, cursorPosition);
   };
 
-  console.log(direction);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     const key = e.key;
     if (e.shiftKey) {
@@ -87,9 +85,9 @@ const TextEditor = () => {
       } else if (key === "ArrowDown") {
         selectDown(e);
       } else if (key === "Home") {
-        selectStart(e);
+        selectStart(e, setDirection);
       } else if (key === "End") {
-        selectEnd(e);
+        selectEnd(e, setDirection);
       } else if (key === "PageUp") {
         selectPageUp(e);
       } else if (key === "PageDown") {

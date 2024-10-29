@@ -344,10 +344,13 @@ const selectDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
   selection?.addRange(range);
 };
 
-const selectStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const selectStart = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  setDirection: React.Dispatch<React.SetStateAction<string>>
+) => {
   e.preventDefault();
-  const { selection, endNode, endOffset, curLine } = getCurElement();
-  if (!endNode || !curLine) return;
+  const { selection, startNode, startOffset, curLine } = getCurElement();
+  if (!startNode || !curLine) return;
 
   const range = document.createRange();
 
@@ -356,13 +359,18 @@ const selectStart = (e: React.KeyboardEvent<HTMLDivElement>) => {
   if (!firstNode) return;
 
   range.setStart(firstNode, 0);
-  range.setEnd(endNode, endOffset);
+  range.setEnd(startNode, startOffset);
 
   selection?.removeAllRanges();
   selection?.addRange(range);
+
+  setDirection("left");
 };
 
-const selectEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
+const selectEnd = (
+  e: React.KeyboardEvent<HTMLDivElement>,
+  setDirection: React.Dispatch<React.SetStateAction<string>>
+) => {
   e.preventDefault();
   const { selection, startNode, startOffset, curLine } = getCurElement();
   if (!startNode || !curLine) return;
@@ -378,6 +386,7 @@ const selectEnd = (e: React.KeyboardEvent<HTMLDivElement>) => {
 
   selection?.removeAllRanges();
   selection?.addRange(range);
+  setDirection("right");
 };
 
 const selectPageUp = (e: React.KeyboardEvent<HTMLDivElement>) => {

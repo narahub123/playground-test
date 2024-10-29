@@ -5,6 +5,9 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();
 
   const {
+    startOffset,
+    endOffset,
+    endNode,
     curNode,
     curPosition,
     curText,
@@ -13,13 +16,18 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
     nextFirstElem,
   } = getCurElement();
 
-  if (!curNode) return;
+  if (!curNode || !endNode) return;
 
   let cursorElement = curNode;
   let cursorPosition = curPosition;
 
+  // range의 시작과 종료가 일치하지 않는 경우 : 선택 영역이 있는 경우
+  if (startOffset !== endOffset) {
+    cursorElement = endNode;
+    cursorPosition = endOffset;
+  }
   // 현재 위치가 현재 요소 내의 문자열의 길이와 일치하는 경우
-  if (curPosition === curText.length) {
+  else if (curPosition === curText.length) {
     console.log("현재 요소 내의 문자열의 길이와 현재 위치가 일치함");
     // 다음 컨테이너가 있는지 확인하고 있다면 이동
     // 다음 컨테이너
@@ -50,58 +58,66 @@ const moveRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
   setCursorPosition(cursorElement, cursorPosition);
 };
 
-  const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const {
-      curNode,
-      curPosition,
-      curClassName,
-      curText,
-      prevElem,
-      prevText,
-      prevLastElem,
-      prevLastText,
-    } = getCurElement();
-    if (!curNode) return;
+const moveLeft = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  e.preventDefault();
+  const {
+    startNode,
+    startOffset,
+    endOffset,
+    curNode,
+    curPosition,
+    curClassName,
+    curText,
+    prevElem,
+    prevText,
+    prevLastElem,
+    prevLastText,
+  } = getCurElement();
+  if (!curNode || !startNode) return;
 
-    let cursorElement = curNode;
-    let cursorPosition = curPosition;
+  let cursorElement = curNode;
+  let cursorPosition = curPosition;
 
-    // 기준점: link 클래스이고 문자열이 존재하고 이전 요소가 존재하는 경우 1 아닌 경우 0
-    const focalPoint =
-      curClassName?.includes("link") && curText && prevElem ? 1 : 0;
+  // 기준점: link 클래스이고 문자열이 존재하고 이전 요소가 존재하는 경우 1 아닌 경우 0
+  const focalPoint =
+    curClassName?.includes("link") && curText && prevElem ? 1 : 0;
 
-    // 현재 커서의 위치가 기준점과 일치하는 경우
-    if (curPosition === focalPoint) {
-      console.log("현재 커서의 위치가 기준점과 일치함");
+  // range의 시작과 종료가 일치하지 않는 경우 : 선택 영역이 있는 경우
+  if (startOffset !== endOffset) {
+    cursorElement = startNode;
+    cursorPosition = startOffset;
+  }
+  // 현재 커서의 위치가 기준점과 일치하는 경우
+  else if (curPosition === focalPoint) {
+    console.log("현재 커서의 위치가 기준점과 일치함");
 
-      // 이전 컨테이너가 존재하는 경우 이전 요소의 마지막으로 이동
-      if (prevElem) {
-        console.log("이전 컨테이너가 있는 경우");
+    // 이전 컨테이너가 존재하는 경우 이전 요소의 마지막으로 이동
+    if (prevElem) {
+      console.log("이전 컨테이너가 있는 경우");
 
-        cursorElement = prevElem;
-        cursorPosition = prevText.length;
-      } else {
-        // 이전 컨테이너가 없는 경우
-        console.log("이전 컨테이너가 없는 경우");
-        // 이전 줄이 존재하는 경우
-        if (prevLastElem) {
-          console.log("이전 줄이 있는 경우");
-
-          cursorElement = prevLastElem;
-          cursorPosition = prevLastText.length;
-        }
-        console.log("이전 줄이 없는 경우");
-      }
+      cursorElement = prevElem;
+      cursorPosition = prevText.length;
     } else {
-      // 현재 커서의 위치가 기준점과 일치하지 않는 경우
-      console.log("현재 커서의 위치가 기준점과 일치하지 않음");
-      // 현재 위치에서 왼쪽으로 한 칸 이동함
-      cursorPosition -= 1;
-    }
+      // 이전 컨테이너가 없는 경우
+      console.log("이전 컨테이너가 없는 경우");
+      // 이전 줄이 존재하는 경우
+      if (prevLastElem) {
+        console.log("이전 줄이 있는 경우");
 
-    setCursorPosition(cursorElement, cursorPosition);
-  };
+        cursorElement = prevLastElem;
+        cursorPosition = prevLastText.length;
+      }
+      console.log("이전 줄이 없는 경우");
+    }
+  } else {
+    // 현재 커서의 위치가 기준점과 일치하지 않는 경우
+    console.log("현재 커서의 위치가 기준점과 일치하지 않음");
+    // 현재 위치에서 왼쪽으로 한 칸 이동함
+    cursorPosition -= 1;
+  }
+
+  setCursorPosition(cursorElement, cursorPosition);
+};
 
 const moveUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
   e.preventDefault();

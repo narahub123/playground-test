@@ -81,9 +81,9 @@ const TextEditor = () => {
       } else if (key === "ArrowLeft") {
         selectLeft(e, direction, setDirection);
       } else if (key === "ArrowUp") {
-        selectUp(e, setDirection);
+        selectUp(e, direction, setDirection);
       } else if (key === "ArrowDown") {
-        selectDown(e, setDirection);
+        selectDown(e, direction, setDirection);
       } else if (key === "Home") {
         selectStart(e, direction, setDirection);
       } else if (key === "End") {
@@ -145,7 +145,7 @@ const TextEditor = () => {
             ></span>
           </span>
         </div>
-        <div className={styles.line} data-line={1}>
+        <div className={styles.line} data-line={2}>
           {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
 
           <span className={`${styles.container}`}>

@@ -117,8 +117,7 @@ const getTargetAndIndex = (
     index === 0 &&
     target.previousElementSibling
   ) {
-    const prevElem = target.previousElementSibling
-      .firstElementChild as HTMLElement;
+    const prevElem = target.previousElementSibling as HTMLElement;
     const prevText = prevElem?.textContent || "";
 
     return {
@@ -127,6 +126,7 @@ const getTargetAndIndex = (
     };
   }
 
+  console.log(target);
   return {
     target,
     index,

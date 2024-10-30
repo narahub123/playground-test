@@ -237,120 +237,369 @@ const selectLeft = (
 
 const selectUp = (
   e: React.KeyboardEvent<HTMLDivElement>,
+  direction: string,
   setDirection: React.Dispatch<React.SetStateAction<string>>
 ) => {
   e.preventDefault();
-  const { selection, startNode, startOffset, endNode, endOffset, curElem } =
+  const { selection, startNode, startOffset, endNode, endOffset } =
     getCurElement();
-  if (!startNode || !endNode || !curElem) return;
+  if (!startNode || !endNode) return;
 
   const range = document.createRange();
 
   let start = startNode;
   let startPoint = startOffset;
+  let end = endNode;
+  let endPoint = endOffset;
 
+  const focalNode =
+    selection?.isCollapsed || direction === "right" ? end : start;
+
+  // 현재 요소
+  const curElem =
+    focalNode.nodeType === Node.TEXT_NODE
+      ? (focalNode.parentNode as HTMLElement)
+      : (focalNode as HTMLElement);
   // 현재 줄
   const curLine =
-    start.nodeType === Node.TEXT_NODE
-      ? (start.parentNode?.parentNode?.parentNode as HTMLElement)
-      : (start.parentNode?.parentNode as HTMLElement);
+    focalNode.nodeType === Node.TEXT_NODE
+      ? (focalNode.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (focalNode.parentNode?.parentNode as HTMLElement);
 
   // 이전 줄 : 기준 포인트를 새로 바뀐 start 노드로 해야 함
   let prevLine =
-    start.nodeType === Node.TEXT_NODE
-      ? (start.parentNode?.parentNode?.parentNode
+    focalNode.nodeType === Node.TEXT_NODE
+      ? (focalNode.parentNode?.parentNode?.parentNode
           ?.previousSibling as HTMLElement)
-      : (start.parentNode?.parentNode?.previousSibling as HTMLElement);
+      : (focalNode.parentNode?.parentNode?.previousSibling as HTMLElement);
 
-  // 이전 줄의 마지막 요소가 있다면
-  if (prevLine) {
-    console.log("이전 줄 있음");
-    // 커서를 이전 줄의 동일한 위치로 이동
-    const { target, index } = getTargetAndIndex(curElem, endOffset, prevLine);
+  const startLine =
+    start.nodeType === Node.TEXT_NODE
+      ? (start.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (start.parentNode?.parentNode as HTMLElement);
+  const endLine =
+    end.nodeType === Node.TEXT_NODE
+      ? (end.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (end.parentNode?.parentNode as HTMLElement);
 
-    const targetNode = target.firstChild?.firstChild;
-    if (!targetNode) return;
-
-    start = targetNode;
-    startPoint = index;
-  } else {
-    // 이전 줄이 없다는 경우
-    console.log("이전 줄 없음");
+  if (!prevLine) {
+    // 이전 줄이 없는 경우
+    console.log("이전 줄이 없음");
     const firstNode = curLine?.firstChild?.firstChild?.firstChild;
     if (!firstNode) return;
 
     start = firstNode;
     startPoint = 0;
+    setDirection("left");
+  } else {
+    // 이전 줄이 있는 경우
+    console.log("이전 줄이 있음");
+    if (startLine === endLine) {
+      // 시작 줄과 종료 줄이 같은 경우
+      console.log("시작 줄과 종료 줄이 같음");
+      if (selection?.isCollapsed || direction === "left") {
+        if (selection?.isCollapsed) console.log("시작 위치과 종료 위치가 같음");
+        if (direction === "left") console.log("방향성이 왼쪽인 경우");
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          startPoint,
+          prevLine
+        );
+
+        const targetNode = target.firstChild?.firstChild;
+        if (!targetNode) return;
+
+        start = targetNode;
+        startPoint = index;
+        setDirection("left");
+      } else if (direction === "right") {
+        console.log("방향성이 오른쪽인 경우");
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          endPoint,
+          prevLine
+        );
+
+        const targetNode = target.firstChild?.firstChild;
+        if (!targetNode) return;
+
+        start = targetNode;
+        startPoint = index;
+        setDirection("left");
+      }
+    } else {
+      // 시작 줄과 종료 줄이 다른 경우
+      console.log("시작 줄과 종료 줄이 다름");
+      if (direction === "left") {
+        console.log("방향성이 왼쪽임");
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          startPoint,
+          prevLine
+        );
+
+        const targetNode = target.firstChild?.firstChild;
+
+        if (!targetNode) return;
+
+        start = targetNode;
+        startPoint = index;
+        setDirection("left");
+      } else {
+        console.log("방향성이 오른쪽임");
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          endPoint,
+          prevLine
+        );
+
+        const targetNode = target.firstChild?.firstChild;
+        if (!targetNode) return;
+
+        const targetLine = target.parentNode;
+        if (!targetLine) return;
+
+        if (targetLine === startLine) {
+          console.log("목표 줄과 시작 줄이 같음");
+          const position = start.compareDocumentPosition(targetNode);
+          console.log(position);
+
+          console.log(position);
+          if (position === 0) {
+            console.log("목표 노드가 시작 노드와 같음");
+            if (startPoint <= index) {
+              console.log("시작 위치가 목표 위치보다 작거나 같음");
+              end = targetNode;
+              endPoint = index;
+              setDirection("right");
+            } else {
+              console.log("시작 위치가 목표 위치보다 큼");
+              end = start;
+              endPoint = startPoint;
+              start = targetNode;
+              startPoint = index;
+
+              setDirection("left");
+            }
+          } else if (position === 2) {
+            console.log("목표 노드가 시작 노드 앞에 옴");
+            end = start;
+            endPoint = startPoint;
+            start = targetNode;
+            startPoint = index;
+            setDirection("left");
+          } else if (position === 4) {
+            console.log("목표 노드가 시작 노드 뒤에 옴");
+            end = targetNode;
+            endPoint = index;
+            setDirection("right");
+          }
+        } else {
+          console.log("목표 줄과 시작 줄이 다름");
+          end = targetNode;
+          endPoint = index;
+          setDirection("right");
+        }
+      }
+    }
   }
 
   range.setStart(start, startPoint);
-
-  range.setEnd(endNode, endOffset);
-
-  // 이전 줄이 있다면 이전 줄의 동일 위치로 이동
-
-  // 이전 줄이 없다면 현재 줄의 처음으로 이동
+  range.setEnd(end, endPoint);
 
   selection?.removeAllRanges();
 
   selection?.addRange(range);
-  setDirection("left");
 };
 
 const selectDown = (
   e: React.KeyboardEvent<HTMLDivElement>,
+  direction: string,
   setDirection: React.Dispatch<React.SetStateAction<string>>
 ) => {
   e.preventDefault();
 
-  const { selection, startNode, startOffset, endNode, endOffset, curElem } =
+  const { selection, startNode, startOffset, endNode, endOffset } =
     getCurElement();
 
-  if (!startNode || !endNode || !curElem) return;
+  if (!startNode || !endNode) return;
 
   const range = document.createRange();
 
+  let start = startNode;
+  let startPoint = startOffset;
   let end = endNode;
   let endPoint = endOffset;
 
+  const focalNode =
+    selection?.isCollapsed || direction === "right" ? end : start;
+
+  // 현재 요소
+  const curElem =
+    focalNode.nodeType === Node.TEXT_NODE
+      ? (focalNode.parentNode as HTMLElement)
+      : (focalNode as HTMLElement);
+
   // 현재 줄
   const curLine =
+    focalNode.nodeType === Node.TEXT_NODE
+      ? (focalNode.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (focalNode.parentNode?.parentNode as HTMLElement);
+
+  // 시작 줄
+  const startLine =
+    start.nodeType === Node.TEXT_NODE
+      ? (start.parentNode?.parentNode?.parentNode as HTMLElement)
+      : (start.parentNode?.parentNode as HTMLElement);
+  // 종료 줄
+  const endLine =
     end.nodeType === Node.TEXT_NODE
       ? (end.parentNode?.parentNode?.parentNode as HTMLElement)
       : (end.parentNode?.parentNode as HTMLElement);
 
-  let nextLine =
-    end.nodeType === Node.TEXT_NODE
-      ? (end.parentNode?.parentNode?.parentNode?.nextSibling as HTMLElement)
-      : (end.parentNode?.parentNode?.nextSibling as HTMLElement);
+  // 다음 줄
+  const nextLine =
+    focalNode.nodeType === Node.TEXT_NODE
+      ? (focalNode.parentNode?.parentNode?.parentNode
+          ?.nextSibling as HTMLElement)
+      : (focalNode.parentNode?.parentNode?.nextSibling as HTMLElement);
 
-  // 다음 줄이 있는 경우
-  if (nextLine) {
-    console.log("다음 줄 있음");
-    const { target, index } = getTargetAndIndex(curElem, endOffset, nextLine);
-
-    const targetNode = target.firstChild?.firstChild;
-    if (!targetNode) return;
-
-    end = targetNode;
-    endPoint = index;
-  } else {
+  // 다음 줄이 없는 경우
+  if (!nextLine) {
     console.log("다음 줄 없음");
-
-    // 다음 줄이 없는 경우 : 현재 줄의 마지막으로 이동
     const lastNode = curLine.lastChild?.firstChild?.firstChild;
     if (!lastNode) return;
-    const lastText = lastNode.textContent || "";
+    const lastText = lastNode?.textContent || "";
 
     end = lastNode;
     endPoint = lastText.length;
+
+    setDirection("right");
+  } else {
+    // 다음 줄이 있는 경우
+    console.log("다음 줄 있음");
+    if (startLine === endLine) {
+      // 시작 줄과 종료 줄이 같은 경우
+      console.log("시작 줄과 종료 줄이 같음");
+      if (selection?.isCollapsed || direction === "right") {
+        if (selection?.isCollapsed) console.log("시작 노드와 종료 노드가 같음");
+        if (direction === "right") console.log("방향성이 오른쪽임");
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          endPoint,
+          nextLine
+        );
+
+        const targetNode = target.firstChild?.firstChild;
+        if (!targetNode) return;
+
+        end = targetNode;
+        endPoint = index;
+      } else if (direction === "left") {
+        console.log("방향성이 왼쪽임");
+
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          endPoint,
+          nextLine
+        );
+
+        const targetNode = target.firstChild?.firstChild;
+        if (!targetNode) return;
+
+        end = targetNode;
+        endPoint = index;
+      }
+      setDirection("right");
+    } else {
+      // 시작 줄과 종료 줄이 다른 경우
+      console.log("시작 줄과 종료 줄이 다름");
+      if (direction === "left") {
+        console.log("방향성이 왼쪽임");
+
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          startPoint,
+          nextLine
+        );
+
+        // 목표 노드
+        const targetNode = target.firstChild?.firstChild;
+
+        if (!targetNode) return;
+
+        // 목표 줄
+        const targetLine = target.parentNode;
+        if (!targetLine) return;
+
+        if (endLine === targetLine) {
+          console.log("목표 줄과 종료 줄이 같음");
+
+          const position = end.compareDocumentPosition(targetNode);
+
+          // 목표 노드가 종료 노드와 같은 경우
+          if (position === 0) {
+            console.log("종료 노드와 목표 노드가 같음");
+            if (endPoint <= index) {
+              console.log("종료 위치과 목표 위치보다 크거나 같음");
+              start = end;
+              startPoint = endPoint;
+              end = targetNode;
+              endPoint = index;
+            } else {
+              console.log("종료 위치과 목표 위치보다 작음");
+              start = targetNode;
+              startPoint = index;
+              end = end;
+              endPoint = endPoint;
+            }
+          }
+          // 목표 노드가 종료 노드보다 앞에 존재하는 경우
+          else if (position === 2) {
+            console.log("목표 노드가 종료 노드의 앞에 옴");
+            start = targetNode;
+            startPoint = index;
+          } else if (position === 4) {
+            // 목표 노드가 종료 노드보다 뒤에 존재하는 경우
+            console.log("목표 노드가 종료 노드의 뒤에 옴");
+            start = end;
+            startPoint = endPoint;
+            end = targetNode;
+            endPoint = index;
+          }
+        } else {
+          console.log("종료 줄과 목표 줄이 다름");
+          start = targetNode;
+          startPoint = index;
+          end = end;
+          endPoint = endPoint;
+        }
+
+        setDirection("left");
+      } else {
+        console.log("방향성이 오른쪽임");
+        const { target, index } = getTargetAndIndex(
+          curElem,
+          endPoint,
+          nextLine
+        );
+
+        const targetNode = target.firstChild?.firstChild;
+        if (!targetNode) return;
+
+        end = targetNode;
+        endPoint = index;
+
+        setDirection("right");
+      }
+    }
   }
-  range.setStart(startNode, startOffset);
+
+  range.setStart(start, startPoint);
   range.setEnd(end, endPoint);
 
   selection?.removeAllRanges();
   selection?.addRange(range);
-  setDirection("right");
 };
 
 const selectStart = (

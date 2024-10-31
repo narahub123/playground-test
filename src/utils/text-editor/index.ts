@@ -30,6 +30,10 @@ import {
   selectPageDown,
 } from "./selection";
 
+import { hasLink, checkValidLink } from "./has";
+
+import { createSpan, createLink } from "./create";
+
 export {
   setCursorPosition,
   moveRight,
@@ -53,4 +57,8 @@ export {
   selectEnd,
   selectPageUp,
   selectPageDown,
+  hasLink,
+  checkValidLink,
+  createSpan,
+  createLink,
 };

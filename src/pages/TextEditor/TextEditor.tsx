@@ -17,6 +17,9 @@ import {
   selectEnd,
   selectPageUp,
   selectPageDown,
+  hasLink,
+  checkValidLink,
+  getCurElement,
 } from "../../utils/text-editor";
 import styles from "./TextEditor.module.css";
 
@@ -46,7 +49,7 @@ const TextEditor = () => {
     if (className.includes("line")) {
       console.log("line 클래스를 클릭함");
       // 해당 클래스 내의 가장 마지막 요소의 마지막 위치에 커서를 위치함
-      const lastChild = target.lastElementChild?.firstChild as HTMLElement;
+      const lastChild = target.lastElementChild as HTMLElement;
       // 마지막 요소의 텍스트
       const lastChildText = lastChild?.textContent || "";
 
@@ -114,49 +117,27 @@ const TextEditor = () => {
       }
     }
   };
+
+  const handleInput = (e: React.FormEvent<HTMLSpanElement>) => {
+    const { curClassName } = getCurElement();
+
+    checkValidLink();
+
+    hasLink();
+  };
   return (
     <div className="text-editor">
       <div
         className={styles.content}
         onClick={(e) => handleClick(e)}
         onKeyDown={(e) => handleKeyDown(e)}
+        onInput={(e) => handleInput(e)}
       >
         <div className={styles.line} data-line={0}>
-          {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
-          <span className={`${styles.container}`}>
-            <span className={styles.span} contentEditable></span>
-          </span>
-          <span className={`${styles.container}`}>
-            <span className={styles.link} contentEditable></span>
-          </span>
-        </div>
-        <div className={styles.line} data-line={1}>
-          {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
-          <span className={`${styles.container}`}>
-            <span className={styles.span} contentEditable></span>
-          </span>
-          <span className={`${styles.container}`}>
-            <span className={styles.link} contentEditable></span>
-          </span>
-          <span className={`${styles.container}`}>
-            <span
-              className={`${styles.span} ${styles.gap}`}
-              contentEditable
-            ></span>
-          </span>
-        </div>
-        <div className={styles.line} data-line={2}>
-          {/* 선택 영역 지정을 위해서 span을 이중으로 설계해야 함 */}
-
-          <span className={`${styles.container}`}>
-            <span className={styles.link} contentEditable></span>
-          </span>
-          <span className={`${styles.container}`}>
-            <span
-              className={`${styles.span} ${styles.gap}`}
-              contentEditable
-            ></span>
-          </span>
+          <span
+            className={`${styles.span} ${styles.normal}`}
+            contentEditable
+          ></span>
         </div>
       </div>
     </div>

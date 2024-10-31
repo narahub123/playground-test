@@ -15,9 +15,19 @@
   /* border: 1px solid black; */
   outline: none;
 }
+.normal {
+}
+.gap {
+}
 
 .link {
   outline: none;
   /* border: 1px solid cornflowerblue; */
   color: cornflowerblue;
+}
+.mention {
+}
+.hashtag {
+}
+.url {
 }

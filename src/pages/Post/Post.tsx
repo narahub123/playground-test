@@ -1,3 +1,4 @@
+import { convertDate } from "../../utils/post";
 import styles from "./Post.module.css";
 import { BiRepost } from "react-icons/bi";
 interface PostProps {
@@ -9,7 +10,7 @@ interface PostProps {
 interface PostType {
   name: string;
   id: string;
-  postDate: string;
+  postDate: Date;
 }
 
 const Post = ({ isReposted, reposter, post }: PostProps) => {
@@ -31,7 +32,7 @@ const Post = ({ isReposted, reposter, post }: PostProps) => {
 
           <p className={styles.id}>@{post?.id}</p>
           <p className={styles.point} />
-          <p className={styles.postDate}>{post?.postDate}</p>
+          <p className={styles.postDate}>{convertDate(post?.postDate)}</p>
         </div>
         <div className={styles.content}>내용</div>
         <div className={styles.action}>액션</div>

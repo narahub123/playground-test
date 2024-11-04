@@ -10,7 +10,7 @@ interface PostProps {
   post: PostType | undefined;
 }
 
-interface PostType {
+export interface PostType {
   postId: string;
   name: string;
   id: string;
@@ -19,6 +19,7 @@ interface PostType {
   reposts: string[];
   favorites: string[];
   views: number;
+  text: string;
 }
 
 export interface ActionsType {
@@ -82,7 +83,7 @@ const Post = ({ isReposted, reposter, post }: PostProps) => {
             actions={actions}
             setActions={setActions}
             postId={post.postId}
-            id={post.id}
+            post={post}
           />
         </div>
       </div>

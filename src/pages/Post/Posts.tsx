@@ -20,6 +20,7 @@ const Posts = () => {
         reposts: ["user111", "user123"],
         favorites: ["user111", "user123"],
         views: 111,
+        text: "zzzzz",
       },
     },
     {
@@ -34,6 +35,7 @@ const Posts = () => {
         reposts: ["user111", "user123"],
         favorites: ["user111", "user123"],
         views: 111,
+        text: "dfef",
       },
     },
   ];

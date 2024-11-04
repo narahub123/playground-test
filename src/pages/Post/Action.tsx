@@ -8,21 +8,23 @@ import { RiShare2Line } from "react-icons/ri";
 import { useState } from "react";
 import Reposts from "./Reposts";
 import { currentUser } from "../../data";
-import { ActionsType } from "./Post";
+import { ActionsType, PostType } from "./Post";
 import Share from "./Share";
 import ShareToSns from "./ShareToSns";
+import Reply from "./Reply";
 
 interface ActionProps {
   actions: ActionsType;
   setActions: React.Dispatch<React.SetStateAction<ActionsType>>;
   postId: string;
-  id: string;
+  post: PostType;
 }
 
-const Action = ({ actions, setActions, postId, id }: ActionProps) => {
+const Action = ({ actions, setActions, postId, post }: ActionProps) => {
   const [showRepost, setShowRepost] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showSns, setShowSns] = useState(false);
+  const [showReply, setShowReply] = useState(false);
 
   const [curUser, setCurUser] = useState({
     id: currentUser.id,
@@ -77,54 +79,67 @@ const Action = ({ actions, setActions, postId, id }: ActionProps) => {
   const handleShare = () => {
     setShowShare(!showShare);
   };
+
+  // 답글 작성하기
+  const handleReply = () => {
+    setShowReply(true);
+  };
+
   return (
-    <div className={styles.container}>
-      <span className={`${styles.action} ${styles.replies}`} title="답글">
-        <SlBubble className="icon" />
-        {actions.replies.length}
-      </span>
-      <span
-        className={`${styles.action} ${styles.reposts}`}
-        title="재게시"
-        onClick={handleRepostModal}
-      >
-        {showRepost && <Reposts />}
-        <BiRepost className="icon" />
-        {actions.reposts.length}
-      </span>
-      <span
-        className={`${styles.action} ${styles.favorites}`}
-        title="좋아요"
-        onClick={handleFavorites}
-      >
-        {actions.favorites.includes(curUser.id) ? (
-          <MdFavorite className="icon" />
-        ) : (
-          <MdFavoriteBorder className="icon" />
-        )}
-        {actions.favorites.length}
-      </span>
-      <span className={`${styles.action} ${styles.statics}`} title="통계">
-        <IoStatsChartOutline className="icon" />
-        {actions.views}
-      </span>
-      <span className={`${styles.action} ${styles.last}`}>
-        {showSns && <ShareToSns setShowSns={setShowSns} />}
-        <span onClick={handleBookmarks}>
-          {curUser.bookmarks.includes(postId) ? (
-            <BsBookmarkFill className="icon" title="북마크" />
+    <>
+      {showReply && <Reply post={post} />}
+      <div className={styles.container}>
+        <span
+          className={`${styles.action} ${styles.replies}`}
+          title="답글"
+          onClick={handleReply}
+        >
+          <SlBubble className="icon" />
+          {actions.replies.length}
+        </span>
+        <span
+          className={`${styles.action} ${styles.reposts}`}
+          title="재게시"
+          onClick={handleRepostModal}
+        >
+          {showRepost && <Reposts />}
+          <BiRepost className="icon" />
+          {actions.reposts.length}
+        </span>
+        <span
+          className={`${styles.action} ${styles.favorites}`}
+          title="좋아요"
+          onClick={handleFavorites}
+        >
+          {actions.favorites.includes(curUser.id) ? (
+            <MdFavorite className="icon" />
           ) : (
-            <BsBookmark className="icon" title="북마크" />
+            <MdFavoriteBorder className="icon" />
           )}
+          {actions.favorites.length}
         </span>
-        <span onClick={handleShare}>
-          {showShare && (
-            <Share postId={postId} id={id} setShowSns={setShowSns} />
-          )}
-          <RiShare2Line className="icon" title="공유하기" />
+        <span className={`${styles.action} ${styles.statics}`} title="통계">
+          <IoStatsChartOutline className="icon" />
+          {actions.views}
         </span>
-      </span>
-    </div>
+        <span className={`${styles.action} ${styles.last}`}>
+          {showSns && <ShareToSns setShowSns={setShowSns} />}
+          <span onClick={handleBookmarks}>
+            {curUser.bookmarks.includes(postId) ? (
+              <BsBookmarkFill className="icon" title="북마크" />
+            ) : (
+              <BsBookmark className="icon" title="북마크" />
+            )}
+          </span>
+          <span onClick={handleShare}>
+            {showShare && (
+              <Share postId={postId} id={post.id} setShowSns={setShowSns} />
+            )}
+            <RiShare2Line className="icon" title="공유하기" />
+          </span>
+        </span>
+      </div>
+    </>
   );
 };
 

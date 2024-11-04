@@ -3,9 +3,16 @@ import { BiRepost } from "react-icons/bi";
 interface PostProps {
   isReposted: boolean;
   reposter: string | undefined;
+  post: PostType | undefined;
 }
 
-const Post = ({ isReposted, reposter }: PostProps) => {
+interface PostType {
+  name: string;
+  id: string;
+  postDate: string;
+}
+
+const Post = ({ isReposted, reposter, post }: PostProps) => {
   return (
     <div className={styles.container}>
       <div className={styles.left}>
@@ -19,7 +26,13 @@ const Post = ({ isReposted, reposter }: PostProps) => {
             {reposter}님이 재게시함
           </div>
         )}
-        <div className={styles.header}>헤더</div>
+        <div className={styles.header}>
+          <p className={styles.name}>{post?.name}</p>
+
+          <p className={styles.id}>@{post?.id}</p>
+          <p className={styles.point} />
+          <p className={styles.postDate}>{post?.postDate}</p>
+        </div>
         <div className={styles.content}>내용</div>
         <div className={styles.action}>액션</div>
       </div>

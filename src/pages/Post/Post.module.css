@@ -1,9 +1,9 @@
 /* 포스트 컨테이너 */
 .container {
-  margin: 50px;
   border: 1px solid #ccc;
   max-width: 480px;
   display: flex;
+  padding: 10px;
 }
 
 /* 포스트 왼쪽 : 프로필, 답글 선 */
@@ -30,6 +30,7 @@
 
 /* 재 게시물 여부를 알려주는 클래스 */
 .repost {
+  display: flex;
 }
 
 /* 이름, id, 게시 시간을 나타내는 클래스 */

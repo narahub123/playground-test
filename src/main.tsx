@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import TextEditor from "./pages/TextEditor/TextEditor";
-import Post from "./pages/Post/Post";
+import Posts from "./pages/Post/Posts";
 
 const router = createBrowserRouter([
   {
@@ -12,7 +12,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/post",
-    element: <Post />,
+    element: <Posts />,
   },
 ]);
 

@@ -82,6 +82,7 @@ const Post = ({ isReposted, reposter, post }: PostProps) => {
             actions={actions}
             setActions={setActions}
             postId={post.postId}
+            id={post.id}
           />
         </div>
       </div>

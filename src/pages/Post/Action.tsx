@@ -9,15 +9,20 @@ import { useState } from "react";
 import Reposts from "./Reposts";
 import { currentUser } from "../../data";
 import { ActionsType } from "./Post";
+import Share from "./Share";
+import ShareToSns from "./ShareToSns";
 
 interface ActionProps {
   actions: ActionsType;
   setActions: React.Dispatch<React.SetStateAction<ActionsType>>;
   postId: string;
+  id: string;
 }
 
-const Action = ({ actions, setActions, postId }: ActionProps) => {
+const Action = ({ actions, setActions, postId, id }: ActionProps) => {
   const [showRepost, setShowRepost] = useState(false);
+  const [showShare, setShowShare] = useState(false);
+  const [showSns, setShowSns] = useState(false);
 
   const [curUser, setCurUser] = useState({
     id: currentUser.id,
@@ -67,6 +72,11 @@ const Action = ({ actions, setActions, postId }: ActionProps) => {
       }));
     }
   };
+
+  // 공유하기
+  const handleShare = () => {
+    setShowShare(!showShare);
+  };
   return (
     <div className={styles.container}>
       <span className={`${styles.action} ${styles.replies}`} title="답글">
@@ -99,6 +109,7 @@ const Action = ({ actions, setActions, postId }: ActionProps) => {
         {actions.views}
       </span>
       <span className={`${styles.action} ${styles.last}`}>
+        {showSns && <ShareToSns setShowSns={setShowSns} />}
         <span onClick={handleBookmarks}>
           {curUser.bookmarks.includes(postId) ? (
             <BsBookmarkFill className="icon" title="북마크" />
@@ -106,7 +117,10 @@ const Action = ({ actions, setActions, postId }: ActionProps) => {
             <BsBookmark className="icon" title="북마크" />
           )}
         </span>
-        <span>
+        <span onClick={handleShare}>
+          {showShare && (
+            <Share postId={postId} id={id} setShowSns={setShowSns} />
+          )}
           <RiShare2Line className="icon" title="공유하기" />
         </span>
       </span>

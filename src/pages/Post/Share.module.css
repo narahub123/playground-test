@@ -1,0 +1,11 @@
+.container {
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  position: absolute;
+  max-width: 200px;
+  background-color: #fff;
+}
+
+.item {
+  padding: 10px;
+}

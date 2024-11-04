@@ -11,6 +11,7 @@ interface PostProps {
 }
 
 interface PostType {
+  postId: string;
   name: string;
   id: string;
   postDate: Date;
@@ -77,7 +78,11 @@ const Post = ({ isReposted, reposter, post }: PostProps) => {
             </p>
           </div>
           <div className={styles.content}>내용</div>
-          <Action actions={actions} setActions={setActions} />
+          <Action
+            actions={actions}
+            setActions={setActions}
+            postId={post.postId}
+          />
         </div>
       </div>
     </>

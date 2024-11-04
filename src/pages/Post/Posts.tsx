@@ -12,6 +12,7 @@ const Posts = () => {
       reposter: "몰러",
       //   repost: "기본키"
       post: {
+        postId: "abcdef",
         name: "몰러",
         id: "abc1234",
         postDate: date1,
@@ -25,6 +26,7 @@ const Posts = () => {
       isReposted: false,
       rePoster: undefined,
       post: {
+        postId: "abcdef1",
         name: "몰러",
         id: "abc1234",
         postDate: date2,

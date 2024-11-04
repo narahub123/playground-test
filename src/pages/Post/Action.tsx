@@ -13,21 +13,29 @@ import { ActionsType } from "./Post";
 interface ActionProps {
   actions: ActionsType;
   setActions: React.Dispatch<React.SetStateAction<ActionsType>>;
+  postId: string;
 }
 
-const Action = ({ actions, setActions }: ActionProps) => {
+const Action = ({ actions, setActions, postId }: ActionProps) => {
   const [showRepost, setShowRepost] = useState(false);
-  const { id } = currentUser;
 
+  const [curUser, setCurUser] = useState({
+    id: currentUser.id,
+    bookmarks: currentUser.bookmarks,
+  });
+  // 재게시
   const handleRepostModal = () => {
     setShowRepost(!showRepost);
   };
 
+  // 좋아요
   const handleFavorites = () => {
     console.log("좋아요");
-    if (actions.favorites.includes(id)) {
+    if (actions.favorites.includes(curUser.id)) {
       // db에서 현재 유저의 아이디 삭제
-      const newfavorites = actions.favorites.filter((fav) => fav !== id);
+      const newfavorites = actions.favorites.filter(
+        (fav) => fav !== curUser.id
+      );
 
       setActions((prev) => ({
         ...prev,
@@ -37,7 +45,25 @@ const Action = ({ actions, setActions }: ActionProps) => {
       // db에서 현재 유저의 아이디 추가
       setActions((prev) => ({
         ...prev,
-        favorites: [...prev.favorites, id],
+        favorites: [...prev.favorites, curUser.id],
+      }));
+    }
+  };
+
+  //북마크
+  const handleBookmarks = () => {
+    if (curUser.bookmarks.includes(postId)) {
+      // 실제로는 DB에서 해당 포스트 아이디를 삭제해야함
+      const newBookmarks = curUser.bookmarks.filter((book) => book !== postId);
+      setCurUser((prev) => ({
+        ...prev,
+        bookmarks: newBookmarks,
+      }));
+    } else {
+      // 실제로는 DB에서 해당 포스트 아이디를 추가해야함
+      setCurUser((prev) => ({
+        ...prev,
+        bookmarks: [...prev.bookmarks, postId],
       }));
     }
   };
@@ -61,7 +87,7 @@ const Action = ({ actions, setActions }: ActionProps) => {
         title="좋아요"
         onClick={handleFavorites}
       >
-        {actions.favorites.includes(id) ? (
+        {actions.favorites.includes(curUser.id) ? (
           <MdFavorite className="icon" />
         ) : (
           <MdFavoriteBorder className="icon" />
@@ -73,8 +99,12 @@ const Action = ({ actions, setActions }: ActionProps) => {
         {actions.views}
       </span>
       <span className={`${styles.action} ${styles.last}`}>
-        <span>
-          <BsBookmark className="icon" title="북마크" />
+        <span onClick={handleBookmarks}>
+          {curUser.bookmarks.includes(postId) ? (
+            <BsBookmarkFill className="icon" title="북마크" />
+          ) : (
+            <BsBookmark className="icon" title="북마크" />
+          )}
         </span>
         <span>
           <RiShare2Line className="icon" title="공유하기" />

@@ -37,6 +37,8 @@
 .header {
   display: flex;
   align-items: center;
+  cursor: pointer;
+  position: relative;
 }
 
 .name {
@@ -57,6 +59,11 @@
 .postDate {
   color: #aaa;
 }
+
+.postDate:hover {
+  text-decoration: underline;
+}
+
 /* 텍스트 영상 등 해당 게시물의 내용을 보여주는 클래스 */
 .content {
 }

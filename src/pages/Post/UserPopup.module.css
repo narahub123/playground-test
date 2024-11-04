@@ -1,0 +1,59 @@
+.container {
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  padding: 15px;
+
+  left: 0;
+  top: 20px;
+  background-color: #fff;
+
+  z-index: 1;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.profile {
+  height: 70px;
+  width: 70px;
+
+  border-radius: 50%;
+}
+
+.button {
+  padding: 10px;
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.name {
+  font-weight: bold;
+}
+
+.id {
+  color: #ccc;
+}
+
+.intro {
+}
+
+.data {
+  display: flex;
+}
+
+.number {
+  font-weight: bold;
+}

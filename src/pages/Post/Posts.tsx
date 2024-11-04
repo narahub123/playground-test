@@ -28,6 +28,7 @@ const Posts = () => {
     },
   ];
   return (
+    
     <div className={styles.container}>
       {posts.map((post, index) => (
         <Post

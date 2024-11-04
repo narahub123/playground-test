@@ -22,4 +22,21 @@ const convertDate = (date: Date | undefined) => {
   return postDate;
 };
 
-export { convertDate };
+// 특정 단위 이상의 숫자를 한글 단위로 바꾸는 메서드
+const convertKoreanNumberUnit = (num: number) => {
+  let unit;
+  if (num < 1000) {
+    unit = num;
+  } else if (num >= 1000 && num < 10000) {
+    unit = (num / 1000).toFixed(1) + "천";
+  } else if (num >= 10000 && num < 1000000) {
+    unit = (num / 10000).toFixed(1) + "만";
+  } else if (num >= 1000000 && num < 100000000) {
+    unit = Math.floor(num / 10000) + "만";
+  } else if (num >= 100000000) {
+    unit = (num / 100000000).toFixed(1) + "억";
+  }
+  return unit;
+};
+
+export { convertDate, convertKoreanNumberUnit };

@@ -2,7 +2,11 @@ import styles from "./Reposts.module.css";
 import { BiRepost } from "react-icons/bi";
 import { PiPencilSimpleLineLight } from "react-icons/pi";
 
-const Reposts = () => {
+interface RepostsProps {
+  setShowQuote: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Reposts = ({ setShowQuote }: RepostsProps) => {
   // 재게시
   const handleReport = () => {
     console.log("재게시");
@@ -13,8 +17,7 @@ const Reposts = () => {
   // 인용하기
   const handleQuote = () => {
     console.log("인용하기");
-
-    
+    setShowQuote(true);
   };
   return (
     <div className={styles.container}>

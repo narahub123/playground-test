@@ -12,6 +12,7 @@ import { ActionsType, PostType } from "./Post";
 import Share from "./Share";
 import ShareToSns from "./ShareToSns";
 import Reply from "./Reply";
+import Quote from "./Quote";
 
 interface ActionProps {
   actions: ActionsType;
@@ -25,6 +26,7 @@ const Action = ({ actions, setActions, postId, post }: ActionProps) => {
   const [showShare, setShowShare] = useState(false);
   const [showSns, setShowSns] = useState(false);
   const [showReply, setShowReply] = useState(false);
+  const [showQuote, setShowQuote] = useState(false);
 
   const [curUser, setCurUser] = useState({
     id: currentUser.id,
@@ -87,6 +89,7 @@ const Action = ({ actions, setActions, postId, post }: ActionProps) => {
 
   return (
     <>
+      {showQuote && <Quote post={post} />}
       {showReply && <Reply post={post} />}
       <div className={styles.container}>
         <span
@@ -102,7 +105,7 @@ const Action = ({ actions, setActions, postId, post }: ActionProps) => {
           title="재게시"
           onClick={handleRepostModal}
         >
-          {showRepost && <Reposts />}
+          {showRepost && <Reposts setShowQuote={setShowQuote} />}
           <BiRepost className="icon" />
           {actions.reposts.length}
         </span>

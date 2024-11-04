@@ -12,6 +12,8 @@ import {
   validClass,
 } from "./validation";
 
+import { currentUser } from "./currentUser";
+
 export {
   validName,
   valideGender,
@@ -24,4 +26,5 @@ export {
   validHashtag,
   validURL,
   validClass,
+  currentUser,
 };

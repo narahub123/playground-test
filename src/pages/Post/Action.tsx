@@ -7,25 +7,45 @@ import { BsBookmark, BsBookmarkFill } from "react-icons/bs";
 import { RiShare2Line } from "react-icons/ri";
 import { useState } from "react";
 import Reposts from "./Reposts";
+import { currentUser } from "../../data";
+import { ActionsType } from "./Post";
 
 interface ActionProps {
-  replies: string[];
-  reposts: string[];
-  favorites: string[];
-  views: number;
+  actions: ActionsType;
+  setActions: React.Dispatch<React.SetStateAction<ActionsType>>;
 }
 
-const Action = ({ replies, reposts, favorites, views }: ActionProps) => {
+const Action = ({ actions, setActions }: ActionProps) => {
   const [showRepost, setShowRepost] = useState(false);
+  const { id } = currentUser;
 
   const handleRepostModal = () => {
     setShowRepost(!showRepost);
+  };
+
+  const handleFavorites = () => {
+    console.log("좋아요");
+    if (actions.favorites.includes(id)) {
+      // db에서 현재 유저의 아이디 삭제
+      const newfavorites = actions.favorites.filter((fav) => fav !== id);
+
+      setActions((prev) => ({
+        ...prev,
+        favorites: newfavorites,
+      }));
+    } else {
+      // db에서 현재 유저의 아이디 추가
+      setActions((prev) => ({
+        ...prev,
+        favorites: [...prev.favorites, id],
+      }));
+    }
   };
   return (
     <div className={styles.container}>
       <span className={`${styles.action} ${styles.replies}`} title="답글">
         <SlBubble className="icon" />
-        {replies.length}
+        {actions.replies.length}
       </span>
       <span
         className={`${styles.action} ${styles.reposts}`}
@@ -34,15 +54,23 @@ const Action = ({ replies, reposts, favorites, views }: ActionProps) => {
       >
         {showRepost && <Reposts />}
         <BiRepost className="icon" />
-        {reposts.length}
+        {actions.reposts.length}
       </span>
-      <span className={`${styles.action} ${styles.favorites}`} title="좋아요">
-        <MdFavoriteBorder className="icon" />
-        {favorites.length}
+      <span
+        className={`${styles.action} ${styles.favorites}`}
+        title="좋아요"
+        onClick={handleFavorites}
+      >
+        {actions.favorites.includes(id) ? (
+          <MdFavorite className="icon" />
+        ) : (
+          <MdFavoriteBorder className="icon" />
+        )}
+        {actions.favorites.length}
       </span>
       <span className={`${styles.action} ${styles.statics}`} title="통계">
         <IoStatsChartOutline className="icon" />
-        {views}
+        {actions.views}
       </span>
       <span className={`${styles.action} ${styles.last}`}>
         <span>

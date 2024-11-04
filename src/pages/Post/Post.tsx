@@ -20,9 +20,22 @@ interface PostType {
   views: number;
 }
 
+export interface ActionsType {
+  replies: string[];
+  reposts: string[];
+  favorites: string[];
+  views: number;
+}
+
 const Post = ({ isReposted, reposter, post }: PostProps) => {
   if (!post) return;
   const [isShown, setIsShown] = useState(false);
+  const [actions, setActions] = useState<ActionsType>({
+    replies: post.replies,
+    reposts: post.reposts,
+    favorites: post.favorites,
+    views: post.views,
+  });
   // 유저 이름, 유저 아이디에 마우스를 올린 경우
   const handleMouseOver = () => {
     setIsShown(true);
@@ -64,12 +77,7 @@ const Post = ({ isReposted, reposter, post }: PostProps) => {
             </p>
           </div>
           <div className={styles.content}>내용</div>
-          <Action
-            replies={post.replies}
-            reposts={post.reposts}
-            favorites={post.favorites}
-            views={post.views}
-          />
+          <Action actions={actions} setActions={setActions} />
         </div>
       </div>
     </>

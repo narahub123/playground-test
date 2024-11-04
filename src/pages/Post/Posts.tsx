@@ -15,6 +15,10 @@ const Posts = () => {
         name: "몰러",
         id: "abc1234",
         postDate: date1,
+        replies: ["user111", "user123"],
+        reposts: ["user111", "user123"],
+        favorites: ["user111", "user123"],
+        views: 111,
       },
     },
     {
@@ -24,11 +28,14 @@ const Posts = () => {
         name: "몰러",
         id: "abc1234",
         postDate: date2,
+        replies: ["user111", "user123"],
+        reposts: ["user111", "user123"],
+        favorites: ["user111", "user123"],
+        views: 111,
       },
     },
   ];
   return (
-    
     <div className={styles.container}>
       {posts.map((post, index) => (
         <Post

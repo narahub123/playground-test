@@ -21,6 +21,7 @@ interface PostType {
 }
 
 const Post = ({ isReposted, reposter, post }: PostProps) => {
+  if (!post) return;
   const [isShown, setIsShown] = useState(false);
   // 유저 이름, 유저 아이디에 마우스를 올린 경우
   const handleMouseOver = () => {
@@ -63,7 +64,12 @@ const Post = ({ isReposted, reposter, post }: PostProps) => {
             </p>
           </div>
           <div className={styles.content}>내용</div>
-          <Action />
+          <Action
+            replies={post.replies}
+            reposts={post.reposts}
+            favorites={post.favorites}
+            views={post.views}
+          />
         </div>
       </div>
     </>

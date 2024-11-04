@@ -1,0 +1,45 @@
+/* 포스트 컨테이너 */
+.container {
+  margin: 50px;
+  border: 1px solid #ccc;
+  max-width: 480px;
+  display: flex;
+}
+
+/* 포스트 왼쪽 : 프로필, 답글 선 */
+.left {
+  border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile {
+  width: 50px;
+  height: 50px;
+}
+
+.vertical {
+  border-right: 2px solid black;
+  height: 100%;
+}
+
+/* 포스트 오른쪽 : 주요 내용 */
+.right {
+}
+
+/* 재 게시물 여부를 알려주는 클래스 */
+.repost {
+}
+
+/* 이름, id, 게시 시간을 나타내는 클래스 */
+.header {
+}
+
+/* 텍스트 영상 등 해당 게시물의 내용을 보여주는 클래스 */
+.content {
+}
+
+/* 액션 : 해당 게시물을 본 이용자가 해당 게시물에 대해 조치할 수 있는 것들을 모은 클래스 */
+.action {
+}

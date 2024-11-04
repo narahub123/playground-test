@@ -3,6 +3,7 @@ import styles from "./Post.module.css";
 import { BiRepost } from "react-icons/bi";
 import UserPopup from "./UserPopup";
 import { useState } from "react";
+import Action from "./Action";
 interface PostProps {
   isReposted: boolean;
   reposter: string | undefined;
@@ -13,6 +14,10 @@ interface PostType {
   name: string;
   id: string;
   postDate: Date;
+  replies: string[];
+  reposts: string[];
+  favorites: string[];
+  views: number;
 }
 
 const Post = ({ isReposted, reposter, post }: PostProps) => {
@@ -58,7 +63,7 @@ const Post = ({ isReposted, reposter, post }: PostProps) => {
             </p>
           </div>
           <div className={styles.content}>내용</div>
-          <div className={styles.action}>액션</div>
+          <Action />
         </div>
       </div>
     </>

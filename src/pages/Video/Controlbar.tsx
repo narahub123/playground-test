@@ -28,6 +28,7 @@ const Controlbar = ({
   duration,
 }: ControlbarProps) => {
   const [volume, setVolume] = useState(1);
+  const [isMuted, setIsMuted] = useState(true);
   const [isCC, setIsCC] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -39,6 +40,8 @@ const Controlbar = ({
 
     // 볼륨 0으로 설정
     video.volume = 0;
+    // 음소거 지정
+    setIsMuted(true);
     // 볼륨 높이도 0으로 지정해야 함
   }, []);
 
@@ -47,7 +50,25 @@ const Controlbar = ({
     e.stopPropagation();
     const video = videoRef.current;
     if (!video) return;
+
+    // 볼륨이 0이 아닌 경우
+    if (video.volume !== 0) {
+      // 볼륨을 0으로 지정
+      video.volume = 0;
+
+      // 높이 지정해야 함
+    } else {
+      // 볼륨이 0인 경우
+      video.volume = volume;
+
+      // 높이 지정해야 함
+    }
+
+    setIsMuted(!isMuted);
   };
+
+  console.log(volume);
+  console.log(videoRef.current?.volume);
 
   return (
     <div className={styles.controlbar}>
@@ -80,15 +101,15 @@ const Controlbar = ({
           </button>
           {/* 소리 */}
           <button className={styles.wrapper} onClick={(e) => handleMute(e)}>
-            {volume === 0 || videoRef.current?.volume === 0 ? (
+            {volume === 0 || isMuted ? (
               <IoVolumeMuteSharp className={`icon ${styles.btn}`} />
-            ) : 0 < volume && volume <= 0.25 ? (
+            ) : 0 < volume && volume <= 0.25 && !isMuted ? (
               <IoVolumeLowSharp className={`icon ${styles.btn}`} />
-            ) : 0.25 < volume && volume <= 0.75 ? (
+            ) : 0.25 < volume && volume <= 0.75 && !isMuted ? (
               <IoVolumeMediumSharp className={`icon ${styles.btn}`} />
-            ) : (
+            ) : volume > 0.75 && !isMuted ? (
               <IoVolumeHighSharp className={`icon ${styles.btn}`} />
-            )}
+            ) : undefined}
           </button>
           {/* 설정 */}
           <button className={styles.wrapper}>

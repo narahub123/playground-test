@@ -122,7 +122,13 @@ const Controlbar = ({
             onMouseLeave={(e) => handleMouseLeave(e)}
           >
             {/* 음량 창 */}
-            {showVolume && <Volume />}
+            {showVolume && (
+              <Volume
+                videoRef={videoRef}
+                setVolume={setVolume}
+                setIsMuted={setIsMuted}
+              />
+            )}
             {/* 소리 */}
             <button className={styles.wrapper} onClick={(e) => handleMute(e)}>
               {volume === 0 || isMuted ? (

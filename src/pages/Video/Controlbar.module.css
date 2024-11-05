@@ -39,7 +39,9 @@
   font-size: 16px;
   margin-right: 10px;
 }
-
+.volume {
+  position: relative;
+}
 .wrapper {
   background-color: transparent;
   border: none;

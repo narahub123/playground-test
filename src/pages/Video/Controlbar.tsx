@@ -13,6 +13,7 @@ import { FaClosedCaptioning, FaRegClosedCaptioning } from "react-icons/fa6";
 import { LuPictureInPicture } from "react-icons/lu";
 import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
 import { DurationType } from "./Video";
+import Volume from "./Volume";
 
 interface ControlbarProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -29,6 +30,7 @@ const Controlbar = ({
 }: ControlbarProps) => {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(true);
+  const [showVolume, setShowVolumne] = useState(false);
   const [isCC, setIsCC] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -67,8 +69,21 @@ const Controlbar = ({
     setIsMuted(!isMuted);
   };
 
-  console.log(volume);
-  console.log(videoRef.current?.volume);
+  // 음량 모달 보이게
+  const handleMouseEnter = (
+    e: React.MouseEvent<HTMLSpanElement, MouseEvent>
+  ) => {
+    console.log("들어옴");
+    setShowVolumne(true);
+  };
+
+  // 음량 모달 숨기게
+  const handleMouseLeave = (
+    e: React.MouseEvent<HTMLSpanElement, MouseEvent>
+  ) => {
+    console.log("나감");
+    setShowVolumne(false);
+  };
 
   return (
     <div className={styles.controlbar}>
@@ -92,41 +107,59 @@ const Controlbar = ({
             {`${duration.current} / ${duration.full}`}
           </span>
           {/* CC */}
-          <button className={styles.wrapper}>
-            {isCC ? (
-              <FaClosedCaptioning className={`icon ${styles.btn}`} />
-            ) : (
-              <FaRegClosedCaptioning className={`icon ${styles.btn}`} />
-            )}
-          </button>
-          {/* 소리 */}
-          <button className={styles.wrapper} onClick={(e) => handleMute(e)}>
-            {volume === 0 || isMuted ? (
-              <IoVolumeMuteSharp className={`icon ${styles.btn}`} />
-            ) : 0 < volume && volume <= 0.25 && !isMuted ? (
-              <IoVolumeLowSharp className={`icon ${styles.btn}`} />
-            ) : 0.25 < volume && volume <= 0.75 && !isMuted ? (
-              <IoVolumeMediumSharp className={`icon ${styles.btn}`} />
-            ) : volume > 0.75 && !isMuted ? (
-              <IoVolumeHighSharp className={`icon ${styles.btn}`} />
-            ) : undefined}
-          </button>
+          <span>
+            <button className={styles.wrapper}>
+              {isCC ? (
+                <FaClosedCaptioning className={`icon ${styles.btn}`} />
+              ) : (
+                <FaRegClosedCaptioning className={`icon ${styles.btn}`} />
+              )}
+            </button>
+          </span>
+          <span
+            className={styles.volume}
+            onMouseEnter={(e) => handleMouseEnter(e)}
+            onMouseLeave={(e) => handleMouseLeave(e)}
+          >
+            {/* 음량 창 */}
+            {showVolume && <Volume />}
+            {/* 소리 */}
+            <button className={styles.wrapper} onClick={(e) => handleMute(e)}>
+              {volume === 0 || isMuted ? (
+                <IoVolumeMuteSharp className={`icon ${styles.btn}`} />
+              ) : 0 < volume && volume <= 0.25 && !isMuted ? (
+                <IoVolumeLowSharp className={`icon ${styles.btn}`} />
+              ) : 0.25 < volume && volume <= 0.75 && !isMuted ? (
+                <IoVolumeMediumSharp className={`icon ${styles.btn}`} />
+              ) : volume > 0.75 && !isMuted ? (
+                <IoVolumeHighSharp className={`icon ${styles.btn}`} />
+              ) : undefined}
+            </button>
+          </span>
+
           {/* 설정 */}
-          <button className={styles.wrapper}>
-            <IoSettingsOutline className={`icon ${styles.btn}`} />
-          </button>
+          <span>
+            <button className={styles.wrapper}>
+              <IoSettingsOutline className={`icon ${styles.btn}`} />
+            </button>
+          </span>
+
           {/* pip */}
-          <button className={styles.wrapper}>
-            <LuPictureInPicture className={`icon ${styles.btn}`} />
-          </button>
+          <span>
+            <button className={styles.wrapper}>
+              <LuPictureInPicture className={`icon ${styles.btn}`} />
+            </button>
+          </span>
           {/* 전체화면 */}
-          <button className={styles.wrapper}>
-            {isFullScreen ? (
-              <MdFullscreenExit className={`icon ${styles.btn}`} />
-            ) : (
-              <MdOutlineFullscreen className={`icon ${styles.btn}`} />
-            )}
-          </button>
+          <span>
+            <button className={styles.wrapper}>
+              {isFullScreen ? (
+                <MdFullscreenExit className={`icon ${styles.btn}`} />
+              ) : (
+                <MdOutlineFullscreen className={`icon ${styles.btn}`} />
+              )}
+            </button>
+          </span>
         </div>
       </div>
     </div>

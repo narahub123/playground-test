@@ -1,5 +1,5 @@
 import styles from "./Video.module.css";
-import example from "../../assets/video.mp4";
+import example from "../../assets/video2.mp4";
 import Controlbar from "./Controlbar";
 import { useEffect, useRef, useState } from "react";
 import { convertTimeToString, countVideoLength } from "../../utils";
@@ -54,6 +54,7 @@ const Video = () => {
         <source src={example} />
       </video>
       <Controlbar
+        videoRef={videoRef}
         isPlaying={isPlaying}
         duration={duration}
         handlePlay={handlePlay}

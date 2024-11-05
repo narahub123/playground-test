@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Controlbar.module.css";
 import {
   IoPlaySharp,
@@ -15,15 +15,39 @@ import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
 import { DurationType } from "./Video";
 
 interface ControlbarProps {
+  videoRef: React.RefObject<HTMLVideoElement>;
   handlePlay: () => void;
   isPlaying: boolean;
   duration: DurationType;
 }
 
-const Controlbar = ({ handlePlay, isPlaying, duration }: ControlbarProps) => {
-  const [volume, setValume] = useState(0);
+const Controlbar = ({
+  videoRef,
+  handlePlay,
+  isPlaying,
+  duration,
+}: ControlbarProps) => {
+  const [volume, setVolume] = useState(1);
   const [isCC, setIsCC] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
+
+  // 영상 시작할 때 소리 줄이기
+  useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    // 볼륨 0으로 설정
+    video.volume = 0;
+    // 볼륨 높이도 0으로 지정해야 함
+  }, []);
+
+  // 소리 묵음 / 소리 나게
+  const handleMute = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+  };
 
   return (
     <div className={styles.controlbar}>
@@ -55,12 +79,12 @@ const Controlbar = ({ handlePlay, isPlaying, duration }: ControlbarProps) => {
             )}
           </button>
           {/* 소리 */}
-          <button className={styles.wrapper}>
-            {volume === 0 ? (
+          <button className={styles.wrapper} onClick={(e) => handleMute(e)}>
+            {volume === 0 || videoRef.current?.volume === 0 ? (
               <IoVolumeMuteSharp className={`icon ${styles.btn}`} />
-            ) : 0 < volume && volume <= 25 ? (
+            ) : 0 < volume && volume <= 0.25 ? (
               <IoVolumeLowSharp className={`icon ${styles.btn}`} />
-            ) : 25 < volume && volume <= 75 ? (
+            ) : 0.25 < volume && volume <= 0.75 ? (
               <IoVolumeMediumSharp className={`icon ${styles.btn}`} />
             ) : (
               <IoVolumeHighSharp className={`icon ${styles.btn}`} />

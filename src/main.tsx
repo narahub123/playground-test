@@ -4,6 +4,7 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import TextEditor from "./pages/TextEditor/TextEditor";
 import Posts from "./pages/Post/Posts";
+import VideoContainer from "./pages/Video/VideoContainer";
 
 const router = createBrowserRouter([
   {
@@ -13,6 +14,10 @@ const router = createBrowserRouter([
   {
     path: "/post",
     element: <Posts />,
+  },
+  {
+    path: "/video",
+    element: <VideoContainer />,
   },
 ]);
 

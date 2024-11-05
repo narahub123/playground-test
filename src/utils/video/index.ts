@@ -17,4 +17,13 @@ const countVideoLength = async (url: string) => {
   return length;
 };
 
-export { countVideoLength };
+const convertTimeToString = (time: number) => {
+  const ceiledTime = Math.ceil(time);
+
+  const minutes = ceiledTime / 60;
+  const seconds = ceiledTime % 60;
+
+  return `${minutes < 1 ? 0 : Math.floor(minutes)}:${seconds}`;
+};
+
+export { countVideoLength, convertTimeToString };

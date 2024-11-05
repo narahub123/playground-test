@@ -9,20 +9,21 @@ import {
   IoVolumeMuteSharp,
   IoSettingsOutline,
 } from "react-icons/io5";
-
 import { FaClosedCaptioning, FaRegClosedCaptioning } from "react-icons/fa6";
 import { LuPictureInPicture } from "react-icons/lu";
 import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
+import { DurationType } from "./Video";
 
-const Controlbar = () => {
-  const [isPlaying, setIsPlaying] = useState(true);
+interface ControlbarProps {
+  handlePlay: () => void;
+  isPlaying: boolean;
+  duration: DurationType;
+}
+
+const Controlbar = ({ handlePlay, isPlaying, duration }: ControlbarProps) => {
   const [volume, setValume] = useState(0);
   const [isCC, setIsCC] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [duration, setDuration] = useState({
-    current: "0:00",
-    full: "0:30",
-  });
 
   return (
     <div className={styles.controlbar}>
@@ -32,7 +33,7 @@ const Controlbar = () => {
       <div className={styles.buttons}>
         <div className={styles.left}>
           {/* 플레이 버튼 */}
-          <button className={styles.wrapper}>
+          <button className={styles.wrapper} onClick={handlePlay}>
             {isPlaying ? (
               <IoPause className={`icon ${styles.btn}`} />
             ) : (

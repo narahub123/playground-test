@@ -1,0 +1,59 @@
+.controlbar {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  padding: 5px;
+}
+
+/* 진행 바 */
+.progress {
+  width: 100%;
+  background-color: rgba(224, 224, 224, 0.3);
+}
+
+.fill {
+  width: 30%;
+  background-color: #fff;
+  height: 5px;
+}
+
+/* 버튼 모음 */
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22px;
+  color: #fff;
+  padding: 10px 0px;
+}
+
+.left {
+}
+
+.right {
+  display: flex;
+  align-items: center;
+}
+
+.duration {
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.wrapper {
+  background-color: transparent;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.wrapper:hover {
+  background-color: rgba(204, 204, 204, 0.5);
+  border-radius: 50%;
+}
+.btn {
+  color: #fff;
+  background-color: transparent;
+}

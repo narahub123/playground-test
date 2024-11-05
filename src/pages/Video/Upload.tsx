@@ -20,6 +20,7 @@ const Upload = ({ setFile }: UploadProps) => {
       window.alert("10mb 이하의 동영상을 사용해주세요.");
 
       setFile({ url: "", video: false });
+      e.target.value = ""; // input value 초기화
       return;
     }
 

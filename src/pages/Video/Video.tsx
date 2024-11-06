@@ -13,6 +13,11 @@ export type TimeType = {
   duration: number;
 };
 
+export type playType = {
+  thumbRef: HTMLDivElement | null;
+  timeRef: HTMLDivElement | null;
+};
+
 const Video = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -23,6 +28,11 @@ const Video = () => {
   const [time, setTime] = useState<TimeType>({
     curTime: 0,
     duration: 0,
+  });
+
+  const playRefs = useRef<playType>({
+    thumbRef: null,
+    timeRef: null,
   });
 
   // 총 시간 알아내기
@@ -74,6 +84,9 @@ const Video = () => {
       video.play();
       getCurrentTime();
     }
+
+    // 재생 thumb에 포커스 주기
+    playRefs.current.thumbRef?.focus();
   };
 
   return (
@@ -88,6 +101,7 @@ const Video = () => {
         handlePlay={handlePlay}
         time={time}
         setTime={setTime}
+        ref={playRefs}
       />
     </div>
   );

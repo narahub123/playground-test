@@ -13,9 +13,7 @@ interface VolumeProps {
 const Volume = forwardRef<RefsType, VolumeProps>(
   ({ videoRef, volume, setVolume, setIsMuted, showVolume }, ref) => {
     const trackRef = useRef<HTMLDivElement>(null);
-    const bottom = Math.floor(
-      trackRef.current?.getBoundingClientRect().bottom || 0
-    );
+
     // console.log("트랙 바닥 위치", bottom);
     // const thumbRef = useRef<HTMLDivElement>(null);
 
@@ -27,13 +25,17 @@ const Volume = forwardRef<RefsType, VolumeProps>(
     const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (!trackRef.current || !videoRef.current || !current.volumeRef) return;
 
-      const volume = current.volumeRef;
       const video = videoRef.current;
 
+      const bottom = Math.floor(
+        trackRef.current?.getBoundingClientRect().bottom || 0
+      );
+
       const curYPosition = e.clientY;
-      // console.log("현재의 y 위치", curYPosition);
+      console.log("현재의 y 위치", curYPosition);
 
       let height = bottom - curYPosition;
+      console.log("height", height);
 
       if (height <= 0) {
         height = 0;
@@ -46,8 +48,8 @@ const Volume = forwardRef<RefsType, VolumeProps>(
         setIsMuted(false);
       }
 
-      // console.log("높이", height);
-      // console.log("음량", height / 100);
+      console.log("높이", height);
+      console.log("음량", height / 100);
 
       video.volume = height / 100;
       setVolume(height / 100);
@@ -75,6 +77,10 @@ const Volume = forwardRef<RefsType, VolumeProps>(
       if (!isClicked || !videoRef.current || !current.volumeRef) return;
       const video = videoRef.current;
       const height = current.volumeRef;
+
+      const bottom = Math.floor(
+        trackRef.current?.getBoundingClientRect().bottom || 0
+      );
 
       // 현재 Y 위치
       const curYPosition = e.clientY;

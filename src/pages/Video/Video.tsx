@@ -87,6 +87,7 @@ const Video = () => {
         duration={duration}
         handlePlay={handlePlay}
         time={time}
+        setTime={setTime}
       />
     </div>
   );

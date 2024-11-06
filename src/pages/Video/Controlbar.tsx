@@ -23,6 +23,7 @@ interface ControlbarProps {
   isPlaying: boolean;
   duration: DurationType;
   time: TimeType;
+  setTime: React.Dispatch<React.SetStateAction<TimeType>>;
 }
 
 export type RefsType = {
@@ -36,6 +37,7 @@ const Controlbar = ({
   isPlaying,
   duration,
   time,
+  setTime,
 }: ControlbarProps) => {
   // 자식 요소에서 가져오는 ref 모음
   const refs = useRef<RefsType>({
@@ -122,7 +124,7 @@ const Controlbar = ({
 
   return (
     <div className={styles.controlbar}>
-      <Playbar time={time} />
+      <Playbar time={time} setTime={setTime} videoRef={videoRef} />
       <div className={styles.buttons}>
         <div className={styles.left}>
           {/* 플레이 버튼 */}

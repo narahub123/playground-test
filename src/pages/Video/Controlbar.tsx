@@ -8,6 +8,7 @@ import {
   IoVolumeLowSharp,
   IoVolumeMuteSharp,
   IoSettingsOutline,
+  IoVolumeOff,
 } from "react-icons/io5";
 import { FaClosedCaptioning, FaRegClosedCaptioning } from "react-icons/fa6";
 import { LuPictureInPicture } from "react-icons/lu";
@@ -28,7 +29,7 @@ const Controlbar = ({
   isPlaying,
   duration,
 }: ControlbarProps) => {
-  //   const thumbRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
 
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(true);
@@ -48,6 +49,13 @@ const Controlbar = ({
     setIsMuted(true);
     // 볼륨 높이도 0으로 지정해야 함
   }, []);
+
+  // 볼륨 창이 보이는 경우 thumb에 포커스 주기
+  useEffect(() => {
+    if (showVolume) {
+      thumbRef.current?.focus();
+    }
+  }, [showVolume]);
 
   // 소리 묵음 / 소리 나게
   const handleMute = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -69,6 +77,7 @@ const Controlbar = ({
     }
 
     setIsMuted(!isMuted);
+    thumbRef.current?.focus();
   };
 
   // 음량 모달 보이게
@@ -131,18 +140,22 @@ const Controlbar = ({
                 setVolume={setVolume}
                 setIsMuted={setIsMuted}
                 showVolume={showVolume}
+                ref={thumbRef}
               />
             )}
-            {/* 소리 */}
-            <button className={styles.wrapper} onClick={(e) => handleMute(e)}>
-              {volume === 0 || isMuted ? (
-                <IoVolumeMuteSharp className={`icon ${styles.btn}`} />
+
+            {/* 소리 audio */}
+            <button className=  {styles.wrapper} onClick={(e) => handleMute(e)}>
+              {volume === 0 && !isMuted ? (
+                <IoVolumeOff className={`icon ${styles.btn}`} />
               ) : 0 < volume && volume <= 0.25 && !isMuted ? (
                 <IoVolumeLowSharp className={`icon ${styles.btn}`} />
               ) : 0.25 < volume && volume <= 0.75 && !isMuted ? (
                 <IoVolumeMediumSharp className={`icon ${styles.btn}`} />
               ) : volume > 0.75 && !isMuted ? (
                 <IoVolumeHighSharp className={`icon ${styles.btn}`} />
+              ) : isMuted ? (
+                <IoVolumeMuteSharp className={`icon ${styles.btn}`} />
               ) : undefined}
             </button>
           </span>

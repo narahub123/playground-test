@@ -1,4 +1,4 @@
-import { ForwardedRef, forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 import styles from "./Volume.module.css";
 
 interface VolumeProps {
@@ -9,27 +9,17 @@ interface VolumeProps {
   showVolume: boolean;
 }
 
-const Volume = forwardRef(
-  (
-    { videoRef, volume, setVolume, setIsMuted, showVolume }: VolumeProps,
-    ref: ForwardedRef<HTMLDivElement>
-  ) => {
+const Volume = forwardRef<HTMLDivElement, VolumeProps>(
+  ({ videoRef, volume, setVolume, setIsMuted, showVolume }, ref) => {
     const trackRef = useRef<HTMLDivElement>(null);
     const volumeRef = useRef<HTMLDivElement>(null);
     const bottom = Math.floor(
       trackRef.current?.getBoundingClientRect().bottom || 0
     );
     // console.log("트랙 바닥 위치", bottom);
-    const thumbRef = useRef<HTMLDivElement>(null);
+    // const thumbRef = useRef<HTMLDivElement>(null);
 
     const [isClicked, setIsClicked] = useState(false);
-
-    // 음량 창이 열리면 thumb에 포커스가 걸림
-    useEffect(() => {
-      if (showVolume && thumbRef.current) {
-        thumbRef.current.focus();
-      }
-    }, []);
 
     // 클릭을 통한 음량 조절
     const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -158,7 +148,7 @@ const Volume = forwardRef(
                 <div className={styles.thumbWrapper}>
                   <div
                     className={styles.thumb}
-                    ref={thumbRef}
+                    ref={ref}
                     onMouseDown={(e) => handleMouseDown(e)}
                     onKeyDown={(e) => handleKeyDown(e)}
                     tabIndex={0}

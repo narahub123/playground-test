@@ -125,11 +125,14 @@ const Volume = forwardRef<RefsType, VolumeProps>(
         console.log("위쪽");
         if (video.volume >= 1) return;
         newVolume = volume + step >= 1 ? 1 : volume + step;
+
+        if (newVolume > 0) setIsMuted(false);
       } else if (key === "ArrowDown") {
         console.log("아래쪽");
         if (video.volume <= 0) return;
         newVolume = volume - step <= 0 ? 0 : volume - step;
-        console.log(newVolume);
+
+        if (newVolume <= 0) setIsMuted(true);
       }
 
       console.log(newVolume);

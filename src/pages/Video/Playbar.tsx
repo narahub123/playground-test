@@ -76,10 +76,18 @@ const Playbar = forwardRef<playType, PlaybarProps>(
     const handleMouseDown = (
       e: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
+      if (!current.thumbRef) return;
       setIsClicked(true);
+
+      current.thumbRef.style.width = "20px";
+      current.thumbRef.style.height = "20px";
     };
     const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if (!current.thumbRef) return;
       setIsClicked(false);
+
+      current.thumbRef.style.width = "15px";
+      current.thumbRef.style.height = "15px";
     };
     const handleMouseMove = (
       e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -126,7 +134,7 @@ const Playbar = forwardRef<playType, PlaybarProps>(
       setTime((prev) => ({ ...prev, curTime: newTime }));
     };
 
-    // 방향키를 이용한 시간 이동 
+    // 방향키를 이용한 시간 이동
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (!trackRef.current || !videoRef.current) return;
       const track = trackRef.current;
@@ -159,11 +167,41 @@ const Playbar = forwardRef<playType, PlaybarProps>(
       }));
     };
 
+    const handleMouseEnter = (
+      e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ) => {
+      if (!trackRef.current || !current.thumbRef) return;
+
+      // 높이를 5px로 변경
+      trackRef.current.style.height = "5px";
+      // thumb의 위치 변경
+      current.thumbRef.style.top = "-7px";
+      current.thumbRef.style.width = "15px";
+      current.thumbRef.style.height = "15px";
+      current.thumbRef.style.transition = "all 0.3s ease-in-out";
+    };
+    const handleMouseLeave = (
+      e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ) => {
+      console.log("하하");
+      if (!trackRef.current || !current.thumbRef) return;
+
+      // 높이를 3px로 변경
+      trackRef.current.style.height = "3px";
+      // thumb의 위치 변경
+      current.thumbRef.style.top = "-8.5px";
+      current.thumbRef.style.width = "0px";
+      current.thumbRef.style.height = "0px";
+      current.thumbRef.style.transition = "all 0.3s ease-in-out";
+    };
+
     return (
       <div
         className={styles.container}
         onMouseMove={isClicked ? (e) => handleMouseMove(e) : undefined}
         onMouseUp={(e) => handleMouseUp(e)}
+        onMouseEnter={(e) => handleMouseEnter(e)}
+        onMouseLeave={(e) => handleMouseLeave(e)}
       >
         <div className={styles.trackWrapper}>
           <div

@@ -41,7 +41,7 @@ const Controlbar = ({
   });
 
   const [volume, setVolume] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
   const [showVolume, setShowVolumne] = useState(false);
   const [isCC, setIsCC] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -64,6 +64,11 @@ const Controlbar = ({
   useEffect(() => {
     if (showVolume) {
       refs.current.thumbRef?.focus();
+
+      const height = refs.current.volumeRef;
+      if (!height) return;
+
+      height.style.height = volume * 100 + "px";
     }
   }, [showVolume]);
 
@@ -81,11 +86,13 @@ const Controlbar = ({
       // 볼륨을 0으로 지정
       video.volume = 0;
       height = 0;
+      setVolume(0);
     } else {
       // 볼륨이 0인 경우
       video.volume = volume === 0 ? 1 : volume;
 
       height = volume === 0 ? 100 : volume * 100;
+      setVolume(volume === 0 ? 1 : volume);
     }
 
     setIsMuted(!isMuted);
@@ -109,6 +116,8 @@ const Controlbar = ({
     console.log("나감");
     setShowVolumne(false);
   };
+
+  console.log(volume);
 
   return (
     <div className={styles.controlbar}>

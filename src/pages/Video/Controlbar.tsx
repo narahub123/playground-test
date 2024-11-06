@@ -23,16 +23,25 @@ interface ControlbarProps {
   duration: DurationType;
 }
 
+export type RefsType = {
+  thumbRef: HTMLDivElement | null;
+  volumeRef: HTMLDivElement | null;
+};
+
 const Controlbar = ({
   videoRef,
   handlePlay,
   isPlaying,
   duration,
 }: ControlbarProps) => {
-  const thumbRef = useRef<HTMLDivElement>(null);
+  // 자식 요소에서 가져오는 ref 모음
+  const refs = useRef<RefsType>({
+    thumbRef: null,
+    volumeRef: null,
+  });
 
-  const [volume, setVolume] = useState(1);
-  const [isMuted, setIsMuted] = useState(true);
+  const [volume, setVolume] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
   const [showVolume, setShowVolumne] = useState(false);
   const [isCC, setIsCC] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -45,15 +54,16 @@ const Controlbar = ({
 
     // 볼륨 0으로 설정
     video.volume = 0;
+    setVolume(0);
     // 음소거 지정
-    setIsMuted(true);
-    // 볼륨 높이도 0으로 지정해야 함
+    // setIsMuted(true);
+    // 볼륨 높이도 0으로 지정해야 함: 기본이 높이 0이라 지정 안함
   }, []);
 
   // 볼륨 창이 보이는 경우 thumb에 포커스 주기
   useEffect(() => {
     if (showVolume) {
-      thumbRef.current?.focus();
+      refs.current.thumbRef?.focus();
     }
   }, [showVolume]);
 
@@ -61,23 +71,27 @@ const Controlbar = ({
   const handleMute = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
     const video = videoRef.current;
-    if (!video) return;
+    const sound = refs.current.volumeRef;
+    if (!video || !sound) return;
 
+    // 볼륨 높이
+    let height = 0;
     // 볼륨이 0이 아닌 경우
     if (video.volume !== 0) {
       // 볼륨을 0으로 지정
       video.volume = 0;
-
-      // 높이 지정해야 함
+      height = 0;
     } else {
       // 볼륨이 0인 경우
-      video.volume = volume;
+      video.volume = volume === 0 ? 1 : volume;
 
-      // 높이 지정해야 함
+      height = volume === 0 ? 100 : volume * 100;
     }
 
     setIsMuted(!isMuted);
-    thumbRef.current?.focus();
+    refs.current.thumbRef?.focus();
+    // 볼륨 높이 지정
+    sound.style.height = height + "px";
   };
 
   // 음량 모달 보이게
@@ -140,13 +154,13 @@ const Controlbar = ({
                 setVolume={setVolume}
                 setIsMuted={setIsMuted}
                 showVolume={showVolume}
-                ref={thumbRef}
+                ref={refs}
               />
             )}
 
             {/* 소리 audio */}
-            <button className=  {styles.wrapper} onClick={(e) => handleMute(e)}>
-              {volume === 0 && !isMuted ? (
+            <button className={styles.wrapper} onClick={(e) => handleMute(e)}>
+              {volume === 0 ? (
                 <IoVolumeOff className={`icon ${styles.btn}`} />
               ) : 0 < volume && volume <= 0.25 && !isMuted ? (
                 <IoVolumeLowSharp className={`icon ${styles.btn}`} />

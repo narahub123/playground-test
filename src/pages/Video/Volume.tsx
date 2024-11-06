@@ -1,5 +1,6 @@
-import { forwardRef, useRef, useState } from "react";
+import React, { forwardRef, MutableRefObject, useRef, useState } from "react";
 import styles from "./Volume.module.css";
+import { RefsType } from "./Controlbar";
 
 interface VolumeProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -9,23 +10,24 @@ interface VolumeProps {
   showVolume: boolean;
 }
 
-const Volume = forwardRef<HTMLDivElement, VolumeProps>(
+const Volume = forwardRef<RefsType, VolumeProps>(
   ({ videoRef, volume, setVolume, setIsMuted, showVolume }, ref) => {
     const trackRef = useRef<HTMLDivElement>(null);
-    const volumeRef = useRef<HTMLDivElement>(null);
     const bottom = Math.floor(
       trackRef.current?.getBoundingClientRect().bottom || 0
     );
     // console.log("트랙 바닥 위치", bottom);
     // const thumbRef = useRef<HTMLDivElement>(null);
 
+    const { current } = ref as MutableRefObject<RefsType>;
+
     const [isClicked, setIsClicked] = useState(false);
 
     // 클릭을 통한 음량 조절
     const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (!trackRef.current || !volumeRef.current || !videoRef.current) return;
+      if (!trackRef.current || !videoRef.current || !current.volumeRef) return;
 
-      const volume = volumeRef.current;
+      const volume = current.volumeRef;
       const video = videoRef.current;
 
       const curYPosition = e.clientY;
@@ -49,7 +51,7 @@ const Volume = forwardRef<HTMLDivElement, VolumeProps>(
 
       video.volume = height / 100;
       setVolume(height / 100);
-      volume.style.height = height + "px";
+      current.volumeRef.style.height = height + "px";
     };
 
     // thumb을 눌렀을 때
@@ -70,9 +72,9 @@ const Volume = forwardRef<HTMLDivElement, VolumeProps>(
       e: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
       // thumb이 클릭된 상태가 아니라면 리턴
-      if (!isClicked || !videoRef.current || !volumeRef.current) return;
+      if (!isClicked || !videoRef.current || !current.volumeRef) return;
       const video = videoRef.current;
-      const height = volumeRef.current;
+      const height = current.volumeRef;
 
       // 현재 Y 위치
       const curYPosition = e.clientY;
@@ -102,10 +104,10 @@ const Volume = forwardRef<HTMLDivElement, VolumeProps>(
 
     // 키보드를 통한 음량 조절
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (!volumeRef.current || !videoRef.current) return;
+      if (!current.volumeRef || !videoRef.current) return;
 
       const video = videoRef.current;
-      const height = volumeRef.current;
+      const height = current.volumeRef;
 
       const key = e.key;
       // 음량 조절 단위
@@ -144,11 +146,14 @@ const Volume = forwardRef<HTMLDivElement, VolumeProps>(
               ref={trackRef}
               onClick={(e) => handleClick(e)}
             >
-              <div className={styles.volume} ref={volumeRef}>
+              <div
+                className={styles.volume}
+                ref={(el) => (current.volumeRef = el)}
+              >
                 <div className={styles.thumbWrapper}>
                   <div
                     className={styles.thumb}
-                    ref={ref}
+                    ref={(el) => (current.thumbRef = el)}
                     onMouseDown={(e) => handleMouseDown(e)}
                     onKeyDown={(e) => handleKeyDown(e)}
                     tabIndex={0}

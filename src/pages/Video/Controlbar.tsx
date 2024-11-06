@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./Controlbar.module.css";
 import {
   IoPlaySharp,
@@ -28,6 +28,8 @@ const Controlbar = ({
   isPlaying,
   duration,
 }: ControlbarProps) => {
+  //   const thumbRef = useRef<HTMLDivElement>(null);
+
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(true);
   const [showVolume, setShowVolumne] = useState(false);
@@ -125,8 +127,10 @@ const Controlbar = ({
             {showVolume && (
               <Volume
                 videoRef={videoRef}
+                volume={volume}
                 setVolume={setVolume}
                 setIsMuted={setIsMuted}
+                showVolume={showVolume}
               />
             )}
             {/* 소리 */}

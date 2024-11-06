@@ -1,123 +1,176 @@
-import { useRef, useState } from "react";
+import { ForwardedRef, forwardRef, useEffect, useRef, useState } from "react";
 import styles from "./Volume.module.css";
 
 interface VolumeProps {
   videoRef: React.RefObject<HTMLVideoElement>;
+  volume: number;
   setVolume: React.Dispatch<React.SetStateAction<number>>;
   setIsMuted: React.Dispatch<React.SetStateAction<boolean>>;
+  showVolume: boolean;
 }
 
-const Volume = ({ videoRef, setVolume, setIsMuted }: VolumeProps) => {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const volumeRef = useRef<HTMLDivElement>(null);
-  const bottom = Math.floor(
-    trackRef.current?.getBoundingClientRect().bottom || 0
-  );
-  // console.log("트랙 바닥 위치", bottom);
+const Volume = forwardRef(
+  (
+    { videoRef, volume, setVolume, setIsMuted, showVolume }: VolumeProps,
+    ref: ForwardedRef<HTMLDivElement>
+  ) => {
+    const trackRef = useRef<HTMLDivElement>(null);
+    const volumeRef = useRef<HTMLDivElement>(null);
+    const bottom = Math.floor(
+      trackRef.current?.getBoundingClientRect().bottom || 0
+    );
+    // console.log("트랙 바닥 위치", bottom);
+    const thumbRef = useRef<HTMLDivElement>(null);
 
-  const [isClicked, setIsClicked] = useState(false);
+    const [isClicked, setIsClicked] = useState(false);
 
-  // 클릭을 통한 음량 조절
-  const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (!trackRef.current || !volumeRef.current || !videoRef.current) return;
+    // 음량 창이 열리면 thumb에 포커스가 걸림
+    useEffect(() => {
+      if (showVolume && thumbRef.current) {
+        thumbRef.current.focus();
+      }
+    }, []);
 
-    const volume = volumeRef.current;
-    const video = videoRef.current;
+    // 클릭을 통한 음량 조절
+    const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if (!trackRef.current || !volumeRef.current || !videoRef.current) return;
 
-    const curYPosition = e.clientY;
-    // console.log("현재의 y 위치", curYPosition);
+      const volume = volumeRef.current;
+      const video = videoRef.current;
 
-    let height = bottom - curYPosition;
+      const curYPosition = e.clientY;
+      // console.log("현재의 y 위치", curYPosition);
 
-    if (height <= 0) {
-      height = 0;
-      setIsMuted(true);
-    } else if (0 < height && height <= 100) {
-      height = bottom - curYPosition;
-      setIsMuted(false);
-    } else if (100 < height) {
-      height = 100;
-      setIsMuted(false);
-    }
+      let height = bottom - curYPosition;
 
-    // console.log("높이", height);
-    // console.log("음량", height / 100);
+      if (height <= 0) {
+        height = 0;
+        setIsMuted(true);
+      } else if (0 < height && height <= 100) {
+        height = bottom - curYPosition;
+        setIsMuted(false);
+      } else if (100 < height) {
+        height = 100;
+        setIsMuted(false);
+      }
 
-    video.volume = height / 100;
-    setVolume(height / 100);
-    volume.style.height = height + "px";
-  };
+      // console.log("높이", height);
+      // console.log("음량", height / 100);
 
-  // thumb을 눌렀을 때
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    console.log("mouse down");
-    setIsClicked(true);
-  };
-  // thumb에서 마우스를 뺐을 때
-  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    console.log("mouse up");
-    setIsClicked(false);
-  };
+      video.volume = height / 100;
+      setVolume(height / 100);
+      volume.style.height = height + "px";
+    };
 
-  // thumb이 클릭된 상태에서 마우스가 움직인 경우
-  const hanldeMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    // thumb이 클릭된 상태가 아니라면 리턴
-    if (!isClicked || !videoRef.current || !volumeRef.current) return;
-    const video = videoRef.current;
-    const height = volumeRef.current;
+    // thumb을 눌렀을 때
+    const handleMouseDown = (
+      e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ) => {
+      console.log("mouse down");
+      setIsClicked(true);
+    };
+    // thumb에서 마우스를 뺐을 때
+    const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      console.log("mouse up");
+      setIsClicked(false);
+    };
 
-    // 현재 Y 위치
-    const curYPosition = e.clientY;
-    console.log("현재 Y 위치", curYPosition);
+    // thumb이 클릭된 상태에서 마우스가 움직인 경우
+    const hanldeMouseMove = (
+      e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ) => {
+      // thumb이 클릭된 상태가 아니라면 리턴
+      if (!isClicked || !videoRef.current || !volumeRef.current) return;
+      const video = videoRef.current;
+      const height = volumeRef.current;
 
-    let sound = bottom - curYPosition;
-    console.log("음량", sound);
+      // 현재 Y 위치
+      const curYPosition = e.clientY;
+      console.log("현재 Y 위치", curYPosition);
 
-    if (sound <= 0) {
-      sound = 0;
-      setIsMuted(true);
-    } else if (0 < sound && sound <= 100) {
-      sound = bottom - curYPosition;
-      setIsMuted(false);
-    } else if (100 < sound) {
-      sound = 100;
-      setIsMuted(false);
-    }
+      let sound = bottom - curYPosition;
+      console.log("음량", sound);
 
-    // 실제 음량 조절
-    video.volume = sound / 100;
-    // 음량 상태 업데이트
-    setVolume(sound / 100);
-    // 음량 높이 변경
-    height.style.height = sound + "px";
-  };
+      if (sound <= 0) {
+        sound = 0;
+        setIsMuted(true);
+      } else if (0 < sound && sound <= 100) {
+        sound = bottom - curYPosition;
+        setIsMuted(false);
+      } else if (100 < sound) {
+        sound = 100;
+        setIsMuted(false);
+      }
 
-  return (
-    <div
-      className={styles.wrapper}
-      onMouseMove={isClicked ? (e) => hanldeMouseMove(e) : undefined}
-      onMouseUp={(e) => handleMouseUp(e)}
-    >
-      <div className={styles.container}>
-        <div className={styles.cover}>
-          <div
-            className={styles.track}
-            ref={trackRef}
-            onClick={(e) => handleClick(e)}
-          >
-            <div className={styles.volume} ref={volumeRef}>
-              <div className={styles.thumbWrapper}>
-                <div
-                  className={styles.thumb}
-                  onMouseDown={(e) => handleMouseDown(e)}
-                />
+      // 실제 음량 조절
+      video.volume = sound / 100;
+      // 음량 상태 업데이트
+      setVolume(sound / 100);
+      // 음량 높이 변경
+      height.style.height = sound + "px";
+    };
+
+    // 키보드를 통한 음량 조절
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!volumeRef.current || !videoRef.current) return;
+
+      const video = videoRef.current;
+      const height = volumeRef.current;
+
+      const key = e.key;
+      // 음량 조절 단위
+      const step = 0.1;
+
+      let newVolume = volume;
+
+      if (key === "ArrowUp") {
+        console.log("위쪽");
+        if (video.volume >= 1) return;
+        newVolume = volume + step >= 1 ? 1 : volume + step;
+      } else if (key === "ArrowDown") {
+        console.log("아래쪽");
+        if (video.volume <= 0) return;
+        newVolume = volume - step <= 0 ? 0 : volume - step;
+        console.log(newVolume);
+      }
+
+      console.log(newVolume);
+
+      video.volume = newVolume;
+      setVolume(newVolume);
+      height.style.height = newVolume * 100 + "px";
+    };
+
+    return (
+      <div
+        className={styles.wrapper}
+        onMouseMove={isClicked ? (e) => hanldeMouseMove(e) : undefined}
+        onMouseUp={(e) => handleMouseUp(e)}
+      >
+        <div className={styles.container}>
+          <div className={styles.cover}>
+            <div
+              className={styles.track}
+              ref={trackRef}
+              onClick={(e) => handleClick(e)}
+            >
+              <div className={styles.volume} ref={volumeRef}>
+                <div className={styles.thumbWrapper}>
+                  <div
+                    className={styles.thumb}
+                    ref={thumbRef}
+                    onMouseDown={(e) => handleMouseDown(e)}
+                    onKeyDown={(e) => handleKeyDown(e)}
+                    tabIndex={0}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
 export default Volume;

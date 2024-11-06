@@ -23,7 +23,9 @@ const convertTimeToString = (time: number) => {
   const minutes = ceiledTime / 60;
   const seconds = ceiledTime % 60;
 
-  return `${minutes < 1 ? 0 : Math.floor(minutes)}:${seconds}`;
+  return `${minutes < 1 ? 0 : Math.floor(minutes)}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
 };
 
 export { countVideoLength, convertTimeToString };

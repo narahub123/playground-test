@@ -13,7 +13,7 @@ import {
 import { FaClosedCaptioning, FaRegClosedCaptioning } from "react-icons/fa6";
 import { LuPictureInPicture } from "react-icons/lu";
 import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
-import { DurationType } from "./Video";
+import { DurationType, TimeType } from "./Video";
 import Volume from "./Volume";
 import Playbar from "./Playbar";
 
@@ -22,6 +22,7 @@ interface ControlbarProps {
   handlePlay: () => void;
   isPlaying: boolean;
   duration: DurationType;
+  time: TimeType;
 }
 
 export type RefsType = {
@@ -34,6 +35,7 @@ const Controlbar = ({
   handlePlay,
   isPlaying,
   duration,
+  time,
 }: ControlbarProps) => {
   // 자식 요소에서 가져오는 ref 모음
   const refs = useRef<RefsType>({
@@ -118,12 +120,9 @@ const Controlbar = ({
     setShowVolumne(false);
   };
 
-  console.log(volume);
-
   return (
     <div className={styles.controlbar}>
-      <Playbar />
-
+      <Playbar time={time} />
       <div className={styles.buttons}>
         <div className={styles.left}>
           {/* 플레이 버튼 */}

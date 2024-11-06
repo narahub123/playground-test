@@ -8,19 +8,31 @@ export interface DurationType {
   current: string;
   full: string;
 }
+export type TimeType = {
+  curTime: number;
+  duration: number;
+};
 
 const Video = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState<DurationType>({
     current: "0:00",
-    full: "0:00s",
+    full: "0:00",
+  });
+  const [time, setTime] = useState<TimeType>({
+    curTime: 0,
+    duration: 0,
   });
 
   // 총 시간 알아내기
   useEffect(() => {
     const totalTime = async () => {
       const time = await countVideoLength(example);
+
+      setTime((prev) => ({ ...prev, duration: time }));
+
+      console.log(videoRef.current?.duration);
 
       const full = convertTimeToString(time);
 
@@ -32,6 +44,21 @@ const Video = () => {
 
     totalTime();
   }, []);
+
+  const getCurrentTime = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+
+    // 재생시간이 업데이트 될 때 일어날 이벤트
+    video.addEventListener("timeupdate", () => {
+      // 현재 재생 시간 알아내기
+      const curTime = video.currentTime;
+      setTime((prev) => ({
+        ...prev,
+        curTime,
+      }));
+    });
+  };
 
   const handlePlay = () => {
     const video = videoRef.current;
@@ -45,6 +72,7 @@ const Video = () => {
       // 시간을 측정하는 함수도 시작해야 함
       setIsPlaying(true);
       video.play();
+      getCurrentTime();
     }
   };
 
@@ -58,6 +86,7 @@ const Video = () => {
         isPlaying={isPlaying}
         duration={duration}
         handlePlay={handlePlay}
+        time={time}
       />
     </div>
   );

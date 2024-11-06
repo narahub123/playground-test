@@ -11,7 +11,7 @@ interface VolumeProps {
 }
 
 const Volume = forwardRef<RefsType, VolumeProps>(
-  ({ videoRef, volume, setVolume, setIsMuted, showVolume }, ref) => {
+  ({ videoRef, volume, setVolume, setIsMuted }, ref) => {
     const trackRef = useRef<HTMLDivElement>(null);
 
     // console.log("트랙 바닥 위치", bottom);

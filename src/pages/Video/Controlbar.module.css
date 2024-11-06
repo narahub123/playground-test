@@ -6,25 +6,13 @@
   padding: 5px;
 }
 
-/* 진행 바 */
-.progress {
-  width: 100%;
-  background-color: rgba(224, 224, 224, 0.3);
-}
-
-.fill {
-  width: 30%;
-  background-color: #fff;
-  height: 5px;
-}
-
 /* 버튼 모음 */
 .buttons {
   display: flex;
   justify-content: space-between;
   font-size: 22px;
   color: #fff;
-  padding: 10px 0px;
+  padding: 5px 0px 10px;
 }
 
 .left {

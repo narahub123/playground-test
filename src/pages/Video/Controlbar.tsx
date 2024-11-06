@@ -15,6 +15,7 @@ import { LuPictureInPicture } from "react-icons/lu";
 import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
 import { DurationType } from "./Video";
 import Volume from "./Volume";
+import Playbar from "./Playbar";
 
 interface ControlbarProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -121,9 +122,8 @@ const Controlbar = ({
 
   return (
     <div className={styles.controlbar}>
-      <div className={styles.progress}>
-        <div className={styles.fill} />
-      </div>
+      <Playbar />
+
       <div className={styles.buttons}>
         <div className={styles.left}>
           {/* 플레이 버튼 */}

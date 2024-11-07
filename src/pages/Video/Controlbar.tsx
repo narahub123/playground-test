@@ -137,17 +137,13 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     };
 
     // 음량 모달 보이게
-    const handleMouseEnter = (
-      e: React.MouseEvent<HTMLSpanElement, MouseEvent>
-    ) => {
+    const handleMouseEnter = () => {
       console.log("들어옴");
       setShowVolumne(true);
     };
 
     // 음량 모달 숨기게
-    const handleMouseLeave = (
-      e: React.MouseEvent<HTMLSpanElement, MouseEvent>
-    ) => {
+    const handleMouseLeave = () => {
       console.log("나감");
       setShowVolumne(false);
     };
@@ -263,8 +259,8 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
             {/* 음량 창 */}
             <span
               className={styles.volume}
-              onMouseEnter={(e) => handleMouseEnter(e)}
-              onMouseLeave={(e) => handleMouseLeave(e)}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
               {showVolume && (
                 <Volume

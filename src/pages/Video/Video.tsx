@@ -53,15 +53,18 @@ const Video = () => {
   useEffect(() => {
     if (!videoRef.current) return;
 
+    // 자막이 존재하는 경우 설정
     if (videoRef.current.textTracks.length > 0) {
       setHasSubtitle(true);
       videoRef.current.textTracks[0].mode = CONSTANT.videoSubtitle
         ? "showing"
         : "hidden";
     } else {
+      // 자막이 존재하지 않는 경우 설정
       setHasSubtitle(false);
     }
   }, []);
+
   const getCurrentTime = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
@@ -94,21 +97,6 @@ const Video = () => {
 
     // 재생 thumb에 포커스 주기
     playRefs.current.thumbRef?.focus();
-  };
-
-  const handleMouseEnter = (
-    e: React.MouseEvent<HTMLVideoElement, MouseEvent>
-  ) => {
-    e.stopPropagation();
-    console.log("위");
-    setIsOver(true);
-  };
-  const handleMouseLeave = (
-    e: React.MouseEvent<HTMLVideoElement, MouseEvent>
-  ) => {
-    e.stopPropagation();
-    console.log("나감");
-    setIsOver(false);
   };
 
   return (

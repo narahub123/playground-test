@@ -46,6 +46,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       thumbRef: null,
       volumeRef: null,
     });
+    const controlRef = useRef<HTMLDivElement>(null);
     const { current } = ref as MutableRefObject<playType>;
     const [volume, setVolume] = useState(0);
     const [isMuted, setIsMuted] = useState(true);
@@ -174,8 +175,19 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       }
     };
 
+    // 전체 화면
+    const handleFullScreen = () => {
+      console.log("전체화면 버튼");
+      if (!videoRef.current) return;
+      const video = videoRef.current;
+
+      video.requestFullscreen();
+    };
+
+    console.log("전체화면", isFullScreen);
+
     return (
-      <div className={styles.controlbar} onClick={handleclick}>
+      <div className={styles.controlbar} onClick={handleclick} ref={controlRef}>
         <Playbar
           time={time}
           setTime={setTime}
@@ -260,7 +272,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
               </button>
             </span>
             {/* 전체화면 */}
-            <span>
+            <span title="전체화면" onClick={handleFullScreen}>
               <button className={styles.wrapper}>
                 {isFullScreen ? (
                   <MdFullscreenExit className={`icon ${styles.btn}`} />

@@ -2,7 +2,7 @@ import styles from "./Video.module.css";
 import example from "../../assets/video2.mp4";
 import Controlbar from "./Controlbar";
 import { useEffect, useRef, useState } from "react";
-import { convertTimeToString, countVideoLength } from "../../utils";
+import { countVideoLength } from "../../utils";
 
 export interface DurationType {
   current: string;
@@ -20,6 +20,7 @@ export type playType = {
 
 const Video = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [time, setTime] = useState<TimeType>({

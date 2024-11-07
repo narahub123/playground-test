@@ -3,6 +3,7 @@ const CONSTANT = {
   videoMaxSize: 20,
   videoMaxDuration: 20,
   videoTimeStep: 5,
+  videoRepeat: false,
 };
 
 export default CONSTANT;

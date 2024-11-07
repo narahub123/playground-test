@@ -12,10 +12,11 @@ type PlaybarProps = {
   time: TimeType;
   setTime: React.Dispatch<React.SetStateAction<TimeType>>;
   videoRef: React.RefObject<HTMLVideoElement>;
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const Playbar = forwardRef<playType, PlaybarProps>(
-  ({ time, setTime, videoRef }, ref) => {
+  ({ time, setTime, videoRef, setIsPlaying }, ref) => {
     const { curTime, duration } = time;
     const { current } = ref as MutableRefObject<playType>;
 
@@ -24,12 +25,22 @@ const Playbar = forwardRef<playType, PlaybarProps>(
 
     // 시간 흐름에 따른 플레이 바 변화
     useEffect(() => {
-      if (!current.timeRef) return;
+      if (!current.timeRef || !videoRef.current) return;
 
       const playbar = current.timeRef;
 
       const percent = (curTime / duration) * 100;
 
+      // 연속 재생이 설정되어 있고 영상이 마지막에 도달한 경우
+      if (percent === 100 && CONSTANT.videoRepeat) {
+        playbar.style.width = 0 + "%";
+        videoRef.current.currentTime = 0;
+        videoRef.current?.play();
+        return;
+      } else if (percent === 100 && !CONSTANT.videoRepeat) {
+        // 연속 재생이 설정되어 있지 않곤 영상이 마지막에 도달한 경우
+        setIsPlaying(false);
+      }
       playbar.style.width = percent + "%";
     }, [curTime]);
 

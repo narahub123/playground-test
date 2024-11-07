@@ -84,6 +84,7 @@ const Video = () => {
       <Controlbar
         videoRef={videoRef}
         isPlaying={isPlaying}
+        setIsPlaying={setIsPlaying}
         handlePlay={handlePlay}
         time={time}
         setTime={setTime}

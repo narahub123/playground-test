@@ -19,7 +19,7 @@ import {
 import { FaClosedCaptioning, FaRegClosedCaptioning } from "react-icons/fa6";
 import { LuPictureInPicture } from "react-icons/lu";
 import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
-import { DurationType, playType, TimeType } from "./Video";
+import { playType, TimeType } from "./Video";
 import Volume from "./Volume";
 import Playbar from "./Playbar";
 import { displayCurrentTime, displayDuration } from "../../utils";
@@ -28,6 +28,7 @@ interface ControlbarProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   handlePlay: () => void;
   isPlaying: boolean;
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   time: TimeType;
   setTime: React.Dispatch<React.SetStateAction<TimeType>>;
 }
@@ -38,7 +39,7 @@ export type RefsType = {
 };
 
 const Controlbar = forwardRef<playType, ControlbarProps>(
-  ({ videoRef, handlePlay, isPlaying, time, setTime }, ref) => {
+  ({ videoRef, handlePlay, isPlaying, setIsPlaying, time, setTime }, ref) => {
     // 자식 요소에서 가져오는 ref 모음
     const refs = useRef<RefsType>({
       thumbRef: null,
@@ -129,7 +130,13 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
 
     return (
       <div className={styles.controlbar} onClick={handleclick}>
-        <Playbar time={time} setTime={setTime} videoRef={videoRef} ref={ref} />
+        <Playbar
+          time={time}
+          setTime={setTime}
+          videoRef={videoRef}
+          ref={ref}
+          setIsPlaying={setIsPlaying}
+        />
         <div className={styles.buttons}>
           <div className={styles.left}>
             {/* 플레이 버튼 */}

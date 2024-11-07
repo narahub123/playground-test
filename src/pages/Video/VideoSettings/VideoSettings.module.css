@@ -2,13 +2,17 @@
   position: absolute;
   box-sizing: border-box;
   right: -40px;
-  
   top: -105px;
   background-color: #000;
   border-radius: 15px;
   width: 240px;
-  height: 105px;
+  max-height: 305px;
   padding: 10px;
+  z-index: 1;
+}
+
+.container {
+  font-size: 16px;
 }
 
 .item {
@@ -26,7 +30,6 @@
 .right {
   display: flex;
   align-items: center;
-  font-size: 16px;
 }
 
 .name {
@@ -44,4 +47,26 @@
 
 .detail {
   color: #999;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.content {
+  margin-top: 10px;
+}
+
+.choice {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px;
+}
+.title {
+}
+.pick {
+  cursor: pointer;
 }

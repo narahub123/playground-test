@@ -87,9 +87,21 @@ const displayCurrentTime = (curTime: number, duration: number) => {
   }:${seconds.padStart(2, "0")}`;
 };
 
+// 문자열에서 숫자만 추출하기
+const getNumberFromString = (item: string) => {
+  const regExp = /^[0-9][0-9.]*/;
+
+  const result = item.match(regExp);
+
+  const number = result ? Number(result[0]) : 1;
+
+  return number;
+};
+
 export {
   countVideoLength,
   convertTimeToString,
   displayDuration,
   displayCurrentTime,
+  getNumberFromString,
 };

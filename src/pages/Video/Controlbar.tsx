@@ -135,8 +135,6 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       setShowSettings(!showSettings);
     };
 
-    console.log(showSettings);
-
     return (
       <div className={styles.controlbar} onClick={handleclick}>
         <Playbar
@@ -207,7 +205,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
             </span>
             {/* 설정 */}
             <span className={styles.settings}>
-              {showSettings && <VideoSettings />}
+              {showSettings && <VideoSettings videoRef={videoRef} />}
               <button
                 className={styles.wrapper}
                 title="동영상 설정"

@@ -23,6 +23,7 @@ import { playType, TimeType } from "./Video";
 import Volume from "./Volume";
 import Playbar from "./Playbar";
 import { displayCurrentTime, displayDuration } from "../../utils";
+import VideoSettings from "./VideoSettings/VideoSettings";
 
 interface ControlbarProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -49,6 +50,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     const [volume, setVolume] = useState(0);
     const [isMuted, setIsMuted] = useState(true);
     const [showVolume, setShowVolumne] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
     const [isCC, setIsCC] = useState(true);
     const [isFullScreen, setIsFullScreen] = useState(false);
 
@@ -128,6 +130,13 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       current.thumbRef?.focus();
     };
 
+    // 설정 창 여닫기
+    const handleVideoSettings = () => {
+      setShowSettings(!showSettings);
+    };
+
+    console.log(showSettings);
+
     return (
       <div className={styles.controlbar} onClick={handleclick}>
         <Playbar
@@ -197,8 +206,13 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
               </button>
             </span>
             {/* 설정 */}
-            <span>
-              <button className={styles.wrapper}>
+            <span className={styles.settings}>
+              {showSettings && <VideoSettings />}
+              <button
+                className={styles.wrapper}
+                title="동영상 설정"
+                onClick={handleVideoSettings}
+              >
                 <IoSettingsOutline className={`icon ${styles.btn}`} />
               </button>
             </span>

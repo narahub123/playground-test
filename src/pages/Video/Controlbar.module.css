@@ -22,7 +22,9 @@
   display: flex;
   align-items: center;
 }
-
+.settings {
+  position: relative;
+}
 .duration {
   font-size: 16px;
   margin-right: 10px;

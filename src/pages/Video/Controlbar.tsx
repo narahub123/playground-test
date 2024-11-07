@@ -80,6 +80,17 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       }
     }, [showVolume]);
 
+    // 비디오 재생 여부에 따른 isPlaying 변수 업데이튼
+    useEffect(() => {
+      const isPaused = videoRef.current?.paused;
+      // 현재 비디오의 재생 여부를 확인해서 isPlaying을 변경함
+      if (isPaused) {
+        setIsPlaying(false);
+      } else {
+        setIsPlaying(true);
+      }
+    }, [videoRef.current?.paused]);
+
     // 소리 묵음 / 소리 나게
     const handleMute = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.stopPropagation();
@@ -133,6 +144,34 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     // 설정 창 여닫기
     const handleVideoSettings = () => {
       setShowSettings(!showSettings);
+    };
+
+    // pip 모드
+    const handlePIPMode = () => {
+      // pip 모드 지원 확인
+      const isPIPSupported = "pictureInPictureEnabled" in document;
+      const isPipEnabled = document.pictureInPictureEnabled;
+
+      if (!isPIPSupported) {
+        console.log("pip모드가 지원되지 않습니다.");
+      } else if (!isPipEnabled) {
+        console.log("pip모드를 사용할 수 없습니다.");
+      } else {
+        console.log("pip모드를 사용할 수 있습니다.");
+
+        // pip 모드 적용하기
+        videoRef.current?.requestPictureInPicture();
+
+        // pip 모드가 활성환 된 경우 실행
+        videoRef.current?.addEventListener("enterpictureinpicture", () => {
+          console.log("pip 모드 중");
+        });
+
+        // pip 모드가 끝나면 실행
+        videoRef.current?.addEventListener("leavepictureinpicture", () => {
+          console.log("pip 모드 종료");
+        });
+      }
     };
 
     return (
@@ -215,7 +254,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
               </button>
             </span>
             {/* pip */}
-            <span>
+            <span title="PIP 모드" onClick={handlePIPMode}>
               <button className={styles.wrapper}>
                 <LuPictureInPicture className={`icon ${styles.btn}`} />
               </button>

@@ -6,6 +6,7 @@ const CONSTANT = {
   videoRepeat: false,
   videoSpeed: "1배속",
   videoQuality: "auto",
+  videoSubtitle: false,
 };
 
 export default CONSTANT;

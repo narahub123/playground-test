@@ -4,6 +4,7 @@ import subtitle from "../../assets/subtitle.vtt";
 import Controlbar from "./Controlbar";
 import { useEffect, useRef, useState } from "react";
 import { countVideoLength } from "../../utils";
+import CONSTANT from "../../constant";
 
 export interface DurationType {
   current: string;
@@ -45,6 +46,14 @@ const Video = () => {
     totalTime();
   }, []);
 
+  // 자막 설정 
+  useEffect(() => {
+    if (!videoRef.current) return;
+
+    videoRef.current.textTracks[0].mode = CONSTANT.videoSubtitle
+      ? "showing"
+      : "hidden";
+  }, []);
   const getCurrentTime = () => {
     if (!videoRef.current) return;
     const video = videoRef.current;

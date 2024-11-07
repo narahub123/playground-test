@@ -24,6 +24,7 @@ import Volume from "./Volume";
 import Playbar from "./Playbar";
 import { displayCurrentTime, displayDuration } from "../../utils";
 import VideoSettings from "./VideoSettings/VideoSettings";
+import CONSTANT from "../../constant";
 
 interface ControlbarProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -52,7 +53,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     const [isMuted, setIsMuted] = useState(true);
     const [showVolume, setShowVolumne] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    const [isCC, setIsCC] = useState(true);
+    const [isCC, setIsCC] = useState(CONSTANT.videoSubtitle);
     const [isFullScreen, setIsFullScreen] = useState(false);
 
     // 영상 시작할 때 소리 줄이기
@@ -184,7 +185,22 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       video.requestFullscreen();
     };
 
-    console.log("전체화면", isFullScreen);
+    // CC 제어하기
+    const handleClosedCaption = () => {
+      console.log("자막 제어하기");
+      if (!videoRef.current) return;
+      const video = videoRef.current;
+
+      // 현재 자막이 보이는 경우
+      if (isCC) {
+        video.textTracks[0].mode = "hidden";
+      } else {
+        // 현재 자막이 안보이는 경우
+        video.textTracks[0].mode = "showing";
+      }
+
+      setIsCC(!isCC);
+    };
 
     return (
       <div className={styles.controlbar} onClick={handleclick} ref={controlRef}>
@@ -213,7 +229,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
               time.duration
             )} / ${displayDuration(time.duration)}`}</span>
             {/* CC */}
-            <span>
+            <span title="자막" onClick={handleClosedCaption}>
               <button className={styles.wrapper}>
                 {isCC ? (
                   <FaClosedCaptioning className={`icon ${styles.btn}`} />

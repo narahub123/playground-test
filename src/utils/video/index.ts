@@ -28,4 +28,68 @@ const convertTimeToString = (time: number) => {
     .padStart(2, "0")}`;
 };
 
-export { countVideoLength, convertTimeToString };
+const displayDuration = (duration: number) => {
+  // 포멧: 1:08:37
+  let hours = "";
+  let minutes = "";
+  let seconds = "";
+
+  // 3600초 이상 경우(1시간 이상)
+  if (duration >= 3600) {
+    hours = (duration / 60).toString();
+    minutes = ((duration % 60) / 60).toString();
+    seconds = Math.ceil((duration % 60) % 60).toString();
+  } else if (60 <= duration && duration < 3600) {
+    // 60초 이상 3600초 미만인 경우
+    minutes = (duration / 60).toString();
+    seconds = Math.ceil(duration % 60).toString();
+  } else {
+    // 60초 미만인 경우
+    seconds = Math.ceil(duration).toString();
+  }
+
+  return `${hours ? hours + ":" : ""}${
+    hours ? minutes.padStart(2, "0") : minutes ? minutes : 0
+  }:${seconds.padStart(2, "0")}`;
+};
+
+const displayCurrentTime = (curTime: number, duration: number) => {
+  // 포멧: 1:08:37
+  let hours = "";
+  let minutes = "";
+  let seconds = "";
+
+  // 3600초 이상 경우(1시간 이상)
+  if (curTime >= 3600) {
+    hours = (curTime / 60).toString();
+    minutes = ((curTime % 60) / 60).toString();
+    seconds =
+      curTime === duration
+        ? Math.ceil((curTime % 60) % 60).toString()
+        : Math.floor((curTime % 60) % 60).toString();
+  } else if (60 <= curTime && curTime < 3600) {
+    // 60초 이상 3600초 미만인 경우
+    minutes = (curTime / 60).toString();
+    seconds =
+      curTime === duration
+        ? Math.ceil(curTime % 60).toString()
+        : Math.floor(curTime % 60).toString();
+  } else {
+    // 60초 미만인 경우
+    seconds =
+      curTime === duration
+        ? Math.ceil(curTime).toString()
+        : Math.floor(curTime).toString();
+  }
+
+  return `${hours ? hours + ":" : ""}${
+    hours ? minutes.padStart(2, "0") : minutes ? minutes : 0
+  }:${seconds.padStart(2, "0")}`;
+};
+
+export {
+  countVideoLength,
+  convertTimeToString,
+  displayDuration,
+  displayCurrentTime,
+};

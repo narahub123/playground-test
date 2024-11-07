@@ -21,10 +21,7 @@ export type playType = {
 const Video = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [duration, setDuration] = useState<DurationType>({
-    current: "0:00",
-    full: "0:00",
-  });
+
   const [time, setTime] = useState<TimeType>({
     curTime: 0,
     duration: 0,
@@ -38,18 +35,8 @@ const Video = () => {
   // 총 시간 알아내기
   useEffect(() => {
     const totalTime = async () => {
-      const time = await countVideoLength(example);
-
-      setTime((prev) => ({ ...prev, duration: time }));
-
-      console.log(videoRef.current?.duration);
-
-      const full = convertTimeToString(time);
-
-      setDuration((prev) => ({
-        ...prev,
-        full,
-      }));
+      const duration = await countVideoLength(example);
+      setTime((prev) => ({ ...prev, duration }));
     };
 
     totalTime();
@@ -97,7 +84,6 @@ const Video = () => {
       <Controlbar
         videoRef={videoRef}
         isPlaying={isPlaying}
-        duration={duration}
         handlePlay={handlePlay}
         time={time}
         setTime={setTime}

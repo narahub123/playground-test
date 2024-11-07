@@ -22,12 +22,12 @@ import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
 import { DurationType, playType, TimeType } from "./Video";
 import Volume from "./Volume";
 import Playbar from "./Playbar";
+import { displayCurrentTime, displayDuration } from "../../utils";
 
 interface ControlbarProps {
   videoRef: React.RefObject<HTMLVideoElement>;
   handlePlay: () => void;
   isPlaying: boolean;
-  duration: DurationType;
   time: TimeType;
   setTime: React.Dispatch<React.SetStateAction<TimeType>>;
 }
@@ -38,15 +38,13 @@ export type RefsType = {
 };
 
 const Controlbar = forwardRef<playType, ControlbarProps>(
-  ({ videoRef, handlePlay, isPlaying, duration, time, setTime }, ref) => {
+  ({ videoRef, handlePlay, isPlaying, time, setTime }, ref) => {
     // 자식 요소에서 가져오는 ref 모음
     const refs = useRef<RefsType>({
       thumbRef: null,
       volumeRef: null,
     });
-
     const { current } = ref as MutableRefObject<playType>;
-
     const [volume, setVolume] = useState(0);
     const [isMuted, setIsMuted] = useState(true);
     const [showVolume, setShowVolumne] = useState(false);
@@ -124,9 +122,11 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       setShowVolumne(false);
     };
 
+    // 플레이 바 thumb에 포커스 주기
     const handleclick = () => {
       current.thumbRef?.focus();
     };
+
     return (
       <div className={styles.controlbar} onClick={handleclick}>
         <Playbar time={time} setTime={setTime} videoRef={videoRef} ref={ref} />
@@ -143,9 +143,10 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
           </div>
           <div className={styles.right}>
             {/* 현재 시간 / 전체 시간 */}
-            <span className={styles.duration}>
-              {`${duration.current} / ${duration.full}`}
-            </span>
+            <span className={styles.duration}>{`${displayCurrentTime(
+              time.curTime,
+              time.duration
+            )} / ${displayDuration(time.duration)}`}</span>
             {/* CC */}
             <span>
               <button className={styles.wrapper}>
@@ -156,12 +157,12 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
                 )}
               </button>
             </span>
+            {/* 음량 창 */}
             <span
               className={styles.volume}
               onMouseEnter={(e) => handleMouseEnter(e)}
               onMouseLeave={(e) => handleMouseLeave(e)}
             >
-              {/* 음량 창 */}
               {showVolume && (
                 <Volume
                   videoRef={videoRef}
@@ -188,14 +189,12 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
                 ) : undefined}
               </button>
             </span>
-
             {/* 설정 */}
             <span>
               <button className={styles.wrapper}>
                 <IoSettingsOutline className={`icon ${styles.btn}`} />
               </button>
             </span>
-
             {/* pip */}
             <span>
               <button className={styles.wrapper}>

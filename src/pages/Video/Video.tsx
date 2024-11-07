@@ -22,8 +22,8 @@ export type playType = {
 
 const Video = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const subRef = useRef<HTMLTrackElement>(null);
 
+  const [hasSubtitle, setHasSubtitle] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const [time, setTime] = useState<TimeType>({
@@ -46,13 +46,18 @@ const Video = () => {
     totalTime();
   }, []);
 
-  // 자막 설정 
+  // 자막 설정
   useEffect(() => {
     if (!videoRef.current) return;
 
-    videoRef.current.textTracks[0].mode = CONSTANT.videoSubtitle
-      ? "showing"
-      : "hidden";
+    if (videoRef.current.textTracks.length > 0) {
+      setHasSubtitle(true);
+      videoRef.current.textTracks[0].mode = CONSTANT.videoSubtitle
+        ? "showing"
+        : "hidden";
+    } else {
+      setHasSubtitle(false);
+    }
   }, []);
   const getCurrentTime = () => {
     if (!videoRef.current) return;
@@ -92,14 +97,15 @@ const Video = () => {
     <div className={styles.container}>
       <video ref={videoRef} onClick={handlePlay}>
         <source src={example} />
-        <track
-          kind="subtitles"
-          srcLang="ko"
-          src={subtitle}
-          label="Korean"
-          default
-          ref={subRef}
-        />
+        {subtitle && (
+          <track
+            kind="subtitles"
+            srcLang="ko"
+            src={subtitle}
+            label="Korean"
+            default
+          />
+        )}
       </video>
       <Controlbar
         videoRef={videoRef}
@@ -109,6 +115,7 @@ const Video = () => {
         time={time}
         setTime={setTime}
         ref={playRefs}
+        hasSubtitle={hasSubtitle}
       />
     </div>
   );

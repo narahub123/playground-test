@@ -33,6 +33,7 @@ interface ControlbarProps {
   setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
   time: TimeType;
   setTime: React.Dispatch<React.SetStateAction<TimeType>>;
+  hasSubtitle: boolean;
 }
 
 export type RefsType = {
@@ -41,7 +42,18 @@ export type RefsType = {
 };
 
 const Controlbar = forwardRef<playType, ControlbarProps>(
-  ({ videoRef, handlePlay, isPlaying, setIsPlaying, time, setTime }, ref) => {
+  (
+    {
+      videoRef,
+      handlePlay,
+      isPlaying,
+      setIsPlaying,
+      time,
+      setTime,
+      hasSubtitle,
+    },
+    ref
+  ) => {
     // 자식 요소에서 가져오는 ref 모음
     const refs = useRef<RefsType>({
       thumbRef: null,
@@ -229,15 +241,17 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
               time.duration
             )} / ${displayDuration(time.duration)}`}</span>
             {/* CC */}
-            <span title="자막" onClick={handleClosedCaption}>
-              <button className={styles.wrapper}>
-                {isCC ? (
-                  <FaClosedCaptioning className={`icon ${styles.btn}`} />
-                ) : (
-                  <FaRegClosedCaptioning className={`icon ${styles.btn}`} />
-                )}
-              </button>
-            </span>
+            {hasSubtitle && (
+              <span title="자막" onClick={handleClosedCaption}>
+                <button className={styles.wrapper}>
+                  {isCC ? (
+                    <FaClosedCaptioning className={`icon ${styles.btn}`} />
+                  ) : (
+                    <FaRegClosedCaptioning className={`icon ${styles.btn}`} />
+                  )}
+                </button>
+              </span>
+            )}
             {/* 음량 창 */}
             <span
               className={styles.volume}

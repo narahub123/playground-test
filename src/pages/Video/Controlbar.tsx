@@ -34,6 +34,7 @@ interface ControlbarProps {
   time: TimeType;
   setTime: React.Dispatch<React.SetStateAction<TimeType>>;
   hasSubtitle: boolean;
+  setIsOver: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export type RefsType = {
@@ -51,6 +52,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       time,
       setTime,
       hasSubtitle,
+      setIsOver,
     },
     ref
   ) => {
@@ -215,7 +217,13 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     };
 
     return (
-      <div className={styles.controlbar} onClick={handleclick} ref={controlRef}>
+      <div
+        className={styles.controlbar}
+        onClick={handleclick}
+        ref={controlRef}
+        onMouseEnter={() => setIsOver(true)}
+        onMouseLeave={() => setIsOver(false)}
+      >
         <Playbar
           time={time}
           setTime={setTime}

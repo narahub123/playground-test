@@ -26,6 +26,9 @@ const Video = () => {
   const [hasSubtitle, setHasSubtitle] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // 마우스가 video 위에 있는지 확인하는 상태
+  const [isOver, setIsOver] = useState(false);
+
   const [time, setTime] = useState<TimeType>({
     curTime: 0,
     duration: 0,
@@ -93,9 +96,29 @@ const Video = () => {
     playRefs.current.thumbRef?.focus();
   };
 
+  const handleMouseEnter = (
+    e: React.MouseEvent<HTMLVideoElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+    console.log("위");
+    setIsOver(true);
+  };
+  const handleMouseLeave = (
+    e: React.MouseEvent<HTMLVideoElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
+    console.log("나감");
+    setIsOver(false);
+  };
+
   return (
     <div className={styles.container}>
-      <video ref={videoRef} onClick={handlePlay}>
+      <video
+        ref={videoRef}
+        onClick={handlePlay}
+        onMouseEnter={() => setIsOver(true)}
+        onMouseLeave={() => setIsOver(false)}
+      >
         <source src={example} />
         {subtitle && (
           <track
@@ -107,16 +130,19 @@ const Video = () => {
           />
         )}
       </video>
-      <Controlbar
-        videoRef={videoRef}
-        isPlaying={isPlaying}
-        setIsPlaying={setIsPlaying}
-        handlePlay={handlePlay}
-        time={time}
-        setTime={setTime}
-        ref={playRefs}
-        hasSubtitle={hasSubtitle}
-      />
+      {isOver && (
+        <Controlbar
+          videoRef={videoRef}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+          handlePlay={handlePlay}
+          time={time}
+          setTime={setTime}
+          ref={playRefs}
+          hasSubtitle={hasSubtitle}
+          setIsOver={setIsOver}
+        />
+      )}
     </div>
   );
 };

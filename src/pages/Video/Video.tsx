@@ -1,5 +1,6 @@
 import styles from "./Video.module.css";
 import example from "../../assets/video2.mp4";
+import subtitle from "../../assets/subtitle.vtt";
 import Controlbar from "./Controlbar";
 import { useEffect, useRef, useState } from "react";
 import { countVideoLength } from "../../utils";
@@ -20,6 +21,7 @@ export type playType = {
 
 const Video = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const subRef = useRef<HTMLTrackElement>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -81,6 +83,14 @@ const Video = () => {
     <div className={styles.container}>
       <video ref={videoRef} onClick={handlePlay}>
         <source src={example} />
+        <track
+          kind="subtitles"
+          srcLang="ko"
+          src={subtitle}
+          label="Korean"
+          default
+          ref={subRef}
+        />
       </video>
       <Controlbar
         videoRef={videoRef}

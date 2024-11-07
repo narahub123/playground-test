@@ -4,13 +4,13 @@ import { FaArrowLeft, FaCircleCheck, FaRegCircle } from "react-icons/fa6";
 
 import { BiBarChart } from "react-icons/bi";
 import { useState } from "react";
-import { playSpeedArr } from "../../../data/vidoe";
+import { playSpeedArr, vidoeQualityArr } from "../../../data/vidoe";
 import { getNumberFromString } from "../../../utils";
 import CONSTANT from "../../../constant";
 
 type SettingsType = {
-  speed: number;
-  quality: number;
+  speed: string;
+  quality: string;
 };
 
 type VideoSettingsProps = {
@@ -24,17 +24,28 @@ const VideoSettings = ({ videoRef }: VideoSettingsProps) => {
     quality: CONSTANT.videoQuality,
   });
 
-  const handlePickSpeed = (speed: number) => {
+  // 재생 속도 변경 
+  const handlePickSpeed = (pick: string) => {
     if (!videoRef.current) return;
 
-    console.log(speed);
+    const speed = getNumberFromString(pick);
 
     setSettings((prev) => ({
       ...prev,
-      speed,
+      speed: pick,
     }));
 
     videoRef.current.playbackRate = speed;
+  };
+
+  // 동영상 화질 변경 : 실제로 구현하지 못함 
+  const handlePickQuality = (quality: string) => {
+    if (!videoRef.current) return;
+
+    setSettings((prev) => ({
+      ...prev,
+      quality,
+    }));
   };
 
   return (
@@ -46,7 +57,7 @@ const VideoSettings = ({ videoRef }: VideoSettingsProps) => {
             <span className={styles.right}>
               <p className={styles.name}>재생속도</p>
               <p className={styles.dot} />
-              <p className={styles.detail}>1배속</p>
+              <p className={styles.detail}>{settings.speed}</p>
             </span>
           </div>
           <div className={styles.item} onClick={() => setPage(2)}>
@@ -54,7 +65,7 @@ const VideoSettings = ({ videoRef }: VideoSettingsProps) => {
             <span className={styles.right}>
               <p className={styles.name}>동영상 화질</p>
               <p className={styles.dot} />
-              <p className={styles.detail}>자동(720p)</p>
+              <p className={styles.detail}>{settings.quality}</p>
             </span>
           </div>
         </div>
@@ -66,15 +77,15 @@ const VideoSettings = ({ videoRef }: VideoSettingsProps) => {
           </div>
           <ul className={styles.content}>
             {playSpeedArr.map((speed) => (
-              <li className={styles.choice} key={getNumberFromString(speed)}>
+              <li className={styles.choice} key={speed}>
                 <p className={styles.title}>{speed}</p>
 
-                {getNumberFromString(speed) === settings.speed ? (
+                {speed === settings.speed ? (
                   <FaCircleCheck className={`icon ${styles.pick}`} />
                 ) : (
                   <FaRegCircle
                     className={`icon ${styles.pick}`}
-                    onClick={() => handlePickSpeed(getNumberFromString(speed))}
+                    onClick={() => handlePickSpeed(speed)}
                   />
                 )}
               </li>
@@ -83,11 +94,26 @@ const VideoSettings = ({ videoRef }: VideoSettingsProps) => {
         </div>
       ) : (
         <div className={styles.container}>
-          <div className={styles.header}>
-            <FaArrowLeft className={`icon`} onClick={() => setPage(0)} />
-            <span>재생속도</span>
+          <div className={styles.header} onClick={() => setPage(0)}>
+            <FaArrowLeft className={`icon`} />
+            <span>동영상 화질</span>
           </div>
-          <div className={styles.content}>dafsdf</div>
+          <ul className={styles.content}>
+            {vidoeQualityArr.map((quality) => (
+              <li className={styles.choice} key={quality}>
+                <p className={styles.title}>{quality}</p>
+
+                {quality === settings.quality ? (
+                  <FaCircleCheck className={`icon ${styles.pick}`} />
+                ) : (
+                  <FaRegCircle
+                    className={`icon ${styles.pick}`}
+                    onClick={() => handlePickQuality(quality)}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

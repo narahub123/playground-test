@@ -9,4 +9,6 @@ const playSpeedArr = [
   "2x",
 ];
 
-export { playSpeedArr };
+const vidoeQualityArr = ["auto", "320px", "480px", "720px"];
+
+export { playSpeedArr, vidoeQualityArr };

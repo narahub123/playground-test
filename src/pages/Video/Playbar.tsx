@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import styles from "./Playbar.module.css";
-import { playType, TimeType } from "./Video";
+import { ForwardRefType, TimeType } from "./Video";
 import CONSTANT from "../../constant";
 type PlaybarProps = {
   time: TimeType;
@@ -15,10 +15,10 @@ type PlaybarProps = {
   setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const Playbar = forwardRef<playType, PlaybarProps>(
+const Playbar = forwardRef<ForwardRefType, PlaybarProps>(
   ({ time, setTime, videoRef, setIsPlaying }, ref) => {
     const { curTime, duration } = time;
-    const { current } = ref as MutableRefObject<playType>;
+    const { current } = ref as MutableRefObject<ForwardRefType>;
 
     const trackRef = useRef<HTMLDivElement>(null);
     const [isClicked, setIsClicked] = useState(false);
@@ -87,18 +87,18 @@ const Playbar = forwardRef<playType, PlaybarProps>(
     const handleMouseDown = (
       e: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
-      if (!current.thumbRef) return;
+      if (!current.playThumbRef) return;
       setIsClicked(true);
 
-      current.thumbRef.style.width = "20px";
-      current.thumbRef.style.height = "20px";
+      current.playThumbRef.style.width = "20px";
+      current.playThumbRef.style.height = "20px";
     };
     const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (!current.thumbRef) return;
+      if (!current.playThumbRef) return;
       setIsClicked(false);
 
-      current.thumbRef.style.width = "15px";
-      current.thumbRef.style.height = "15px";
+      current.playThumbRef.style.width = "15px";
+      current.playThumbRef.style.height = "15px";
     };
     const handleMouseMove = (
       e: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -181,29 +181,29 @@ const Playbar = forwardRef<playType, PlaybarProps>(
     const handleMouseEnter = (
       e: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
-      if (!trackRef.current || !current.thumbRef) return;
+      if (!trackRef.current || !current.playThumbRef) return;
 
       // 높이를 5px로 변경
       trackRef.current.style.height = "5px";
       // thumb의 위치 변경
-      current.thumbRef.style.top = "-7px";
-      current.thumbRef.style.width = "15px";
-      current.thumbRef.style.height = "15px";
-      current.thumbRef.style.transition = "all 0.3s ease-in-out";
+      current.playThumbRef.style.top = "-7px";
+      current.playThumbRef.style.width = "15px";
+      current.playThumbRef.style.height = "15px";
+      current.playThumbRef.style.transition = "all 0.3s ease-in-out";
     };
     const handleMouseLeave = (
       e: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
       console.log("하하");
-      if (!trackRef.current || !current.thumbRef) return;
+      if (!trackRef.current || !current.playThumbRef) return;
 
       // 높이를 3px로 변경
       trackRef.current.style.height = "3px";
       // thumb의 위치 변경
-      current.thumbRef.style.top = "-8.5px";
-      current.thumbRef.style.width = "0px";
-      current.thumbRef.style.height = "0px";
-      current.thumbRef.style.transition = "all 0.3s ease-in-out";
+      current.playThumbRef.style.top = "-8.5px";
+      current.playThumbRef.style.width = "0px";
+      current.playThumbRef.style.height = "0px";
+      current.playThumbRef.style.transition = "all 0.3s ease-in-out";
     };
 
     return (
@@ -224,7 +224,7 @@ const Playbar = forwardRef<playType, PlaybarProps>(
               <div className={styles.thumbWrapper}>
                 <div
                   className={styles.thumb}
-                  ref={(el) => (current.thumbRef = el)}
+                  ref={(el) => (current.playThumbRef = el)}
                   tabIndex={0}
                   onMouseDown={(e) => handleMouseDown(e)}
                   onKeyDown={(e) => handleKeyDown(e)}

@@ -19,7 +19,7 @@ import {
 import { FaClosedCaptioning, FaRegClosedCaptioning } from "react-icons/fa6";
 import { LuPictureInPicture } from "react-icons/lu";
 import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
-import { playType, TimeType } from "./Video";
+import { ForwardRefType, TimeType } from "./Video";
 import Volume from "./Volume";
 import Playbar from "./Playbar";
 import { displayCurrentTime, displayDuration } from "../../utils";
@@ -37,12 +37,7 @@ interface ControlbarProps {
   setIsOver: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export type RefsType = {
-  thumbRef: HTMLDivElement | null;
-  volumeRef: HTMLDivElement | null;
-};
-
-const Controlbar = forwardRef<playType, ControlbarProps>(
+const Controlbar = forwardRef<ForwardRefType, ControlbarProps>(
   (
     {
       videoRef,
@@ -56,13 +51,8 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     },
     ref
   ) => {
-    // 자식 요소에서 가져오는 ref 모음
-    const refs = useRef<RefsType>({
-      thumbRef: null,
-      volumeRef: null,
-    });
     const controlRef = useRef<HTMLDivElement>(null);
-    const { current } = ref as MutableRefObject<playType>;
+    const { current } = ref as MutableRefObject<ForwardRefType>;
     const [volume, setVolume] = useState(0);
     const [isMuted, setIsMuted] = useState(true);
     const [showVolume, setShowVolumne] = useState(false);
@@ -87,9 +77,9 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     // 볼륨 창이 보이는 경우 thumb에 포커스 주기
     useEffect(() => {
       if (showVolume) {
-        refs.current.thumbRef?.focus();
+        current.volumeThumbRef?.focus();
 
-        const height = refs.current.volumeRef;
+        const height = current.volumeRef;
         if (!height) return;
 
         height.style.height = volume * 100 + "px";
@@ -111,7 +101,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
     const handleMute = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.stopPropagation();
       const video = videoRef.current;
-      const sound = refs.current.volumeRef;
+      const sound = current.volumeRef;
       if (!video || !sound) return;
 
       // 볼륨 높이
@@ -131,7 +121,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
       }
 
       setIsMuted(!isMuted);
-      refs.current.thumbRef?.focus();
+      current.volumeThumbRef?.focus();
       // 볼륨 높이 지정
       sound.style.height = height + "px";
     };
@@ -150,7 +140,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
 
     // 플레이 바 thumb에 포커스 주기
     const handleclick = () => {
-      current.thumbRef?.focus();
+      current.playThumbRef?.focus();
     };
 
     // 설정 창 여닫기
@@ -269,7 +259,7 @@ const Controlbar = forwardRef<playType, ControlbarProps>(
                   setVolume={setVolume}
                   setIsMuted={setIsMuted}
                   showVolume={showVolume}
-                  ref={refs}
+                  ref={ref}
                 />
               )}
 

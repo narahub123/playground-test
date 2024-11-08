@@ -1,6 +1,6 @@
 import React, { forwardRef, MutableRefObject, useRef, useState } from "react";
 import styles from "./Volume.module.css";
-import { RefsType } from "./Controlbar";
+import { ForwardRefType } from "./Video";
 
 interface VolumeProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -10,14 +10,14 @@ interface VolumeProps {
   showVolume: boolean;
 }
 
-const Volume = forwardRef<RefsType, VolumeProps>(
+const Volume = forwardRef<ForwardRefType, VolumeProps>(
   ({ videoRef, volume, setVolume, setIsMuted }, ref) => {
     const trackRef = useRef<HTMLDivElement>(null);
 
     // console.log("트랙 바닥 위치", bottom);
     // const thumbRef = useRef<HTMLDivElement>(null);
 
-    const { current } = ref as MutableRefObject<RefsType>;
+    const { current } = ref as MutableRefObject<ForwardRefType>;
 
     const [isClicked, setIsClicked] = useState(false);
 
@@ -162,7 +162,7 @@ const Volume = forwardRef<RefsType, VolumeProps>(
                 <div className={styles.thumbWrapper}>
                   <div
                     className={styles.thumb}
-                    ref={(el) => (current.thumbRef = el)}
+                    ref={(el) => (current.volumeThumbRef = el)}
                     onMouseDown={(e) => handleMouseDown(e)}
                     onKeyDown={(e) => handleKeyDown(e)}
                     tabIndex={0}

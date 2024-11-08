@@ -15,9 +15,11 @@ export type TimeType = {
   duration: number;
 };
 
-export type playType = {
-  thumbRef: HTMLDivElement | null;
+export type ForwardRefType = {
+  playThumbRef: HTMLDivElement | null;
   timeRef: HTMLDivElement | null;
+  volumeThumbRef: HTMLDivElement | null;
+  volumeRef: HTMLDivElement | null;
 };
 
 const Video = () => {
@@ -34,9 +36,11 @@ const Video = () => {
     duration: 0,
   });
 
-  const playRefs = useRef<playType>({
-    thumbRef: null,
+  const forwardRef = useRef<ForwardRefType>({
+    playThumbRef: null,
     timeRef: null,
+    volumeRef: null,
+    volumeThumbRef: null,
   });
 
   // 총 시간 알아내기
@@ -96,7 +100,7 @@ const Video = () => {
     }
 
     // 재생 thumb에 포커스 주기
-    playRefs.current.thumbRef?.focus();
+    forwardRef.current.playThumbRef?.focus();
   };
 
   return (
@@ -126,7 +130,7 @@ const Video = () => {
           handlePlay={handlePlay}
           time={time}
           setTime={setTime}
-          ref={playRefs}
+          ref={forwardRef}
           hasSubtitle={hasSubtitle}
           setIsOver={setIsOver}
         />

@@ -35,6 +35,10 @@ interface ControlbarProps {
   setTime: React.Dispatch<React.SetStateAction<TimeType>>;
   hasSubtitle: boolean;
   setIsOver: React.Dispatch<React.SetStateAction<boolean>>;
+  volume: number;
+  setVolume: React.Dispatch<React.SetStateAction<number>>;
+  isMuted: boolean;
+  setIsMuted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const Controlbar = forwardRef<ForwardRefType, ControlbarProps>(
@@ -48,13 +52,16 @@ const Controlbar = forwardRef<ForwardRefType, ControlbarProps>(
       setTime,
       hasSubtitle,
       setIsOver,
+      volume,
+      setVolume,
+      isMuted,
+      setIsMuted,
     },
     ref
   ) => {
     const controlRef = useRef<HTMLDivElement>(null);
     const { current } = ref as MutableRefObject<ForwardRefType>;
-    const [volume, setVolume] = useState(0);
-    const [isMuted, setIsMuted] = useState(true);
+
     const [showVolume, setShowVolumne] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [isCC, setIsCC] = useState(CONSTANT.videoSubtitle);

@@ -1,6 +1,7 @@
 import React, { forwardRef, MutableRefObject, useRef, useState } from "react";
 import styles from "./Volume.module.css";
 import { ForwardRefType } from "./Video";
+import CONSTANT from "../../constant";
 
 interface VolumeProps {
   videoRef: React.RefObject<HTMLVideoElement>;
@@ -117,7 +118,7 @@ const Volume = forwardRef<ForwardRefType, VolumeProps>(
 
       const key = e.key;
       // 음량 조절 단위
-      const step = 0.1;
+      const step = CONSTANT.videoAudioStep;
 
       let newVolume = volume;
 

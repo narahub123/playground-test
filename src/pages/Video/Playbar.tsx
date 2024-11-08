@@ -148,7 +148,6 @@ const Playbar = forwardRef<ForwardRefType, PlaybarProps>(
     // 방향키를 이용한 시간 이동
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (!trackRef.current || !videoRef.current) return;
-      const track = trackRef.current;
       const video = videoRef.current;
 
       const key = e.key;

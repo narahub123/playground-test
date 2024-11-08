@@ -31,10 +31,17 @@ const Video = () => {
   // 마우스가 video 위에 있는지 확인하는 상태
   const [isOver, setIsOver] = useState(false);
 
+  // 재생 시간 설정
   const [time, setTime] = useState<TimeType>({
     curTime: 0,
     duration: 0,
   });
+
+  // 볼륨 설정
+  const [volume, setVolume] = useState(0);
+
+  // 음소거 설정
+  const [isMuted, setIsMuted] = useState(true);
 
   const forwardRef = useRef<ForwardRefType>({
     playThumbRef: null,
@@ -42,6 +49,14 @@ const Video = () => {
     volumeRef: null,
     volumeThumbRef: null,
   });
+
+  // video에 포커스 주기
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.focus();
+  }, []);
 
   // 총 시간 알아내기
   useEffect(() => {
@@ -103,6 +118,66 @@ const Video = () => {
     forwardRef.current.playThumbRef?.focus();
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLVideoElement>) => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const key = e.code;
+    console.log("눌린 키", key);
+    const { curTime, duration } = time;
+
+    let newVolume = volume;
+    let newTime = curTime;
+
+    const audioStep = CONSTANT.videoAudioStep;
+    const playStep = CONSTANT.videoTimeStep;
+    // 스페이스: 재생 / 멈춤
+    if (key === "Space") {
+      handlePlay();
+    } else if (key === "ArrowRight") {
+      // ArrowRight : 5초 앞으로
+      if (duration <= curTime + playStep) {
+        newTime = duration;
+      } else {
+        newTime = curTime + playStep;
+      }
+    } else if (key === "ArrowLeft") {
+      // ArrowLeft : 5초 뒤로
+      if (curTime - playStep <= 0) {
+        newTime = 0;
+      } else {
+        newTime = curTime - playStep;
+      }
+    } else if (key === "ArrowUp") {
+      // ArrowUp : 10 크게
+      if (1 <= video.volume + audioStep) {
+        newVolume = 1;
+      } else {
+        newVolume = video.volume + audioStep;
+      }
+    } else if (key === "ArrowDown") {
+      // ArrowDown : 10 작게
+      if (video.volume - audioStep <= 0) {
+        newVolume = 0;
+      } else {
+        newVolume = video.volume - audioStep;
+      }
+    }
+
+    // 재생 시간 설정
+    video.currentTime = newTime;
+    setTime((prev) => ({
+      ...prev,
+      curTime: newTime,
+    }));
+
+    // 음량 설정
+    video.volume = newVolume;
+    setVolume(newVolume);
+    setIsMuted(newVolume > 0 ? false : true);
+
+    video.focus();
+  };
   return (
     <div className={styles.container}>
       <video
@@ -110,6 +185,8 @@ const Video = () => {
         onClick={handlePlay}
         onMouseEnter={() => setIsOver(true)}
         onMouseLeave={() => setIsOver(false)}
+        onKeyDown={(e) => handleKeyDown(e)}
+        tabIndex={0}
       >
         <source src={example} />
         {subtitle && (
@@ -133,6 +210,10 @@ const Video = () => {
           ref={forwardRef}
           hasSubtitle={hasSubtitle}
           setIsOver={setIsOver}
+          volume={volume}
+          setVolume={setVolume}
+          isMuted={isMuted}
+          setIsMuted={setIsMuted}
         />
       )}
     </div>

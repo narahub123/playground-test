@@ -8,6 +8,8 @@ const CONSTANT = {
   videoQuality: "auto",
   videoSubtitle: false,
   videoAudioStep: 0.1,
+  // 알림
+  notificationPermission: "default",
 };
 
 export default CONSTANT;

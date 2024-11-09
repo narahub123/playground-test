@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import TextEditor from "./pages/TextEditor/TextEditor";
 import Posts from "./pages/Post/Posts";
 import VideoContainer from "./pages/Video/VideoContainer";
+import NotificationContainer from "./pages/Notification/NotificationContainer";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "/video",
     element: <VideoContainer />,
+  },
+  {
+    path: "/notification",
+    element: <NotificationContainer />,
   },
 ]);
 

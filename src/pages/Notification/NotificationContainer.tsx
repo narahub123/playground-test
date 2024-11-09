@@ -46,9 +46,9 @@ const NotificationContainer = () => {
     }
   }, []);
 
-  const text = "아! 아리먼";
+  //   const text = "아! 아리먼";
 
-  const notification = new Notification("zz", { body: text, icon: icon });
+  //   const notification = new Notification("zz", { body: text, icon: icon });
 
   return <div className={styles.container}></div>;
 };
